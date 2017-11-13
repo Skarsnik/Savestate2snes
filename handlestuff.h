@@ -19,7 +19,7 @@ public:
     bool    addCategory(QStandardItem* newCategory, QStandardItem* parent);
     bool    addSubCategory(QStandardItem* newCategory, QStandardItem* parent);
     QStringList    loadSaveStates(QStandardItem* category);
-    bool    addSaveState(QStandardItem  *category, QString name);
+    bool    addSaveState(QString name);
     bool    removeCategory(QStandardItem* category);
 
 private:
@@ -27,10 +27,13 @@ private:
     QStringList                             games;
     QMap<QString, QStandardItem*>           categories;
     QMap<QString, QStandardItem*>           categoriesByPath;
-    QMap<QStandardItem*, QStringList>       saveStates;
+    QMap<QString, QStringList>              saveStates;
     QString                                 gameLoaded;
+    QStandardItem*                          catLoaded;
 
     void findCategory(QStandardItem *parent, QDir dir);
+    QStringList getCacheOrderList(QString file, QString dirPath);
+    void        writeCacheOrderFile(QString file, QString dirPath);
 };
 
 #endif // HANDLESTUFF_H

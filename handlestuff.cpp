@@ -2,6 +2,9 @@
 
 #include "handlestuff.h"
 
+#define ORDERCATFILE "svt2snesordercat.txt"
+#define ORDERSAVEFILE "svt2snesordersave.txt"
+
 HandleStuff::HandleStuff()
 {
 
@@ -31,6 +34,39 @@ void    HandleStuff::findCategory(QStandardItem* parent, QDir dir)
         findCategory(item, dir);
         dir.cdUp();
         parent->appendRow(item);
+    }
+}
+
+QStringList HandleStuff::getCacheOrderList(QString file, QString dirPath)
+{
+    QStringList toRet;
+    QFile cache(dirPath + "/" + file);
+    if (cache.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        while (!cache.atEnd())
+        {
+            QString line = cache.readLine();
+            QFileInfo fi(dirPath + "/" + line);
+            toRet << fi.completeBaseName();
+        }
+        cache.close();
+    }
+    return toRet;
+}
+
+void HandleStuff::writeCacheOrderFile(QString file, QString dirPath)
+{
+    if (file == ORDERSAVEFILE)
+    {
+        QFile   cache(dirPath + "/" + file);
+        if (cache.open(QIODevice::WriteOnly))
+        {
+           foreach(QString save, saveStates[dirPath])
+           {
+               cache.write(QByteArray(save.toUtf8() + ".svt\n"));
+           }
+           cache.close();
+        }
     }
 }
 
@@ -111,22 +147,37 @@ bool HandleStuff::addSubCategory(QStandardItem *newCategory, QStandardItem *pare
 
 QStringList HandleStuff::loadSaveStates(QStandardItem *category)
 {
-    QStandardItem*  item = categoriesByPath[category->data(MyRolePath).toString()];
-    if (!saveStates.contains(item))
+    QString savePath = category->data(MyRolePath).toString();
+    if (!saveStates.contains(savePath))
     {
-        QDir dir(item->data(MyRolePath).toString());
-        QFileInfoList fil = dir.entryInfoList(QDir::Files);
-        foreach(QFileInfo fi, fil)
+        QStringList cachedList = getCacheOrderList(ORDERSAVEFILE, savePath);
+        if (cachedList.isEmpty())
         {
-            saveStates[item] << fi.baseName();
+
+            QDir dir(savePath);
+            QFileInfoList fil = dir.entryInfoList(QDir::Files);
+            foreach(QFileInfo fi, fil)
+            {
+                saveStates[savePath] << fi.baseName();
+            }
+        } else {
+            foreach(QString s, cachedList)
+            {
+                saveStates[savePath] << QFileInfo(s).baseName();
+            }
         }
     }
-    return saveStates[item];
+    catLoaded = category;
+    return saveStates[savePath];
 }
 
-bool HandleStuff::addSaveState(QStandardItem *category, QString name)
+bool HandleStuff::addSaveState(QString name)
 {
-    QStandardItem*  item = categoriesByPath[category->data(MyRolePath).toString()];
+    //QStandardItem*  newItem = new QStandardItem(name);
+    QFileInfo fi(catLoaded->data(MyRolePath).toString() + "/" + name + ".svt");
+    saveStates[catLoaded->data(MyRolePath).toString()] << fi.baseName();
+    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+    QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
     return true;
 }
 

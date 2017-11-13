@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QStandardItemModel>
 #include "handlestuff.h"
+#include "usb2snes.h"
 
 namespace Ui {
 class Savestate2snesw;
@@ -35,6 +36,12 @@ private slots:
 
     void    saveStateItemChanged(QStandardItem* item);
 
+    void on_categoryTreeView_clicked(const QModelIndex &index);
+    //void    onSaveStateModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int> ());
+    void    onSaveStateDelegateDataCommited(QWidget *e);
+
+    void    usb2snesStateChanged();
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;
@@ -46,6 +53,7 @@ private:
     QModelIndex         indexCatUnderMenu;
     HandleStuff         handleStuff;
     QStandardItem*      newSaveInserted;
+    USB2snes*           usb2snes;
 
     void    createMenus();
     void    loadGames();

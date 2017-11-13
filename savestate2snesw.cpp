@@ -3,6 +3,7 @@
 #include <QDebug>
 #include "savestate2snesw.h"
 #include "ui_savestate2snesw.h"
+#include <QtSerialPort/QSerialPortInfo>
 
 Savestate2snesw::Savestate2snesw(QWidget *parent) :
     QMainWindow(parent),
@@ -21,13 +22,19 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->savestateListView->setModel(saveStateModel);
     ui->categoryTreeView->setModel(repStateModel);
     newSaveInserted = NULL;
+    usb2snes = new USB2snes();
 
     createMenus();
 
     connect(ui->categoryTreeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(categoryListShowContextMenu(QPoint)));
     connect(saveStateModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(saveStateItemChanged(QStandardItem*)));
+    //connect(saveStateModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(onSaveStateModelDataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    connect(ui->savestateListView->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(onSaveStateDelegateDataCommited(QWidget*)));
+    connect(usb2snes, SIGNAL(stateChanged()), this, SLOT(usb2snesStateChanged()));
 
     loadGames();
+
+    usb2snes->connect();
 }
 
 Savestate2snesw::~Savestate2snesw()
@@ -173,6 +180,34 @@ void Savestate2snesw::saveStateItemChanged(QStandardItem *item)
     if (newSaveInserted != NULL && item == newSaveInserted)
     {
         //handleStuff.addSaveState(item->text());
+        qDebug() << item->text() << "renamed?";
+        handleStuff.addSaveState(item->text());
         newSaveInserted = NULL;
+    }
+}
+
+void Savestate2snesw::on_categoryTreeView_clicked(const QModelIndex &index)
+{
+    QStandardItem* cat = repStateModel->itemFromIndex(index);
+    ui->savestateTitleLabel->setText(ui->gameComboBox->currentText() + " - " + cat->text());
+    saveStateModel->clear();
+    QStringList saveList = handleStuff.loadSaveStates(cat);
+    foreach (QString save, saveList)
+    {
+        saveStateModel->invisibleRootItem()->appendRow(new QStandardItem(save));
+    }
+}
+
+
+void Savestate2snesw::onSaveStateDelegateDataCommited(QWidget *e)
+{
+    qDebug() << "Item edited" << saveStateModel->itemFromIndex(ui->savestateListView->currentIndex())->text();
+}
+
+void Savestate2snesw::usb2snesStateChanged()
+{
+    if (usb2snes->state() == USB2snes::Ready)
+    {
+        usb2snes->getAddress("C0FFD5", 2);
     }
 }

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui websockets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         savestate2snesw.cpp \
-    handlestuff.cpp
+    handlestuff.cpp \
+    usb2snes.cpp
 
 HEADERS  += savestate2snesw.h \
-    handlestuff.h
+    handlestuff.h \
+    usb2snes.h
 
 FORMS    += savestate2snesw.ui
