@@ -7,6 +7,7 @@
 
 #define USB2SNESURL "ws://localhost:8080/"
 
+
 class USB2snes : public QObject
 {
     Q_OBJECT
@@ -20,7 +21,8 @@ public:
         sd2menu,
         RomRunning
     };
-
+    Q_ENUM(State)
+    Q_ENUM(sd2snesState)
 
     USB2snes();
     QPair<QString, QString> autoFind();
@@ -28,17 +30,22 @@ public:
     QString                 getPort();
     QString                 getRomName();
     void                    connect();
-    QByteArray              getAddress(QString addr, unsigned int size);
+    QByteArray              getAddress(unsigned int addr, unsigned int size);
+    void                    setAddress(unsigned int addr, QByteArray data);
     State                   state();
 
 signals:
     void    stateChanged();
+    void    disconnected();
+    void    binaryMessageReceived();
 
 
 private slots:
     void    onWebSocketConnected();
+    void    onWebSocketDisconnected();
     void    onWebSocketTextReceived(QString message);
     void    onWebSocketBinaryReceived(QByteArray message);
+    void    onTimerTick();
 
 
 private:
@@ -46,8 +53,13 @@ private:
     QString         m_port;
     State           m_state;
     sd2snesState    m_sd2snesState;
+    QString         firmwareVersion;
+    QString         otherVersion;
+    QByteArray      lastBinaryMessage;
 
     bool            portRequested;
+    bool            versionRequested;
+    QTimer          timer;
 
     void    sendRequest(QString opCode, QStringList operands = QStringList(), QStringList flags = QStringList());
     void    changeState(State s);

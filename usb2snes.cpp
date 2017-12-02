@@ -6,9 +6,12 @@ USB2snes::USB2snes() : QObject()
 {
     m_state = None;
     portRequested = false;
+    versionRequested = false;
     QObject::connect(&m_webSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(onWebSocketTextReceived(QString)));
     QObject::connect(&m_webSocket, SIGNAL(connected()), this, SLOT(onWebSocketConnected()));
+    QObject::connect(&m_webSocket, SIGNAL(disconnected()), this, SLOT(onWebSocketDisconnected()));
     QObject::connect(&m_webSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(onWebSocketBinaryReceived(QByteArray)));
+    QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));
 }
 
 QPair<QString, QString> USB2snes::autoFind()
@@ -30,7 +33,16 @@ QString USB2snes::getPort()
 
 QString USB2snes::getRomName()
 {
-    return QString();
+    //Need to gather data then check if this is consistnt for lorom, otherwise it's hirom
+    QByteArray title = getAddress(0x7FC0, 21);
+    QByteArray romMakeUp = getAddress(0x7FD5, 1);
+    //QByteArray tmp = getAddress(0xC0FFD5, 2);
+
+    if (romMakeUp[0] & 0x1)
+    {
+        title = getAddress(0xFFC0, 21);
+    }
+    return QString(title);
 }
 
 void USB2snes::connect()
@@ -47,25 +59,65 @@ void USB2snes::onWebSocketConnected()
 
 }
 
+void USB2snes::onWebSocketDisconnected()
+{
+    changeState(None);
+    emit disconnected();
+}
+
 void USB2snes::onWebSocketTextReceived(QString message)
 {
     qDebug() << "<<T" << message;
+    if (versionRequested)
+    {
+        versionRequested = false;
+        QJsonDocument   jdoc = QJsonDocument::fromJson(message.toLatin1());
+        QJsonArray jarray = jdoc.object()["Results"].toArray();
+        if (!jarray.empty())
+        {
+            firmwareVersion = jarray[0].toString();
+            qDebug() << firmwareVersion;
+            //otherVersion = jarray[1].toString();
+            changeState(Ready);
+        }
+        return;
+    }
     if (portRequested)
     {
         QJsonDocument   jdoc = QJsonDocument::fromJson(message.toLatin1());
         if (!jdoc.object()["Results"].toArray().isEmpty())
         {
+            timer.stop();
             m_port = jdoc.object()["Results"].toArray()[0].toString();
             portRequested = false;
             sendRequest("Attach", QStringList() << m_port);
-            changeState(Ready);
+            versionRequested = true;
+            timer.start(500);
+        } else {
+            timer.start(1000);
         }
+        return;
     }
 }
 
 void USB2snes::onWebSocketBinaryReceived(QByteArray message)
 {
-    qDebug() << "<<B" << message;
+    qDebug() << "<<B" << message.toHex('-') << message;
+    lastBinaryMessage = message;
+    emit binaryMessageReceived();
+}
+
+void USB2snes::onTimerTick()
+{
+    if (portRequested)
+    {
+        sendRequest("DeviceList");
+    }
+    if (versionRequested)
+    {
+        sendRequest("Info");
+        timer.stop();
+    }
 }
 
 
@@ -90,10 +142,19 @@ void USB2snes::changeState(USB2snes::State s)
     emit stateChanged();
 }
 
-QByteArray USB2snes::getAddress(QString addr, unsigned int size)
+QByteArray USB2snes::getAddress(unsigned int addr, unsigned int size)
 {
-    sendRequest("GetAddress", QStringList() << addr << QString::number(size, 16));
-    return QByteArray();
+    sendRequest("GetAddress", QStringList() << QString::number(addr, 16) << QString::number(size, 16));
+    QEventLoop  loop;
+    QObject::connect(this, SIGNAL(binaryMessageReceived()), &loop, SLOT(quit()));
+    loop.exec();
+    return lastBinaryMessage;
+}
+
+void USB2snes::setAddress(unsigned int addr, QByteArray data)
+{
+    sendRequest("PutAddress", QStringList() << QString::number(addr, 16) << QString::number(data.size(), 16));
+    m_webSocket.sendBinaryMessage(data);
 }
 
 USB2snes::State USB2snes::state()

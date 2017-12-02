@@ -22,6 +22,32 @@ QStringList HandleStuff::loadGames()
     return games;
 }
 
+void HandleStuff::setUsb2snes(USB2snes *usbsnes)
+{
+    usb2snes = usbsnes;
+}
+
+//$FC2000 db saveState  (Make sure both load and save are zero before setting this to nonzero)
+//$FC2001 db loadState  (Make sure both load and save are zero before setting this to nonzero)
+//$FC2002 dw saveButton (Set to $FFFF first and then set to correct value)
+//$FC2004 dw loadButton (Set to $FFFF first and then set to correct value)
+
+void HandleStuff::UsbSNESSaveState()
+{
+    QByteArray data;
+    data.resize(2);
+    data[0] = 0;
+    data[1] = 0;
+    usb2snes->setAddress(0xFC2000, data);
+    data[0] = 1;
+    usb2snes->setAddress(0xFC2000, data);
+    sleep(0.2);
+    while (usb2snes->getAddress(0xFC2000, 2) != "\0\0")
+        sleep(0.2);
+    QByteArray saveData = usb2snes->getAddress(0xF00000, 320 * 1024);
+
+}
+
 void    HandleStuff::findCategory(QStandardItem* parent, QDir dir)
 {
     QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -189,5 +215,15 @@ bool HandleStuff::removeCategory(QStandardItem *category)
         categoriesByPath[path]->parent()->removeRow(category->row());
         return true;
     }
+    return false;
+}
+
+//To see if any NMI hook patch is applied you could technically look at $002A90 to see if it's $60 (RTS) = no patch.
+
+bool HandleStuff::isPatchedRom()
+{
+    QByteArray data = usb2snes->getAddress(0xFC0000, 1);
+    if (data[0] == (char) 0x4C)
+        return true;
     return false;
 }

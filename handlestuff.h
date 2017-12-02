@@ -1,6 +1,8 @@
 #ifndef HANDLESTUFF_H
 #define HANDLESTUFF_H
 
+#include "usb2snes.h"
+
 #include <QString>
 #include <QStandardItem>
 #include <QDir>
@@ -13,6 +15,9 @@ public:
     HandleStuff();
 
     QStringList loadGames();
+    void    setUsb2snes(USB2snes* usbsnes);
+    void    UsbSNESSaveState();
+    void    UsbSNESLoadState();
     QStandardItem*  loadCategories(QString game);
     bool    addGame(QString newGame);
     void    setSaveStateDir(QString dir);
@@ -30,6 +35,7 @@ private:
     QMap<QString, QStringList>              saveStates;
     QString                                 gameLoaded;
     QStandardItem*                          catLoaded;
+    USB2snes*                               usb2snes;
 
     void findCategory(QStandardItem *parent, QDir dir);
     QStringList getCacheOrderList(QString file, QString dirPath);

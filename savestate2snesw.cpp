@@ -208,6 +208,12 @@ void Savestate2snesw::usb2snesStateChanged()
 {
     if (usb2snes->state() == USB2snes::Ready)
     {
-        usb2snes->getAddress("C0FFD5", 2);
+        /*usb2snes->getAddress(0x7FC0, 21);
+        usb2snes->getAddress(0xFFC0, 21);*/
+        //usb2snes->getAddress(0xC0FFD5, 2);
+        QString text = usb2snes->getRomName();
+        qDebug() << text;
+        ui->romNameLabel->setText(text);
+        usb2snes->setAddress(0xFFC0, QByteArray("IL FAIT BEAU ICI"));
     }
 }
