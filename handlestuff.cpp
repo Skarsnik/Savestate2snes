@@ -41,9 +41,10 @@ void HandleStuff::UsbSNESSaveState()
     usb2snes->setAddress(0xFC2000, data);
     data[0] = 1;
     usb2snes->setAddress(0xFC2000, data);
-    sleep(0.2);
+    QThread::usleep(200);
+    /*sleep(0.2);
     while (usb2snes->getAddress(0xFC2000, 2) != "\0\0")
-        sleep(0.2);
+        sleep(0.2);*/
     QByteArray saveData = usb2snes->getAddress(0xF00000, 320 * 1024);
 
 }
@@ -218,12 +219,20 @@ bool HandleStuff::removeCategory(QStandardItem *category)
     return false;
 }
 
-//To see if any NMI hook patch is applied you could technically look at $002A90 to see if it's $60 (RTS) = no patch.
-
-bool HandleStuff::isPatchedRom()
+void HandleStuff::renameSaveState(QStandardItem *item)
 {
-    QByteArray data = usb2snes->getAddress(0xFC0000, 1);
-    if (data[0] == (char) 0x4C)
-        return true;
-    return false;
+    QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
+    QString dirPath = catLoaded->data(MyRolePath).toString();
+    if (QFile::rename(dirPath + "/" + saveList.at(item->row()) + ".svt", dirPath + "/" + item->text() + ".svt")) {
+        saveList[item->row()] = item->text();
+        writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+    }
 }
+
+void HandleStuff::changeStateOrder(int from, int to)
+{
+    QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
+    saveList.move(from, to);
+    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+}
+

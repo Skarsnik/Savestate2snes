@@ -10,10 +10,25 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui(new Ui::Savestate2snesw)
 {
     ui->setupUi(this);
+
+    m_settings = new QSettings("skarsnik.nyo.fr", "SaveState2SNES");
+    /*
+    if (m_settings->contains("windowGeometry"))
+    {
+        restoreGeometry(m_settings->value("windowGeometry").toByteArray());
+        restoreState(m_settings->value("windowState").toByteArray());
+    }*/
+
     ui->pathPushButton->setIcon(style()->standardPixmap(QStyle::SP_DialogOpenButton));
     ui->newGamePushButton->setIcon(style()->standardPixmap(QStyle::SP_FileIcon));
-    handleStuff.setSaveStateDir("D:\\Project\\Savestate2snes\\savestate");
-    ui->pathLineEdit->setText("D:\\Project\\Savestate2snes\\savestate");
+    ui->upSavePushButton->setIcon(style()->standardPixmap(QStyle::SP_ArrowUp));
+    ui->downSavePushButton->setIcon(style()->standardPixmap(QStyle::SP_ArrowDown));
+    if (m_settings->contains("lastSaveStateDir"))
+        gamesFolder = m_settings->value("lastSaveStateDir").toString();
+    else
+        gamesFolder = "D:\\Project\\Savestate2snes\\savestate";
+    handleStuff.setSaveStateDir(gamesFolder);
+    ui->pathLineEdit->setText(gamesFolder);
 
     ui->categoryTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->savestateListView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -23,6 +38,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->categoryTreeView->setModel(repStateModel);
     newSaveInserted = NULL;
     usb2snes = new USB2snes();
+    handleStuff.setUsb2snes(usb2snes);
+    ui->usb2snesStatut->setUsb2snes(usb2snes);
 
     createMenus();
 
@@ -30,8 +47,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     connect(saveStateModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(saveStateItemChanged(QStandardItem*)));
     //connect(saveStateModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(onSaveStateModelDataChanged(QModelIndex,QModelIndex,QVector<int>)));
     connect(ui->savestateListView->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(onSaveStateDelegateDataCommited(QWidget*)));
-    connect(usb2snes, SIGNAL(stateChanged()), this, SLOT(usb2snesStateChanged()));
-
+    connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SLOT(onReadyForSaveState()));
+    connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SLOT(onUnReadyForSaveState()));
     loadGames();
 
     usb2snes->connect();
@@ -84,7 +101,18 @@ void Savestate2snesw::loadGames()
             ui->gameComboBox->addItem(game);
         }
         ui->gameComboBox->model()->sort(0);
-        ui->gameComboBox->setCurrentIndex(0);
+        if (m_settings->contains("lastGameLoaded"))
+        {
+            int index = ui->gameComboBox->findText(m_settings->value("lastGameLoaded").toString());
+            if (index != -1)
+            {
+              ui->gameComboBox->setCurrentIndex(index);
+            }
+        } else {
+            ui->gameComboBox->setCurrentIndex(0);
+        }
+    } else {
+        ui->statusBar->showMessage("No game found into : " + gamesFolder);
     }
 }
 
@@ -171,19 +199,23 @@ void Savestate2snesw::on_addSaveStatePushButton_clicked()
     saveStateModel->invisibleRootItem()->appendRow(newSaveItem);
     ui->savestateListView->setCurrentIndex(newSaveItem->index());
     qDebug() << newSaveItem->isEditable();
+    handleStuff.addSaveState(newSaveItem->text());
     ui->savestateListView->edit(newSaveItem->index());
     newSaveInserted = newSaveItem;
 }
 
+
+void Savestate2snesw::on_loadStatePushButton_clicked()
+{
+    QModelIndex cur = ui->savestateListView->currentIndex();
+    handleStuff.loadSaveState(saveStateModel->itemFromIndex(cur)->text(););
+}
+
+
 void Savestate2snesw::saveStateItemChanged(QStandardItem *item)
 {
-    if (newSaveInserted != NULL && item == newSaveInserted)
-    {
-        //handleStuff.addSaveState(item->text());
-        qDebug() << item->text() << "renamed?";
-        handleStuff.addSaveState(item->text());
-        newSaveInserted = NULL;
-    }
+    qDebug() << item->text() << "renamed?";
+    handleStuff.renameSaveState(item);
 }
 
 void Savestate2snesw::on_categoryTreeView_clicked(const QModelIndex &index)
@@ -204,16 +236,41 @@ void Savestate2snesw::onSaveStateDelegateDataCommited(QWidget *e)
     qDebug() << "Item edited" << saveStateModel->itemFromIndex(ui->savestateListView->currentIndex())->text();
 }
 
-void Savestate2snesw::usb2snesStateChanged()
+
+void Savestate2snesw::onReadyForSaveState()
 {
-    if (usb2snes->state() == USB2snes::Ready)
-    {
-        /*usb2snes->getAddress(0x7FC0, 21);
-        usb2snes->getAddress(0xFFC0, 21);*/
-        //usb2snes->getAddress(0xC0FFD5, 2);
-        QString text = usb2snes->getRomName();
-        qDebug() << text;
-        ui->romNameLabel->setText(text);
-        usb2snes->setAddress(0xFFC0, QByteArray("IL FAIT BEAU ICI"));
-    }
+    ui->addSaveStatePushButton->setEnabled(true);
+    ui->loadStatePushButton->setEnabled(true);
 }
+
+void Savestate2snesw::onUnReadyForSaveState()
+{
+    ui->addSaveStatePushButton->setEnabled(false);
+    ui->loadStatePushButton->setEnabled(false);
+}
+
+
+void Savestate2snesw::on_upSavePushButton_clicked()
+{
+    qDebug() << "item move up" << ui->savestateListView->currentIndex();
+    int row = ui->savestateListView->currentIndex().row();
+    if (row == 0)
+        return ;
+    QList<QStandardItem*> lItem = saveStateModel->takeRow(row);
+    saveStateModel->insertRow(row - 1, lItem.at(0));
+    ui->savestateListView->setCurrentIndex(saveStateModel->indexFromItem(lItem.at(0)));
+    handleStuff.changeStateOrder(row, row - 1);
+}
+
+void Savestate2snesw::on_downSavePushButton_clicked()
+{
+    qDebug() << "item move down" << ui->savestateListView->currentIndex();
+    int row = ui->savestateListView->currentIndex().row();
+    if (row == saveStateModel->rowCount() - 1)
+        return ;
+    QList<QStandardItem*> lItem = saveStateModel->takeRow(row);
+    saveStateModel->insertRow(row + 1, lItem.at(0));
+    ui->savestateListView->setCurrentIndex(saveStateModel->indexFromItem(lItem.at(0)));
+    handleStuff.changeStateOrder(row, row + 1);
+}
+

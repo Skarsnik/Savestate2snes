@@ -33,11 +33,16 @@ public:
     QByteArray              getAddress(unsigned int addr, unsigned int size);
     void                    setAddress(unsigned int addr, QByteArray data);
     State                   state();
+    QString                 firmwareVersion();
+    QString                 clientVersion();
+    bool                    patchROM(QString patch);
 
 signals:
     void    stateChanged();
     void    disconnected();
     void    binaryMessageReceived();
+    void    romStarted();
+    void    menuStarted();
 
 
 private slots:
@@ -53,8 +58,8 @@ private:
     QString         m_port;
     State           m_state;
     sd2snesState    m_sd2snesState;
-    QString         firmwareVersion;
-    QString         otherVersion;
+    QString         m_firmwareVersion;
+    QString         m_clientVersion;
     QByteArray      lastBinaryMessage;
 
     bool            portRequested;

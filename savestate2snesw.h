@@ -40,7 +40,12 @@ private slots:
     //void    onSaveStateModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int> ());
     void    onSaveStateDelegateDataCommited(QWidget *e);
 
-    void    usb2snesStateChanged();
+    void    onReadyForSaveState();
+    void    onUnReadyForSaveState();
+
+    void on_upSavePushButton_clicked();
+
+    void on_downSavePushButton_clicked();
 
 private:
     Ui::Savestate2snesw *ui;
@@ -54,6 +59,8 @@ private:
     HandleStuff         handleStuff;
     QStandardItem*      newSaveInserted;
     USB2snes*           usb2snes;
+    QString             gamesFolder;
+    QSettings*           m_settings;
 
     void    createMenus();
     void    loadGames();

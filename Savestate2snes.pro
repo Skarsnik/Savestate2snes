@@ -15,10 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         savestate2snesw.cpp \
     handlestuff.cpp \
-    usb2snes.cpp
+    usb2snes.cpp \
+    usb2snesstatut.cpp
 
 HEADERS  += savestate2snesw.h \
     handlestuff.h \
-    usb2snes.h
+    usb2snes.h \
+    usb2snesstatut.h
 
-FORMS    += savestate2snesw.ui
+FORMS    += savestate2snesw.ui \
+    usb2snesstatut.ui

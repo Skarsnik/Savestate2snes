@@ -14,87 +14,6 @@
    <string>Savestate2snesw</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>10</y>
-      <width>421</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>USB2snes status</string>
-    </property>
-    <widget class="QLabel" name="statusLabel">
-     <property name="geometry">
-      <rect>
-       <x>320</x>
-       <y>30</y>
-       <width>71</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Status Image</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_2">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>20</y>
-       <width>81</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>ROM running : </string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="romNameLabel">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>20</y>
-       <width>181</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Rom Name</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="romPatchedLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>40</y>
-       <width>111</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Rom is not patched</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="patchROMpushButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>40</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Patch ROM</string>
-     </property>
-    </widget>
-   </widget>
    <widget class="QComboBox" name="gameComboBox">
     <property name="geometry">
      <rect>
@@ -210,6 +129,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="addSaveStatePushButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>790</x>
@@ -222,7 +144,10 @@
      <string>Make savestate</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="loadStatePushButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>610</x>
@@ -391,7 +316,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="pushButton_12">
+   <widget class="QPushButton" name="upSavePushButton">
     <property name="geometry">
      <rect>
       <x>1010</x>
@@ -401,10 +326,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>^</string>
+     <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_13">
+   <widget class="QPushButton" name="downSavePushButton">
     <property name="geometry">
      <rect>
       <x>1010</x>
@@ -414,7 +339,17 @@
      </rect>
     </property>
     <property name="text">
-     <string>V</string>
+     <string/>
+    </property>
+   </widget>
+   <widget class="USB2SnesStatut" name="usb2snesStatut" native="true">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>411</width>
+      <height>81</height>
+     </rect>
     </property>
    </widget>
   </widget>
@@ -459,6 +394,14 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>USB2SnesStatut</class>
+   <extends>QWidget</extends>
+   <header>usb2snesstatut.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

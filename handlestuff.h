@@ -26,6 +26,8 @@ public:
     QStringList    loadSaveStates(QStandardItem* category);
     bool    addSaveState(QString name);
     bool    removeCategory(QStandardItem* category);
+    void    renameSaveState(QStandardItem* item);
+    void    changeStateOrder(int from, int to);
 
 private:
     QDir                                    saveDirectory;
