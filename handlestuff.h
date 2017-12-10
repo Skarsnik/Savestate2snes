@@ -16,7 +16,7 @@ public:
 
     QStringList loadGames();
     void    setUsb2snes(USB2snes* usbsnes);
-    void    UsbSNESSaveState();
+    QByteArray UsbSNESSaveState();
     void    UsbSNESLoadState();
     QStandardItem*  loadCategories(QString game);
     bool    addGame(QString newGame);
@@ -28,6 +28,7 @@ public:
     bool    removeCategory(QStandardItem* category);
     void    renameSaveState(QStandardItem* item);
     void    changeStateOrder(int from, int to);
+    bool    loadSaveState(QString name);
 
 private:
     QDir                                    saveDirectory;

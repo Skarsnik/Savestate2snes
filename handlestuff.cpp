@@ -32,7 +32,7 @@ void HandleStuff::setUsb2snes(USB2snes *usbsnes)
 //$FC2002 dw saveButton (Set to $FFFF first and then set to correct value)
 //$FC2004 dw loadButton (Set to $FFFF first and then set to correct value)
 
-void HandleStuff::UsbSNESSaveState()
+QByteArray HandleStuff::UsbSNESSaveState()
 {
     QByteArray data;
     data.resize(2);
@@ -46,8 +46,28 @@ void HandleStuff::UsbSNESSaveState()
     while (usb2snes->getAddress(0xFC2000, 2) != "\0\0")
         sleep(0.2);*/
     QByteArray saveData = usb2snes->getAddress(0xF00000, 320 * 1024);
-
+    return saveData;
 }
+
+bool    HandleStuff::loadSaveState(QString name)
+{
+    QFile saveFile(catLoaded->data(MyRolePath).toString() + "/" + name + ".svt");
+    if (saveFile.open(QIODevice::ReadOnly))
+    {
+        QByteArray data = saveFile.readAll();
+        usb2snes->setAddress(0xF00000, data);
+        data.resize(2);
+        data[0] = 0;
+        data[1] = 0;
+        usb2snes->setAddress(0xFC2000, data);
+        data[1] = 1;
+        usb2snes->setAddress(0xFC2000, data);
+        saveFile.close();
+        return true;
+    }
+    return false;
+}
+
 
 void    HandleStuff::findCategory(QStandardItem* parent, QDir dir)
 {
@@ -204,8 +224,16 @@ bool HandleStuff::addSaveState(QString name)
     QFileInfo fi(catLoaded->data(MyRolePath).toString() + "/" + name + ".svt");
     saveStates[catLoaded->data(MyRolePath).toString()] << fi.baseName();
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
-    QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
-    return true;
+    //QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
+    QByteArray data = UsbSNESSaveState();
+    QFile saveFile(fi.absoluteFilePath());
+    if (saveFile.open(QIODevice::WriteOnly))
+    {
+        saveFile.write(data);
+        saveFile.close();
+        return true;
+    }
+    return false;
 }
 
 bool HandleStuff::removeCategory(QStandardItem *category)
@@ -235,4 +263,5 @@ void HandleStuff::changeStateOrder(int from, int to)
     saveList.move(from, to);
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
 }
+
 

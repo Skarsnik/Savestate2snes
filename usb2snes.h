@@ -12,6 +12,11 @@ class USB2snes : public QObject
 {
     Q_OBJECT
 public:
+    enum Space
+    {
+        SNES,
+        CMD
+    };
     enum State {
         None,
         Connected,
@@ -23,6 +28,17 @@ public:
     };
     Q_ENUM(State)
     Q_ENUM(sd2snesState)
+    // Should be private, but allow for Qt to register the enum
+    enum InternalState {
+        INone,
+        IConnected,
+        DeviceListRequested,
+        AttachSent,
+        FirmwareVersionRequested,
+        ServerVersionRequested,
+        IReady
+    };
+    Q_ENUM(InternalState)
 
     USB2snes();
     QPair<QString, QString> autoFind();
@@ -30,11 +46,11 @@ public:
     QString                 getPort();
     QString                 getRomName();
     void                    connect();
-    QByteArray              getAddress(unsigned int addr, unsigned int size);
-    void                    setAddress(unsigned int addr, QByteArray data);
+    QByteArray              getAddress(unsigned int addr, unsigned int size, Space space = SNES);
+    void                    setAddress(unsigned int addr, QByteArray data, Space space = SNES);
     State                   state();
     QString                 firmwareVersion();
-    QString                 clientVersion();
+    QString                 serverVersion();
     bool                    patchROM(QString patch);
 
 signals:
@@ -59,15 +75,16 @@ private:
     State           m_state;
     sd2snesState    m_sd2snesState;
     QString         m_firmwareVersion;
-    QString         m_clientVersion;
+    QString         m_serverVersion;
+    InternalState   m_istate;
     QByteArray      lastBinaryMessage;
+    unsigned int    requestedBinaryReadSize;
 
-    bool            portRequested;
-    bool            versionRequested;
     QTimer          timer;
 
-    void    sendRequest(QString opCode, QStringList operands = QStringList(), QStringList flags = QStringList());
-    void    changeState(State s);
+    void            sendRequest(QString opCode, QStringList operands = QStringList(), Space = SNES, QStringList flags = QStringList());
+    void            changeState(State s);
+    QStringList     getJsonResults(QString json);
 
 };
 

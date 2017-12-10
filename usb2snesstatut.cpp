@@ -8,10 +8,16 @@ USB2SnesStatut::USB2SnesStatut(QWidget *parent) :
     ui(new Ui::USB2SnesStatut)
 {
      ui->setupUi(this);
-     connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));
+     connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));  
      timer.start(1000);
 }
 
+void USB2SnesStatut::setUsb2snes(USB2snes *usnes)
+{
+    usb2snes = usnes;
+    connect(usb2snes, SIGNAL(stateChanged()), this, SLOT(onUsb2snesStateChanged()));
+    connect(usb2snes, SIGNAL(disconnected()), this, SLOT(onUsb2snesDisconnected()));
+}
 
 void USB2SnesStatut::onRomStarted()
 {
@@ -32,7 +38,7 @@ void USB2SnesStatut::onRomStarted()
 
 bool USB2SnesStatut::isPatchedRom()
 {
-    QByteArray data = usb2snes->getAddress(0x2A90, 1);
+    QByteArray data = usb2snes->getAddress(0x2A90, 1, USB2snes::CMD);
     if (data[0] != (char) 0x60)
         return true;
     return false;
@@ -52,7 +58,7 @@ void USB2SnesStatut::on_patchROMpushButton_clicked()
 
 void USB2SnesStatut::onTimerTick()
 {
-    emit readyForSaveState();
+    //emit readyForSaveState();
     timer.stop();
 }
 
@@ -64,14 +70,21 @@ void USB2SnesStatut::onUsb2snesStateChanged()
     }
 }
 
+void USB2SnesStatut::onUsb2snesDisconnected()
+{
+    emit unReadyForSaveState();
+}
+
 
 USB2SnesStatut::~USB2SnesStatut()
 {
     delete ui;
 }
 
-void USB2SnesStatut::setUsb2snes(USB2snes *usnes)
+
+
+void USB2SnesStatut::on_pushButton_clicked()
 {
-    usb2snes = usnes;
-    connect(usb2snes, SIGNAL(stateChanged()), this, SLOT(onUsb2snesStateChanged()));
+    onRomStarted();
+    //emit readyForSaveState();
 }

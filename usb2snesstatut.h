@@ -29,7 +29,10 @@ public slots:
 private slots:
     void    onTimerTick();
     void    onUsb2snesStateChanged();
+    void    onUsb2snesDisconnected();
     void    onRomStarted();
+
+    void on_pushButton_clicked();
 
 private:
     Ui::USB2SnesStatut *ui;

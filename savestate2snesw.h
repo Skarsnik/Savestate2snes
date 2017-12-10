@@ -47,6 +47,8 @@ private slots:
 
     void on_downSavePushButton_clicked();
 
+    void on_loadStatePushButton_clicked();
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;

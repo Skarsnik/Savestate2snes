@@ -196,6 +196,10 @@ void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
 void Savestate2snesw::on_addSaveStatePushButton_clicked()
 {
     QStandardItem*  newSaveItem = new QStandardItem(tr("New Savestate"));
+    if (!saveStateModel->findItems(newSaveItem->text()).isEmpty())
+    {
+        newSaveItem->setText(newSaveItem->text() + "_");
+    }
     saveStateModel->invisibleRootItem()->appendRow(newSaveItem);
     ui->savestateListView->setCurrentIndex(newSaveItem->index());
     qDebug() << newSaveItem->isEditable();
@@ -208,7 +212,7 @@ void Savestate2snesw::on_addSaveStatePushButton_clicked()
 void Savestate2snesw::on_loadStatePushButton_clicked()
 {
     QModelIndex cur = ui->savestateListView->currentIndex();
-    handleStuff.loadSaveState(saveStateModel->itemFromIndex(cur)->text(););
+    handleStuff.loadSaveState(saveStateModel->itemFromIndex(cur)->text());
 }
 
 
@@ -239,12 +243,14 @@ void Savestate2snesw::onSaveStateDelegateDataCommited(QWidget *e)
 
 void Savestate2snesw::onReadyForSaveState()
 {
+    ui->statusBar->showMessage("USB2Snes is ready for savestates");
     ui->addSaveStatePushButton->setEnabled(true);
     ui->loadStatePushButton->setEnabled(true);
 }
 
 void Savestate2snesw::onUnReadyForSaveState()
 {
+    ui->statusBar->showMessage("USB2Snes is not ready for savestates anymore");
     ui->addSaveStatePushButton->setEnabled(false);
     ui->loadStatePushButton->setEnabled(false);
 }
