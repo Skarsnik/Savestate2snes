@@ -43,6 +43,7 @@ private:
     void findCategory(QStandardItem *parent, QDir dir);
     QStringList getCacheOrderList(QString file, QString dirPath);
     void        writeCacheOrderFile(QString file, QString dirPath);
+    void checkForSafeState();
 };
 
 #endif // HANDLESTUFF_H

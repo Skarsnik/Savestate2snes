@@ -51,6 +51,7 @@ void USB2SnesStatut::on_patchROMpushButton_clicked()
     if (usb2snes->patchROM(qApp->applicationDirPath() + "/Patches/savestate.ips"))
     {
         ui->patchROMpushButton->setEnabled(false);
+        ui->romPatchedLabel->setText(tr("ROM is patched for savestate"));
         emit readyForSaveState();
     }
     timer.start(CHECK_ROMRUNNING_TICK);

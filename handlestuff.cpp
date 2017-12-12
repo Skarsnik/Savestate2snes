@@ -35,18 +35,26 @@ void HandleStuff::setUsb2snes(USB2snes *usbsnes)
 QByteArray HandleStuff::UsbSNESSaveState()
 {
     QByteArray data;
+    checkForSafeState();
     data.resize(2);
     data[0] = 0;
     data[1] = 0;
     usb2snes->setAddress(0xFC2000, data);
     data[0] = 1;
     usb2snes->setAddress(0xFC2000, data);
-    QThread::usleep(200);
-    /*sleep(0.2);
-    while (usb2snes->getAddress(0xFC2000, 2) != "\0\0")
-        sleep(0.2);*/
+    checkForSafeState();
     QByteArray saveData = usb2snes->getAddress(0xF00000, 320 * 1024);
     return saveData;
+}
+
+void    HandleStuff::checkForSafeState()
+{
+    QByteArray data = usb2snes->getAddress(0xFC2000, 2);
+    while (!(data.at(0) == 0 && data.at(1) == 0))
+    {
+            QThread::usleep(200);
+            data = usb2snes->getAddress(0xFC2000, 2);
+    }
 }
 
 bool    HandleStuff::loadSaveState(QString name)
@@ -55,6 +63,7 @@ bool    HandleStuff::loadSaveState(QString name)
     if (saveFile.open(QIODevice::ReadOnly))
     {
         QByteArray data = saveFile.readAll();
+        checkForSafeState();
         usb2snes->setAddress(0xF00000, data);
         data.resize(2);
         data[0] = 0;

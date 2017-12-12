@@ -25,3 +25,5 @@ HEADERS  += savestate2snesw.h \
 
 FORMS    += savestate2snesw.ui \
     usb2snesstatut.ui
+
+RC_FILE = savestate2snes.rc
