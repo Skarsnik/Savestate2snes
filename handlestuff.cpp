@@ -32,16 +32,19 @@ void HandleStuff::setUsb2snes(USB2snes *usbsnes)
 //$FC2002 dw saveButton (Set to $FFFF first and then set to correct value)
 //$FC2004 dw loadButton (Set to $FFFF first and then set to correct value)
 
-QByteArray HandleStuff::UsbSNESSaveState()
+QByteArray HandleStuff::UsbSNESSaveState(bool trigger)
 {
     QByteArray data;
-    checkForSafeState();
-    data.resize(2);
-    data[0] = 0;
-    data[1] = 0;
-    usb2snes->setAddress(0xFC2000, data);
-    data[0] = 1;
-    usb2snes->setAddress(0xFC2000, data);
+    if (trigger)
+    {
+        checkForSafeState();
+        data.resize(2);
+        data[0] = 0;
+        data[1] = 0;
+        usb2snes->setAddress(0xFC2000, data);
+        data[0] = 1;
+        usb2snes->setAddress(0xFC2000, data);
+    }
     checkForSafeState();
     QByteArray saveData = usb2snes->getAddress(0xF00000, 320 * 1024);
     return saveData;
@@ -76,7 +79,6 @@ bool    HandleStuff::loadSaveState(QString name)
     }
     return false;
 }
-
 
 void    HandleStuff::findCategory(QStandardItem* parent, QDir dir)
 {
@@ -227,14 +229,14 @@ QStringList HandleStuff::loadSaveStates(QStandardItem *category)
     return saveStates[savePath];
 }
 
-bool HandleStuff::addSaveState(QString name)
+bool HandleStuff::addSaveState(QString name, bool trigger)
 {
     //QStandardItem*  newItem = new QStandardItem(name);
     QFileInfo fi(catLoaded->data(MyRolePath).toString() + "/" + name + ".svt");
     saveStates[catLoaded->data(MyRolePath).toString()] << fi.baseName();
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
     //QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
-    QByteArray data = UsbSNESSaveState();
+    QByteArray data = UsbSNESSaveState(trigger);
     QFile saveFile(fi.absoluteFilePath());
     if (saveFile.open(QIODevice::WriteOnly))
     {
@@ -271,6 +273,18 @@ void HandleStuff::changeStateOrder(int from, int to)
     QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
     saveList.move(from, to);
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+}
+
+void HandleStuff::deleteSaveState(int row)
+{
+    QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
+    QString dirPath = catLoaded->data(MyRolePath).toString();
+    QString filePath = dirPath + "/" + saveList.at(row) + ".svt";
+    qDebug() << "Removing : " << filePath;
+    QFile::remove(filePath);
+    saveList.removeAt(row);
+    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+
 }
 
 

@@ -31,15 +31,22 @@ private slots:
     void    onUsb2snesStateChanged();
     void    onUsb2snesDisconnected();
     void    onRomStarted();
+    void    buildStatusInfo();
+    bool    validVersion();
 
     void on_pushButton_clicked();
+
+    void on_statusPushButton_clicked();
 
 private:
     Ui::USB2SnesStatut *ui;
     USB2snes*           usb2snes;
 
     QTimer              timer;
+    bool                connectedOnce;
+    bool                readyOnce;
     bool                isPatchedRom();
+    void romPatched();
 };
 
 #endif // USB2SNESSTATUT_H

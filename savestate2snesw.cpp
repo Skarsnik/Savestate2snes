@@ -23,6 +23,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->newGamePushButton->setIcon(style()->standardPixmap(QStyle::SP_FileIcon));
     ui->upSavePushButton->setIcon(style()->standardPixmap(QStyle::SP_ArrowUp));
     ui->downSavePushButton->setIcon(style()->standardPixmap(QStyle::SP_ArrowDown));
+    ui->deleteSavePushButton->setIcon(style()->standardPixmap(QStyle::SP_TrashIcon));
+
     if (m_settings->contains("lastSaveStateDir"))
         gamesFolder = m_settings->value("lastSaveStateDir").toString();
     else
@@ -193,19 +195,24 @@ void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
     ui->categoryTreeView->expandAll();
 }
 
-void Savestate2snesw::on_addSaveStatePushButton_clicked()
+void    Savestate2snesw::newSaveState(bool triggerSave)
 {
     QStandardItem*  newSaveItem = new QStandardItem(tr("New Savestate"));
-    if (!saveStateModel->findItems(newSaveItem->text()).isEmpty())
-    {
-        newSaveItem->setText(newSaveItem->text() + "_");
-    }
+    QString name = newSaveItem->text();
+    while (!saveStateModel->findItems(name).isEmpty())
+        name += "_";
+    newSaveItem->setText(name);
     saveStateModel->invisibleRootItem()->appendRow(newSaveItem);
     ui->savestateListView->setCurrentIndex(newSaveItem->index());
     qDebug() << newSaveItem->isEditable();
-    handleStuff.addSaveState(newSaveItem->text());
+    handleStuff.addSaveState(newSaveItem->text(), triggerSave);
     ui->savestateListView->edit(newSaveItem->index());
     newSaveInserted = newSaveItem;
+}
+
+void Savestate2snesw::on_addSaveStatePushButton_clicked()
+{
+    newSaveState(true);
 }
 
 
@@ -218,14 +225,42 @@ void Savestate2snesw::on_loadStatePushButton_clicked()
 
 void Savestate2snesw::saveStateItemChanged(QStandardItem *item)
 {
-    qDebug() << item->text() << "renamed?";
+    static bool avoid_loop = false;
+    qDebug() << item->text() << "renamed.";
+    QString name = item->text();
+    bool b = false;
+    while (saveStateModel->findItems(name).size() > 1)
+    {
+        b = true;
+        name += "_";
+    }
+    if (b && ! avoid_loop)
+    {
+      qDebug() << "Name collision";
+      avoid_loop = true;
+      item->setText(name);
+    }
+    avoid_loop = false;
     handleStuff.renameSaveState(item);
+}
+
+void    Savestate2snesw::setStateTitle(QStandardItem* cat)
+{
+    QString title = ui->gameComboBox->currentText();
+    QString catStr;
+    while (cat != NULL)
+    {
+        catStr = cat->text() + " " + catStr;
+        qDebug() << catStr;
+        cat = cat->parent();
+    }
+    ui->savestateTitleLabel->setText(title + " - " + catStr);
 }
 
 void Savestate2snesw::on_categoryTreeView_clicked(const QModelIndex &index)
 {
     QStandardItem* cat = repStateModel->itemFromIndex(index);
-    ui->savestateTitleLabel->setText(ui->gameComboBox->currentText() + " - " + cat->text());
+    setStateTitle(cat);
     saveStateModel->clear();
     QStringList saveList = handleStuff.loadSaveStates(cat);
     foreach (QString save, saveList)
@@ -243,21 +278,25 @@ void Savestate2snesw::onSaveStateDelegateDataCommited(QWidget *e)
 
 void Savestate2snesw::onReadyForSaveState()
 {
-    ui->statusBar->showMessage("USB2Snes is ready for savestates");
+    ui->statusBar->showMessage(tr("USB2Snes is ready for savestates."));
     ui->addSaveStatePushButton->setEnabled(true);
     ui->loadStatePushButton->setEnabled(true);
+    ui->saveSaveStatePushButton->setEnabled(true);
 }
 
 void Savestate2snesw::onUnReadyForSaveState()
 {
-    ui->statusBar->showMessage("USB2Snes is not ready for savestates anymore");
+    ui->statusBar->showMessage(tr("USB2Snes is not ready for savestates."));
     ui->addSaveStatePushButton->setEnabled(false);
     ui->loadStatePushButton->setEnabled(false);
+    ui->saveSaveStatePushButton->setEnabled(false);
 }
 
 
 void Savestate2snesw::on_upSavePushButton_clicked()
 {
+    if (!ui->savestateListView->currentIndex().isValid())
+        return;
     qDebug() << "item move up" << ui->savestateListView->currentIndex();
     int row = ui->savestateListView->currentIndex().row();
     if (row == 0)
@@ -270,6 +309,8 @@ void Savestate2snesw::on_upSavePushButton_clicked()
 
 void Savestate2snesw::on_downSavePushButton_clicked()
 {
+    if (!ui->savestateListView->currentIndex().isValid())
+        return;
     qDebug() << "item move down" << ui->savestateListView->currentIndex();
     int row = ui->savestateListView->currentIndex().row();
     if (row == saveStateModel->rowCount() - 1)
@@ -280,3 +321,31 @@ void Savestate2snesw::on_downSavePushButton_clicked()
     handleStuff.changeStateOrder(row, row + 1);
 }
 
+
+void Savestate2snesw::on_deleteSavePushButton_clicked()
+{
+    if (!ui->savestateListView->currentIndex().isValid())
+        return;
+    qDebug() << "deleting  " << ui->savestateListView->currentIndex();
+    int row = ui->savestateListView->currentIndex().row();
+    QList<QStandardItem*> lItem = saveStateModel->takeRow(row);
+    delete lItem.at(0);
+    handleStuff.deleteSaveState(row);
+}
+
+void Savestate2snesw::on_renameSavePushButton_clicked()
+{
+    if (!ui->savestateListView->currentIndex().isValid())
+        return;
+    ui->savestateListView->edit(ui->savestateListView->currentIndex());
+}
+
+void Savestate2snesw::on_savestateListView_doubleClicked(const QModelIndex &index)
+{
+    on_loadStatePushButton_clicked();
+}
+
+void Savestate2snesw::on_saveSaveStatePushButton_clicked()
+{
+    newSaveState(false);
+}

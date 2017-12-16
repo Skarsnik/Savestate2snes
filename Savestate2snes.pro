@@ -27,3 +27,6 @@ FORMS    += savestate2snesw.ui \
     usb2snesstatut.ui
 
 RC_FILE = savestate2snes.rc
+
+RESOURCES += \
+    images.qrc

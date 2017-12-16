@@ -12,7 +12,6 @@ USB2snes::USB2snes() : QObject()
     QObject::connect(&m_webSocket, SIGNAL(disconnected()), this, SLOT(onWebSocketDisconnected()));
     QObject::connect(&m_webSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(onWebSocketBinaryReceived(QByteArray)));
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));
-    m_serverVersion = "Nop";
     requestedBinaryReadSize = 0;
 }
 
@@ -93,6 +92,7 @@ void USB2snes::onWebSocketTextReceived(QString message)
     case DeviceListRequested:
     {
         QStringList results = getJsonResults(message);
+        m_deviceList = results;
         if (!results.isEmpty())
         {
             timer.stop();
@@ -199,23 +199,19 @@ QByteArray USB2snes::getAddress(unsigned int addr, unsigned int size, Space spac
 void USB2snes::setAddress(unsigned int addr, QByteArray data, Space space)
 {
     sendRequest("PutAddress", QStringList() << QString::number(addr, 16) << QString::number(data.size(), 16), space);
-    m_webSocket.sendBinaryMessage(data);
+    //Dumb shit for bad win7 C# websocket api
+    if (data.size() <= 1024)
+      m_webSocket.sendBinaryMessage(data);
+    else
+    {
+        while (data.size() != 0)
+        {
+            m_webSocket.sendBinaryMessage(data.left(1024));
+            data.remove(0, 1024);
+        }
+    }
 }
 
-USB2snes::State USB2snes::state()
-{
-    return m_state;
-}
-
-QString USB2snes::firmwareVersion()
-{
-    return m_firmwareVersion;
-}
-
-QString USB2snes::serverVersion()
-{
-    return m_serverVersion;
-}
 
 bool USB2snes::patchROM(QString patch)
 {
@@ -229,4 +225,25 @@ bool USB2snes::patchROM(QString patch)
         return true;
     }
     return false;
+}
+
+
+USB2snes::State USB2snes::state()
+{
+    return m_state;
+}
+
+QString USB2snes::firmwareVersion()
+{
+    return m_firmwareVersion;
+}
+
+QStringList USB2snes::deviceList()
+{
+    return m_deviceList;
+}
+
+QString USB2snes::serverVersion()
+{
+    return m_serverVersion;
 }

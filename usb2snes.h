@@ -50,6 +50,7 @@ public:
     void                    setAddress(unsigned int addr, QByteArray data, Space space = SNES);
     State                   state();
     QString                 firmwareVersion();
+    QStringList             deviceList();
     QString                 serverVersion();
     bool                    patchROM(QString patch);
 
@@ -77,6 +78,7 @@ private:
     QString         m_firmwareVersion;
     QString         m_serverVersion;
     InternalState   m_istate;
+    QStringList     m_deviceList;
     QByteArray      lastBinaryMessage;
     unsigned int    requestedBinaryReadSize;
 

@@ -49,6 +49,14 @@ private slots:
 
     void on_loadStatePushButton_clicked();
 
+    void on_deleteSavePushButton_clicked();
+
+    void on_renameSavePushButton_clicked();
+
+    void on_savestateListView_doubleClicked(const QModelIndex &index);
+
+    void on_saveSaveStatePushButton_clicked();
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;
@@ -68,6 +76,8 @@ private:
     void    loadGames();
     void    addSubName(QString name, QString parentPath);
     void    addState(QString name);
+    void    setStateTitle(QStandardItem *cat);
+    void newSaveState(bool triggerSave);
 };
 
 #endif // SAVESTATE2SNESW_H

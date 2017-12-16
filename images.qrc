@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>status button green.png</file>
+        <file>status button red.png</file>
+        <file>status button yellow.png</file>
+    </qresource>
+</RCC>
