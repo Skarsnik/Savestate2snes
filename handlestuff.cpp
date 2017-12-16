@@ -148,6 +148,7 @@ QStandardItem *HandleStuff::loadCategories(QString game)
 
 bool HandleStuff::addGame(QString newGame)
 {
+    qDebug() << "Add game " << newGame;
     if (saveDirectory.mkdir(newGame))
     {
         games.append(newGame);

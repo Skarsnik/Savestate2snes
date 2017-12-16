@@ -57,6 +57,8 @@ private slots:
 
     void on_saveSaveStatePushButton_clicked();
 
+    void on_pathPushButton_clicked();
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;
@@ -77,7 +79,8 @@ private:
     void    addSubName(QString name, QString parentPath);
     void    addState(QString name);
     void    setStateTitle(QStandardItem *cat);
-    void newSaveState(bool triggerSave);
+    void    newSaveState(bool triggerSave);
+    void    closeEvent(QCloseEvent *event);
 };
 
 #endif // SAVESTATE2SNESW_H

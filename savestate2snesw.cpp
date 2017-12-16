@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QInputDialog>
 #include <QDebug>
+#include <QFileDialog>
 #include "savestate2snesw.h"
 #include "ui_savestate2snesw.h"
 #include <QtSerialPort/QSerialPortInfo>
@@ -12,12 +13,11 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->setupUi(this);
 
     m_settings = new QSettings("skarsnik.nyo.fr", "SaveState2SNES");
-    /*
     if (m_settings->contains("windowGeometry"))
     {
         restoreGeometry(m_settings->value("windowGeometry").toByteArray());
         restoreState(m_settings->value("windowState").toByteArray());
-    }*/
+    }
 
     ui->pathPushButton->setIcon(style()->standardPixmap(QStyle::SP_DialogOpenButton));
     ui->newGamePushButton->setIcon(style()->standardPixmap(QStyle::SP_FileIcon));
@@ -28,7 +28,10 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     if (m_settings->contains("lastSaveStateDir"))
         gamesFolder = m_settings->value("lastSaveStateDir").toString();
     else
-        gamesFolder = "D:\\Project\\Savestate2snes\\savestate";
+    {
+        gamesFolder = QFileDialog::getExistingDirectory(this, tr("Choose Savestatedir"),
+                                                        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QFileDialog::ShowDirsOnly);
+    }
     handleStuff.setSaveStateDir(gamesFolder);
     ui->pathLineEdit->setText(gamesFolder);
 
@@ -98,6 +101,7 @@ void Savestate2snesw::loadGames()
     QStringList games = handleStuff.loadGames();
     if (games.size() != 0)
     {
+        ui->gameComboBox->clear();
         foreach(QString game, games)
         {
             ui->gameComboBox->addItem(game);
@@ -208,6 +212,13 @@ void    Savestate2snesw::newSaveState(bool triggerSave)
     handleStuff.addSaveState(newSaveItem->text(), triggerSave);
     ui->savestateListView->edit(newSaveItem->index());
     newSaveInserted = newSaveItem;
+}
+
+void Savestate2snesw::closeEvent(QCloseEvent *event)
+{
+    m_settings->setValue("windowState", saveState());
+    m_settings->setValue("windowGeometry", saveGeometry());
+    m_settings->setValue("lastSaveStateDir", gamesFolder);
 }
 
 void Savestate2snesw::on_addSaveStatePushButton_clicked()
@@ -348,4 +359,12 @@ void Savestate2snesw::on_savestateListView_doubleClicked(const QModelIndex &inde
 void Savestate2snesw::on_saveSaveStatePushButton_clicked()
 {
     newSaveState(false);
+}
+
+void Savestate2snesw::on_pathPushButton_clicked()
+{
+    gamesFolder = QFileDialog::getExistingDirectory(this, tr("Choose Games Directory"), gamesFolder, QFileDialog::ShowDirsOnly);
+    handleStuff.setSaveStateDir(gamesFolder);
+    ui->pathLineEdit->setText(gamesFolder);
+    loadGames();
 }
