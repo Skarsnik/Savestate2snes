@@ -72,7 +72,7 @@ void    HandleStuff::checkForSafeState()
     QByteArray data = usb2snes->getAddress(0xFC2000, 2);
     while (!(data.at(0) == 0 && data.at(1) == 0))
     {
-            QThread::usleep(200);
+            QThread::usleep(100);
             data = usb2snes->getAddress(0xFC2000, 2);
     }
 }
