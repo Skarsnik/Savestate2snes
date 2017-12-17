@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Savestate2snesw</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -259,38 +262,8 @@
      </layout>
     </item>
     <item>
-     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0" columnstretch="15,20,5" rowminimumheight="0,0,0" columnminimumwidth="0,0,0">
-      <item row="0" column="0" rowspan="2">
-       <widget class="QTreeView" name="categoryTreeView">
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-        <property name="rootIsDecorated">
-         <bool>true</bool>
-        </property>
-        <attribute name="headerVisible">
-         <bool>false</bool>
-        </attribute>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="savestateTitleLabel">
-        <property name="text">
-         <string>Category name</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QListView" name="savestateListView">
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0" columnstretch="15,0,0">
+      <item row="2" column="2">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <spacer name="verticalSpacer_4">
@@ -383,7 +356,24 @@
         </item>
        </layout>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="2" column="1">
+       <widget class="QListView" name="savestateListView">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="savestateTitleLabel">
+        <property name="text">
+         <string>Category name</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <spacer name="horizontalSpacer">
@@ -477,6 +467,26 @@
          </spacer>
         </item>
        </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QTreeView" name="categoryTreeView">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="rootIsDecorated">
+         <bool>true</bool>
+        </property>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Categories - right click on the area to perform actions</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
