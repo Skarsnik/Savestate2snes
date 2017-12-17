@@ -57,8 +57,8 @@ QByteArray HandleStuff::UsbSNESSaveState(bool trigger)
         checkForSafeState();
         data.resize(2);
         data[0] = 0;
-        data[1] = 0;
-        usb2snes->setAddress(0xFC2000, data);
+        /*data[1] = 0;
+        usb2snes->setAddress(0xFC2000, data);*/
         data[0] = 1;
         usb2snes->setAddress(0xFC2000, data);
     }
@@ -87,8 +87,8 @@ bool    HandleStuff::loadSaveState(QString name)
         usb2snes->setAddress(0xF00000, data);
         data.resize(2);
         data[0] = 0;
-        data[1] = 0;
-        usb2snes->setAddress(0xFC2000, data);
+        /*data[1] = 0;
+        usb2snes->setAddress(0xFC2000, data);*/
         data[1] = 1;
         usb2snes->setAddress(0xFC2000, data);
         saveFile.close();

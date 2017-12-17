@@ -77,6 +77,34 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     usb2snes->connect();
 }
 
+void Savestate2snesw::loadGames()
+{
+    QStringList games = handleStuff.loadGames();
+    if (games.size() != 0)
+    {
+        ui->gameComboBox->clear();
+        foreach(QString game, games)
+        {
+            ui->gameComboBox->addItem(game);
+        }
+        ui->gameComboBox->model()->sort(0);
+        if (m_settings->contains("lastGameLoaded"))
+        {
+            int index = ui->gameComboBox->findText(m_settings->value("lastGameLoaded").toString());
+            if (index != -1)
+            {
+              ui->gameComboBox->setCurrentIndex(index);
+            }
+        } else {
+            ui->gameComboBox->setCurrentIndex(0);
+        }
+    } else {
+        ui->statusBar->showMessage("No game found into : " + gamesFolder);
+    }
+}
+
+
+
 Savestate2snesw::~Savestate2snesw()
 {
     delete ui;
@@ -114,31 +142,6 @@ void Savestate2snesw::createMenus()
     categoryMenu->addAction(ui->actionAddCategory);
 }
 
-void Savestate2snesw::loadGames()
-{
-    QStringList games = handleStuff.loadGames();
-    if (games.size() != 0)
-    {
-        ui->gameComboBox->clear();
-        foreach(QString game, games)
-        {
-            ui->gameComboBox->addItem(game);
-        }
-        ui->gameComboBox->model()->sort(0);
-        if (m_settings->contains("lastGameLoaded"))
-        {
-            int index = ui->gameComboBox->findText(m_settings->value("lastGameLoaded").toString());
-            if (index != -1)
-            {
-              ui->gameComboBox->setCurrentIndex(index);
-            }
-        } else {
-            ui->gameComboBox->setCurrentIndex(0);
-        }
-    } else {
-        ui->statusBar->showMessage("No game found into : " + gamesFolder);
-    }
-}
 
 void Savestate2snesw::on_actionRemoveCategory_triggered()
 {
@@ -204,7 +207,9 @@ void deepClone(QStandardItem* tocpy, QStandardItem *cpy)
 void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
 {
     repStateModel->clear();
+    saveStateModel->clear();
     QStandardItem* root = handleStuff.loadCategories(arg1);
+    m_settings->setValue("lastGameLoaded", arg1);
     qDebug() << root;
     for (unsigned int i = 0; i < root->rowCount(); i++)
     {
@@ -241,14 +246,22 @@ void Savestate2snesw::closeEvent(QCloseEvent *event)
 
 void Savestate2snesw::on_addSaveStatePushButton_clicked()
 {
-    newSaveState(true);
+    if (ui->categoryTreeView->currentIndex().isValid())
+        newSaveState(true);
+}
+
+void Savestate2snesw::on_saveSaveStatePushButton_clicked()
+{
+    if (ui->categoryTreeView->currentIndex().isValid())
+        newSaveState(false);
 }
 
 
 void Savestate2snesw::on_loadStatePushButton_clicked()
 {
     QModelIndex cur = ui->savestateListView->currentIndex();
-    handleStuff.loadSaveState(saveStateModel->itemFromIndex(cur)->text());
+    if (cur.isValid())
+        handleStuff.loadSaveState(saveStateModel->itemFromIndex(cur)->text());
 }
 
 
@@ -374,10 +387,6 @@ void Savestate2snesw::on_savestateListView_doubleClicked(const QModelIndex &inde
     on_loadStatePushButton_clicked();
 }
 
-void Savestate2snesw::on_saveSaveStatePushButton_clicked()
-{
-    newSaveState(false);
-}
 
 void Savestate2snesw::on_pathPushButton_clicked()
 {
