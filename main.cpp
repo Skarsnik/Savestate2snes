@@ -19,6 +19,7 @@
 #include "savestate2snesw.h"
 #include <QApplication>
 #include <QMessageBox>
+#include "firsttimedialog.h"
 
 static QTextStream logfile;
 static QTextStream cout(stdout);
@@ -60,6 +61,14 @@ int main(int argc, char *argv[])
     logfile.setDevice(&mlog);
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
         qInstallMessageHandler(myMessageOutput);
+    QSettings settings("skarsnik.nyo.fr", "SaveState2SNES");
+    if (!settings.contains("lastSaveStateDir"))
+    {
+        FirstTimeDialog diag;
+        if (diag.exec() == QDialog::Rejected)
+            return 1;
+        settings.setValue("lastSaveStateDir", diag.savePath);
+    }
     Savestate2snesw w;
     w.show();
 

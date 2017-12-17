@@ -22,7 +22,6 @@
 #include <QFileDialog>
 #include "savestate2snesw.h"
 #include "ui_savestate2snesw.h"
-#include <QtSerialPort/QSerialPortInfo>
 
 Savestate2snesw::Savestate2snesw(QWidget *parent) :
     QMainWindow(parent),
