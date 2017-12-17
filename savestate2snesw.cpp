@@ -206,6 +206,8 @@ void deepClone(QStandardItem* tocpy, QStandardItem *cpy)
 
 void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
 {
+    if (arg1.isEmpty())
+        return;
     repStateModel->clear();
     saveStateModel->clear();
     QStandardItem* root = handleStuff.loadCategories(arg1);
@@ -391,6 +393,7 @@ void Savestate2snesw::on_savestateListView_doubleClicked(const QModelIndex &inde
 void Savestate2snesw::on_pathPushButton_clicked()
 {
     gamesFolder = QFileDialog::getExistingDirectory(this, tr("Choose Games Directory"), gamesFolder, QFileDialog::ShowDirsOnly);
+    qDebug() << "Choosen file : " << gamesFolder;
     handleStuff.setSaveStateDir(gamesFolder);
     ui->pathLineEdit->setText(gamesFolder);
     loadGames();

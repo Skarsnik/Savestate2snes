@@ -26,7 +26,7 @@ static QTextStream cout(stdout);
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
-    cout << msg;
+    //cout << msg;
     switch (type)
     {
         case QtDebugMsg:

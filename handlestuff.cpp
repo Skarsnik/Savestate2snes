@@ -29,6 +29,12 @@ HandleStuff::HandleStuff()
 
 QStringList HandleStuff::loadGames()
 {
+    games.clear();
+    gameLoaded.clear();
+    categories.clear();
+    saveStates.clear();
+    categoriesByPath.clear();
+
     QFileInfoList listDir = saveDirectory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     qDebug() << "Loading games" << listDir.size();
     foreach(QFileInfo fi, listDir)
@@ -37,6 +43,23 @@ QStringList HandleStuff::loadGames()
         qDebug() << fi.baseName();
     }
     return games;
+}
+
+QStandardItem *HandleStuff::loadCategories(QString game)
+{
+    qDebug() << "Loading categories for " << game;
+    if (!categories.contains(game))
+    {
+        QStandardItem *root = new QStandardItem();
+        saveDirectory.cd(game);
+        root->setData(saveDirectory.absolutePath(), MyRolePath);
+        categoriesByPath[root->data(MyRolePath).toString()] = root;
+        findCategory(root, saveDirectory);
+        saveDirectory.cdUp();
+        categories[game] = root;
+    }
+    gameLoaded = game;
+    return categories[game];
 }
 
 void HandleStuff::setUsb2snes(USB2snes *usbsnes)
@@ -145,23 +168,6 @@ void HandleStuff::writeCacheOrderFile(QString file, QString dirPath)
     }
 }
 
-
-QStandardItem *HandleStuff::loadCategories(QString game)
-{
-    qDebug() << "Loading category for " << game;
-    if (!categories.contains(game))
-    {
-        QStandardItem *root = new QStandardItem();
-        saveDirectory.cd(game);
-        root->setData(saveDirectory.absolutePath(), MyRolePath);
-        categoriesByPath[root->data(MyRolePath).toString()] = root;
-        findCategory(root, saveDirectory);
-        saveDirectory.cdUp();
-        categories[game] = root;
-    }
-    gameLoaded = game;
-    return categories[game];
-}
 
 bool HandleStuff::addGame(QString newGame)
 {
