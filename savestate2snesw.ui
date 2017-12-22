@@ -121,6 +121,16 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QPushButton" name="editShortcutButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Edit shortcut</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
@@ -262,7 +272,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0" columnstretch="15,0,0">
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0" columnstretch="15,20,0">
       <item row="2" column="2">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>

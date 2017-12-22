@@ -45,21 +45,6 @@ void USB2SnesStatut::setUsb2snes(USB2snes *usnes)
     connect(usb2snes, SIGNAL(disconnected()), this, SLOT(onUsb2snesDisconnected()));
 }
 
-void USB2SnesStatut::onRomStarted()
-{
-    QString text = usb2snes->getRomName();
-    ui->romNameLabel->setText(text);
-    if (!isPatchedRom())
-    {
-        ui->romPatchedLabel->setText(tr("ROM is not patched for savestate"));
-        ui->patchROMpushButton->setEnabled(true);
-    } else {
-        romPatched();
-    }
-
-}
-
-
 //; 	A		B	  Y      X        L      R      	>		<		v		^	Start	  select
 //DW #$0080, #$8000, #$4000, #$0040, #$0020, #$0010, #$0100, #$0200, #$0400, #$0800, #$1000, #$2000,
 
@@ -89,17 +74,36 @@ QString snesjoy2string(QByteArray input)
     return inputs.join("+");
 }
 
+
+void USB2SnesStatut::refreshShortcuts()
+{
+    QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
+    QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
+    ui->shortcutLabel->setText(QString(tr("Shortcuts: - Save: %1 - Load: %2")).arg(snesjoy2string(saveButton)).arg(snesjoy2string(loadButton)));
+    ui->shortcutLabel->setEnabled(true);
+}
+
+void USB2SnesStatut::onRomStarted()
+{
+    QString text = usb2snes->getRomName();
+    ui->romNameLabel->setText(text);
+    if (!isPatchedRom())
+    {
+        ui->romPatchedLabel->setText(tr("ROM is not patched for savestate"));
+        ui->patchROMpushButton->setEnabled(true);
+    } else {
+        romPatched();
+    }
+
+}
+
 void    USB2SnesStatut::romPatched()
 {
     ui->patchROMpushButton->setEnabled(false);
     ui->romPatchedLabel->setText(tr("ROM is patched for savestate"));
     ui->statusPushButton->setIcon(QIcon(STATUS_PIX_GREEN));
     emit readyForSaveState();
-    // save then load
-    QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
-    QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
-    ui->shortcutLabel->setText(QString(tr("Shortcuts: - Save: %1 - Load: %2")).arg(snesjoy2string(saveButton)).arg(snesjoy2string(loadButton)));
-    ui->shortcutLabel->setEnabled(true);
+    refreshShortcuts();
 }
 
 void USB2SnesStatut::on_patchROMpushButton_clicked()

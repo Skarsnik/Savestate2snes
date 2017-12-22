@@ -35,6 +35,7 @@ public:
     explicit USB2SnesStatut(QWidget *parent = 0);
     ~USB2SnesStatut();
     void    setUsb2snes(USB2snes* usnes);
+    void    refreshShortcuts();
 
 signals:
     void    readyForSaveState();

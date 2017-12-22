@@ -19,8 +19,9 @@
 
 #include "handlestuff.h"
 
-#define ORDERCATFILE "svt2snesordercat.txt"
+#define ORDERCATFILE  "svt2snesordercat.txt"
 #define ORDERSAVEFILE "svt2snesordersave.txt"
+#define GAMEINFOS     "gameinfos.txt"
 
 HandleStuff::HandleStuff()
 {
@@ -59,6 +60,18 @@ QStandardItem *HandleStuff::loadCategories(QString game)
         categories[game] = root;
     }
     gameLoaded = game;
+    m_gameInfo.loadShortcut = 0;
+    m_gameInfo.saveShortcut = 0;
+    m_gameInfo.name = game;
+    if (QFileInfo::exists(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS))
+    {
+        qDebug() << "Game has file info";
+        QSettings file(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS, QSettings::IniFormat);
+        m_gameInfo.loadShortcut = file.value("_/loadShorcut").toString().toUInt(NULL, 16);
+        m_gameInfo.saveShortcut = file.value("_/saveShorcut").toString().toUInt(NULL, 16);
+        m_gameInfo.name = file.value("_/game").toString();
+
+    }
     return categories[game];
 }
 
@@ -309,6 +322,50 @@ void HandleStuff::deleteSaveState(int row)
     saveList.removeAt(row);
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
 
+}
+
+quint16 HandleStuff::shortcutSave()
+{
+    QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
+    quint16 toret = (saveButton.at(1) << 8) + saveButton.at(0);
+    return toret;
+}
+
+quint16 HandleStuff::shortcutLoad()
+{
+    QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
+    quint16 toret = (loadButton.at(1) << 8) + loadButton.at(0);
+    return toret;
+}
+
+void HandleStuff::setShortcutLoad(quint16 shortcut)
+{
+    QByteArray data;
+    data.resize(2);
+    data[0] = shortcut & 0x00FF;
+    data[1] = shortcut >> 8;
+    usb2snes->setAddress(0xFC2004, data);
+}
+
+void HandleStuff::setShortcutSave(quint16 shortcut)
+{
+    QByteArray data;
+    data.resize(2);
+    data[0] = shortcut & 0x00FF;
+    data[1] = shortcut >> 8;
+    usb2snes->setAddress(0xFC2002, data);
+}
+
+GameInfos HandleStuff::gameInfos()
+{
+    return m_gameInfo;
+}
+
+void HandleStuff::setGameShortCut(quint16 save, quint16 load)
+{
+    QSettings file(saveDirectory.absolutePath() + "/" + gameLoaded + "/" + GAMEINFOS, QSettings::IniFormat);
+    file.setValue("_/saveShortcut", QString::number(save, 16));
+    file.setValue("_/loadShortcut", QString::number(load, 16));
 }
 
 

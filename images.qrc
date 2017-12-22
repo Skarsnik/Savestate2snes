@@ -3,5 +3,17 @@
         <file>status button green.png</file>
         <file>status button red.png</file>
         <file>status button yellow.png</file>
+        <file>sfcbuttonA.png</file>
+        <file>sfcbuttonB.png</file>
+        <file>sfcbuttonX.png</file>
+        <file>sfcbuttonY.png</file>
+        <file>sfcbuttonL.png</file>
+        <file>sfcbuttonR.png</file>
+        <file>sfcbuttondown.png</file>
+        <file>sfcbuttonright.png</file>
+        <file>sfcbuttonselect.png</file>
+        <file>sfcbuttonstart.png</file>
+        <file>sfcbuttonup.png</file>
+        <file>sfcbuttonleft.png</file>
     </qresource>
 </RCC>

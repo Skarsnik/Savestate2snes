@@ -20,8 +20,11 @@
 #include <QInputDialog>
 #include <QDebug>
 #include <QFileDialog>
+#include <QMenu>
 #include "savestate2snesw.h"
+#include "shortcuteditdialog.h"
 #include "ui_savestate2snesw.h"
+
 
 Savestate2snesw::Savestate2snesw(QWidget *parent) :
     QMainWindow(parent),
@@ -325,6 +328,13 @@ void Savestate2snesw::onReadyForSaveState()
     ui->addSaveStatePushButton->setEnabled(true);
     ui->loadStatePushButton->setEnabled(true);
     ui->saveSaveStatePushButton->setEnabled(true);
+    ui->editShortcutButton->setEnabled(true);
+    if (handleStuff.gameInfos().saveShortcut != 0)
+    {
+        handleStuff.setShortcutSave(handleStuff.gameInfos().saveShortcut);
+        handleStuff.setShortcutLoad(handleStuff.gameInfos().loadShortcut);
+        ui->usb2snesStatut->refreshShortcuts();
+    }
 }
 
 void Savestate2snesw::onUnReadyForSaveState()
@@ -333,6 +343,7 @@ void Savestate2snesw::onUnReadyForSaveState()
     ui->addSaveStatePushButton->setEnabled(false);
     ui->loadStatePushButton->setEnabled(false);
     ui->saveSaveStatePushButton->setEnabled(false);
+    ui->editShortcutButton->setEnabled(false);
 }
 
 
@@ -396,4 +407,19 @@ void Savestate2snesw::on_pathPushButton_clicked()
     handleStuff.setSaveStateDir(gamesFolder);
     ui->pathLineEdit->setText(gamesFolder);
     loadGames();
+}
+
+void Savestate2snesw::on_editShortcutButton_clicked()
+{
+    ShortcutEditDialog  diag(this, handleStuff.shortcutSave(), handleStuff.shortcutLoad());
+    if (diag.exec())
+    {
+        quint16 save = diag.saveShortcut();
+        quint16 load = diag.loadShortcut();
+        qDebug() << "Setting shortcuts" << save << load;
+        handleStuff.setShortcutSave(save);
+        handleStuff.setShortcutLoad(load);
+        ui->usb2snesStatut->refreshShortcuts();
+        handleStuff.setGameShortCut(save, load);
+    }
 }

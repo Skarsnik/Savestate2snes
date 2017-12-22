@@ -20,6 +20,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include "firsttimedialog.h"
+#include "shortcuteditdialog.h"
 
 static QTextStream logfile;
 static QTextStream cout(stdout);
@@ -62,6 +63,9 @@ int main(int argc, char *argv[])
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
         qInstallMessageHandler(myMessageOutput);
     QSettings settings("skarsnik.nyo.fr", "SaveState2SNES");
+    /*ShortcutEditDialog sdiag;
+    sdiag.exec();
+    return 1;*/
     if (!settings.contains("lastSaveStateDir"))
     {
         FirstTimeDialog diag;

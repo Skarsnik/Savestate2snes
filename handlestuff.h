@@ -25,6 +25,13 @@
 
 #define MyRolePath Qt::UserRole + 1
 
+struct  GameInfos
+{
+    quint16 saveShortcut;
+    quint16 loadShortcut;
+    QString name;
+};
+
 class HandleStuff
 {
 public:
@@ -46,6 +53,12 @@ public:
     void    changeStateOrder(int from, int to);
     bool    loadSaveState(QString name);
     void    deleteSaveState(int row);
+    quint16 shortcutSave();
+    quint16 shortcutLoad();
+    void    setShortcutLoad(quint16 shortcut);
+    void    setShortcutSave(quint16 shortcut);
+    GameInfos    gameInfos();
+    void    setGameShortCut(quint16 save, quint16 load);
 
 private:
     QDir                                    saveDirectory;
@@ -56,6 +69,7 @@ private:
     QString                                 gameLoaded;
     QStandardItem*                          catLoaded;
     USB2snes*                               usb2snes;
+    GameInfos                               m_gameInfo;
 
     void findCategory(QStandardItem *parent, QDir dir);
     QStringList getCacheOrderList(QString file, QString dirPath);

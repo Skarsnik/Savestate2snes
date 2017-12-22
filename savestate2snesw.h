@@ -76,6 +76,8 @@ private slots:
 
     void on_pathPushButton_clicked();
 
+    void on_editShortcutButton_clicked();
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;
