@@ -16,8 +16,11 @@
 
 
 #include <QDebug>
-
 #include "handlestuff.h"
+
+Q_LOGGING_CATEGORY(log_handleStuff, "HandleStuff")
+
+#define sDebug() qCDebug(log_handleStuff)
 
 #define ORDERCATFILE  "svt2snesordercat.txt"
 #define ORDERSAVEFILE "svt2snesordersave.txt"
@@ -37,18 +40,18 @@ QStringList HandleStuff::loadGames()
     categoriesByPath.clear();
 
     QFileInfoList listDir = saveDirectory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-    qDebug() << "Loading games" << listDir.size();
+    sDebug() << "Loading games" << listDir.size();
     foreach(QFileInfo fi, listDir)
     {
         games << fi.baseName();
-        qDebug() << fi.baseName();
+        sDebug() << fi.baseName();
     }
     return games;
 }
 
 QStandardItem *HandleStuff::loadCategories(QString game)
 {
-    qDebug() << "Loading categories for " << game;
+    sDebug() << "Loading categories for " << game;
     if (!categories.contains(game))
     {
         QStandardItem *root = new QStandardItem();
@@ -65,7 +68,7 @@ QStandardItem *HandleStuff::loadCategories(QString game)
     m_gameInfo.name = game;
     if (QFileInfo::exists(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS))
     {
-        qDebug() << "Game has file info";
+        sDebug() << "Game has file info";
         QSettings file(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS, QSettings::IniFormat);
         m_gameInfo.loadShortcut = file.value("_/loadShorcut").toString().toUInt(NULL, 16);
         m_gameInfo.saveShortcut = file.value("_/saveShorcut").toString().toUInt(NULL, 16);
@@ -184,7 +187,7 @@ void HandleStuff::writeCacheOrderFile(QString file, QString dirPath)
 
 bool HandleStuff::addGame(QString newGame)
 {
-    qDebug() << "Add game " << newGame;
+    sDebug() << "Add game " << newGame;
     if (saveDirectory.mkdir(newGame))
     {
         games.append(newGame);
@@ -227,7 +230,7 @@ bool HandleStuff::addCategory(QStandardItem *newCategory, QStandardItem *parent)
 bool HandleStuff::addSubCategory(QStandardItem *newCategory, QStandardItem *parent)
 {
     QString parentPath = parent->data(MyRolePath).toString();
-    qDebug() << parent->text() << parentPath;
+    sDebug() << parent->text() << parentPath;
     QFileInfo fi(parentPath + "/" + newCategory->text());
     QDir di(parentPath);
     di.mkdir(newCategory->text());
@@ -317,7 +320,7 @@ void HandleStuff::deleteSaveState(int row)
     QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
     QString dirPath = catLoaded->data(MyRolePath).toString();
     QString filePath = dirPath + "/" + saveList.at(row) + ".svt";
-    qDebug() << "Removing : " << filePath;
+    sDebug() << "Removing : " << filePath;
     QFile::remove(filePath);
     saveList.removeAt(row);
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());

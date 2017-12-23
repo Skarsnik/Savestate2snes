@@ -21,6 +21,10 @@
 
 #include <QToolTip>
 
+Q_LOGGING_CATEGORY(log_usb2snesstatus, "USB2SNES Status")
+
+#define sDebug() qCDebug(log_usb2snesstatus())
+
 #define CHECK_ROMRUNNING_TICK 500
 #define STATUS_PIX_RED ":/status button red.png"
 #define STATUS_PIX_ORANGE ":/status button yellow.png"
@@ -77,6 +81,7 @@ QString snesjoy2string(QByteArray input)
 
 void USB2SnesStatut::refreshShortcuts()
 {
+    sDebug() << "Refreshing shortcuts";
     QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
     QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
     ui->shortcutLabel->setText(QString(tr("Shortcuts: - Save: %1 - Load: %2")).arg(snesjoy2string(saveButton)).arg(snesjoy2string(loadButton)));
@@ -85,6 +90,7 @@ void USB2SnesStatut::refreshShortcuts()
 
 void USB2SnesStatut::onRomStarted()
 {
+    sDebug() << "Rom started";
     QString text = usb2snes->getRomName();
     ui->romNameLabel->setText(text);
     if (!isPatchedRom())
@@ -99,6 +105,7 @@ void USB2SnesStatut::onRomStarted()
 
 void    USB2SnesStatut::romPatched()
 {
+    sDebug() << "Rom is patched";
     ui->patchROMpushButton->setEnabled(false);
     ui->romPatchedLabel->setText(tr("ROM is patched for savestate"));
     ui->statusPushButton->setIcon(QIcon(STATUS_PIX_GREEN));
@@ -132,7 +139,7 @@ void USB2SnesStatut::buildStatusInfo()
     statusString = QString(tr("SD2SNES On : %1\n")).arg(usb2snes->deviceList().at(0));
     statusString += QString(tr("Firmware version is %1 and USB2SNES app version : %2 : %3\n")).arg(usb2snes->firmwareVersion()).arg(usb2snes->serverVersion()).arg("OK");
     setStatusToolTips:
-        qDebug() << statusString;
+        sDebug() << statusString;
         ui->statusPushButton->setToolTip(statusString);
 }
 
@@ -148,6 +155,7 @@ bool USB2SnesStatut::validVersion()
 
 bool USB2SnesStatut::isPatchedRom()
 {
+    sDebug() << "Checking for patched rom";
     QByteArray data = usb2snes->getAddress(0x2A90, 1, USB2snes::CMD);
     if (data[0] != (char) 0x60)
         return true;

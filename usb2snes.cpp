@@ -17,6 +17,10 @@
 
 #include "usb2snes.h"
 #include <QUrl>
+#include <QDebug>
+
+Q_LOGGING_CATEGORY(log_Usb2snes, "USB2SNES")
+#define sDebug() qCDebug(log_Usb2snes)
 
 USB2snes::USB2snes() : QObject()
 {
@@ -70,7 +74,7 @@ void USB2snes::connect()
 
 void USB2snes::onWebSocketConnected()
 {
-    qDebug() << "Websocket connected";
+    sDebug() << "Websocket connected";
     changeState(Connected);
     m_istate = IConnected;
     m_istate = DeviceListRequested;
@@ -79,7 +83,7 @@ void USB2snes::onWebSocketConnected()
 
 void USB2snes::onWebSocketDisconnected()
 {
-    qDebug() << "Websocket disconnected";
+    sDebug() << "Websocket disconnected";
     changeState(None);
     m_istate = INone;
     emit disconnected();
@@ -102,7 +106,7 @@ QStringList USB2snes::getJsonResults(QString json)
 
 void USB2snes::onWebSocketTextReceived(QString message)
 {
-    qDebug() << "<<T" << message;
+    sDebug() << "<<T" << message;
     switch (m_istate)
     {
     case DeviceListRequested:
@@ -150,9 +154,9 @@ void USB2snes::onWebSocketBinaryReceived(QByteArray message)
 {
     static QByteArray buffer;
     if (message.size() < 100)
-      qDebug() << "<<B" << message.toHex('-') << message;
+      sDebug() << "<<B" << message.toHex('-') << message;
     else
-      qDebug() << "<<B" << "Received " << message.size() << " byte of data";
+      sDebug() << "<<B" << "Received " << message.size() << " byte of data";
     buffer.append(message);
     if (buffer.size() == requestedBinaryReadSize)
     {
@@ -191,13 +195,14 @@ void USB2snes::sendRequest(QString opCode, QStringList operands, Space space, QS
         jOp.append(QJsonValue(sops));
     if (!operands.isEmpty())
         jObj["Operands"] = jOp;
-    qDebug() << ">>" << QJsonDocument(jObj).toJson();
+    sDebug() << ">>" << QJsonDocument(jObj).toJson();
     m_webSocket.sendTextMessage(QJsonDocument(jObj).toJson());
 }
 
 void USB2snes::changeState(USB2snes::State s)
 {
     m_state = s;
+    sDebug() << "State changed to " << s;
     emit stateChanged();
 }
 

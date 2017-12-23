@@ -32,23 +32,23 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     switch (type)
     {
         case QtDebugMsg:
-            logfile << QString("Debug: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function);
+            logfile << QString("%5 - Debug: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20);
             break;
         case QtCriticalMsg:
-            logfile << QString("Critical: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function);
+            logfile << QString("%5 - Critical: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20);
             QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
             qApp->exit(1);
             break;
         case QtWarningMsg:
-            logfile << QString("Warning: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function);
+            logfile << QString("%5 - Warning: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20);
             break;
         case QtFatalMsg:
-            logfile << QString("Fatal: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function);
+            logfile << QString("%5 - Fatal: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20);
             break;
     }
     logfile << "\n";
     logfile.flush();
-    cout << msg << "\n";
+    cout << QString("%1 : %2").arg(context.category, 20).arg(msg) << "\n";
     cout.flush();
 }
 
@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     QDir("/").mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
     QFile   mlog(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/log.txt");
     logfile.setDevice(&mlog);
+    //qSetMessagePattern("%{category} %{message}");
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
         qInstallMessageHandler(myMessageOutput);
     QSettings settings("skarsnik.nyo.fr", "SaveState2SNES");
