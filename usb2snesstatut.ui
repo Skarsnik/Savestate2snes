@@ -45,7 +45,7 @@
             <item>
              <widget class="QLabel" name="romNameLabel">
               <property name="text">
-               <string>Rom Name</string>
+               <string>None</string>
               </property>
              </widget>
             </item>

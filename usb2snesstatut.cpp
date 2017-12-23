@@ -19,6 +19,7 @@
 #include "usb2snesstatut.h"
 #include "ui_usb2snesstatut.h"
 
+#include <QMessageBox>
 #include <QToolTip>
 
 Q_LOGGING_CATEGORY(log_usb2snesstatus, "USB2SNES Status")
@@ -39,7 +40,11 @@ USB2SnesStatut::USB2SnesStatut(QWidget *parent) :
      connectedOnce = false;
      readyOnce = false;
      connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));  
-     timer.start(1000);
+     //timer.start(1000);
+     menuRunning = false;
+     romRunning = false;
+     ui->romPatchedLabel->hide();
+     ui->pushButton->hide();
 }
 
 void USB2SnesStatut::setUsb2snes(USB2snes *usnes)
@@ -91,7 +96,7 @@ void USB2SnesStatut::refreshShortcuts()
 void USB2SnesStatut::onRomStarted()
 {
     sDebug() << "Rom started";
-    QString text = usb2snes->getRomName();
+    QString text = usb2snes->infos().at(2);
     ui->romNameLabel->setText(text);
     if (!isPatchedRom())
     {
@@ -136,8 +141,12 @@ void USB2SnesStatut::buildStatusInfo()
             statusString.append(tr("No sd2nes devices found."));
         goto setStatusToolTips;
     }
-    statusString = QString(tr("SD2SNES On : %1\n")).arg(usb2snes->deviceList().at(0));
-    statusString += QString(tr("Firmware version is %1 and USB2SNES app version : %2 : %3\n")).arg(usb2snes->firmwareVersion()).arg(usb2snes->serverVersion()).arg("OK");
+    if (menuRunning)
+    {
+        statusString = tr("SD2SNES is on menu, not a rom\n");
+    }
+    statusString += QString(tr("SD2SNES On : %1\n")).arg(usb2snes->deviceList().at(0));
+    statusString += QString(tr("Firmware version is %1 and USB2SNES app version : %2 : %3\n")).arg(usb2snes->firmwareString()).arg(usb2snes->serverVersion().toString()).arg(validVersion() ? "OK" : "NOK");
     setStatusToolTips:
         sDebug() << statusString;
         ui->statusPushButton->setToolTip(statusString);
@@ -145,8 +154,7 @@ void USB2SnesStatut::buildStatusInfo()
 
 bool USB2SnesStatut::validVersion()
 {
-    if (usb2snes->firmwareVersion().right(1).toInt() >= 5 &&
-        !usb2snes->serverVersion().isEmpty())
+    if (usb2snes->firmwareVersion() >= QVersionNumber(6) && usb2snes->serverVersion() >= QVersionNumber(6))
         return true;
     return false;
 }
@@ -165,16 +173,45 @@ bool USB2SnesStatut::isPatchedRom()
 void USB2SnesStatut::onTimerTick()
 {
     //emit readyForSaveState();
-    timer.stop();
+    QStringList infos = usb2snes->infos();
+    if (infos.at(2) != "/sd2snes/menu.bin" && romRunning == false)
+    {
+        romRunning = true;
+        menuRunning = false;
+        onRomStarted();
+    }
+    if (infos.at(2) == "/sd2snes/menu.bin" && menuRunning == false)
+    {
+        ui->romPatchedLabel->setText(tr("SD2SNES on Menu"));
+        romRunning = false;
+        menuRunning = true;
+        buildStatusInfo();
+        emit unReadyForSaveState();
+    }
 }
 
 void USB2SnesStatut::onUsb2snesStateChanged()
 {
     if (usb2snes->state() == USB2snes::Ready)
     {
-        ui->statusPushButton->setIcon(QIcon(STATUS_PIX_ORANGE));;
-        timer.start(CHECK_ROMRUNNING_TICK);
-        readyOnce = true;
+        if (validVersion())
+        {
+            ui->statusPushButton->setIcon(QIcon(STATUS_PIX_ORANGE));
+            usb2snes->setAppName("Savestate2snes");
+            timer.start(CHECK_ROMRUNNING_TICK);
+            readyOnce = true;
+            ui->romPatchedLabel->show();
+        } else {
+            QMessageBox msgBox(this);
+            msgBox.setTextFormat(Qt::RichText);
+            msgBox.setText(QString(tr("Your usb2snes client version (%1) and/or "
+                                      "usb2snes firmware version (%2) are not enought to run Savestate2snes<br/>"
+                                      "You need at least version 6 for both.<br/> You can get it at  <a href=\"https://github.com/RedGuyyyy/sd2snes/releases\"><span style=\" text-decoration: underline; color:#0000ff;\">USB2snes last release</span></a>"
+                                      )).arg(usb2snes->serverVersion().toString()).arg(usb2snes->firmwareVersion().toString()));
+            msgBox.setWindowTitle(tr("Version error"));
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
     }
     if (usb2snes->state() == USB2snes::Connected)
         connectedOnce = true;
@@ -184,6 +221,7 @@ void USB2SnesStatut::onUsb2snesStateChanged()
 void USB2SnesStatut::onUsb2snesDisconnected()
 {
     ui->statusPushButton->setIcon(QIcon(STATUS_PIX_RED));
+    timer.stop();
     emit unReadyForSaveState();
 }
 

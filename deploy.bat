@@ -1,21 +1,22 @@
 @ECHO ON
-set projectPath=C:\Users\Skarsnik\Documents\GitHub\Savestate2snes
+set projectPath=D:\Project\Savestate2snes
 set compilePath=D:\Project\compile\savestate2snes
 set deployPath=D:\Project\deploy\savestate2snes
 set originalBinDir=%compilePath%
-::set vscdll=D:\Visual Studio\VC\redist\x64\Microsoft.VC140.CRT\msvcp140.dll
+set vscdll=D:\Visual Studio\VC\Redist\MSVC\14.12.25810\x64\Microsoft.VC141.CRT\msvcp140.dll
 
 rmdir /Q /S %deployPath%
 mkdir %deployPath%
 :: Compile
 
-:: D:\Visual Studio\VC\vcvarsall.bat amd64
-d:
+::"D:\Visual Studio\VC\Auxiliary\Build\vcvarsall.bat" amd64
+
 mkdir %compilePath%
 cd %compilePath%
 cd
-qmake %projectPath%\savestate2snes.pro -spec win32-g++ "CONFIG+=release"
-mingw32-make
+set QMAKE_MSC_VER=1910
+qmake %projectPath%\savestate2snes.pro  -spec win32-msvc "CONFIG+=release"
+nmake
 
 xcopy /y %originalBinDir%\release\savestate2snes.exe %deployPath%
 
@@ -31,3 +32,5 @@ rmdir /Q /S %deployPath%\imageformats
 del %deployPath%\opengl32sw.dll
 del %deployPath%\libEGL.dll
 del %deployPath%\libGLESV2.dll
+
+xcopy /y "%vscdll%" %deployPath%

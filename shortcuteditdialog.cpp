@@ -72,12 +72,12 @@ ShortcutEditDialog::~ShortcutEditDialog()
     delete ui;
 }
 
-ShortcutEditDialog::saveShortcut()
+quint16 ShortcutEditDialog::saveShortcut()
 {
     return m_saveShortcut;
 }
 
-ShortcutEditDialog::loadShortcut()
+quint16 ShortcutEditDialog::loadShortcut()
 {
     return m_loadShortcut;
 }

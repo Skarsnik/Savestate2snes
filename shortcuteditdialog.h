@@ -17,8 +17,8 @@ public:
     explicit ShortcutEditDialog(QWidget *parent = 0);
     ShortcutEditDialog(QWidget *parent, quint16 save, quint16 load);
     ~ShortcutEditDialog();
-    saveShortcut();
-    loadShortcut();
+    quint16    saveShortcut();
+    quint16    loadShortcut();
 
 
 private slots:

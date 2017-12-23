@@ -61,21 +61,25 @@ public:
     USB2snes();
     QPair<QString, QString> autoFind();
     void                    usePort(QString port);
-    QString                 getPort();
+    QString                 port();
     QString                 getRomName();
     void                    connect();
+    void                    setAppName(QString name);
     QByteArray              getAddress(unsigned int addr, unsigned int size, Space space = SNES);
     void                    setAddress(unsigned int addr, QByteArray data, Space space = SNES);
     State                   state();
-    QString                 firmwareVersion();
+    QStringList             infos();
+    QString                 firmwareString();
+    QVersionNumber          firmwareVersion();
     QStringList             deviceList();
-    QString                 serverVersion();
+    QVersionNumber          serverVersion();
     bool                    patchROM(QString patch);
 
 signals:
     void    stateChanged();
     void    disconnected();
     void    binaryMessageReceived();
+    void    textMessageReceived();
     void    romStarted();
     void    menuStarted();
 
@@ -93,11 +97,13 @@ private:
     QString         m_port;
     State           m_state;
     sd2snesState    m_sd2snesState;
-    QString         m_firmwareVersion;
-    QString         m_serverVersion;
+    QVersionNumber  m_firmwareVersion;
+    QString         m_firmwareString;
+    QVersionNumber  m_serverVersion;
     InternalState   m_istate;
     QStringList     m_deviceList;
     QByteArray      lastBinaryMessage;
+    QString         lastTextMessage;
     unsigned int    requestedBinaryReadSize;
 
     QTimer          timer;

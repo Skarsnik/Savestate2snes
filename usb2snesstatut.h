@@ -65,7 +65,9 @@ private:
     bool                connectedOnce;
     bool                readyOnce;
     bool                isPatchedRom();
-    void romPatched();
+    bool                romRunning;
+    bool                menuRunning;
+    void                romPatched();
 };
 
 #endif // USB2SNESSTATUT_H

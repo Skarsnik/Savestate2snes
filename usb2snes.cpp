@@ -47,7 +47,7 @@ void    USB2snes::usePort(QString port)
     m_port = port;
 }
 
-QString USB2snes::getPort()
+QString USB2snes::port()
 {
     return m_port;
 }
@@ -70,6 +70,11 @@ void USB2snes::connect()
 {
     if (m_state == None)
         m_webSocket.open(QUrl(USB2SNESURL));
+}
+
+void USB2snes::setAppName(QString name)
+{
+    sendRequest("Name", QStringList() << name);
 }
 
 void USB2snes::onWebSocketConnected()
@@ -107,6 +112,7 @@ QStringList USB2snes::getJsonResults(QString json)
 void USB2snes::onWebSocketTextReceived(QString message)
 {
     sDebug() << "<<T" << message;
+    lastTextMessage = message;
     switch (m_istate)
     {
     case DeviceListRequested:
@@ -130,7 +136,8 @@ void USB2snes::onWebSocketTextReceived(QString message)
         QStringList results = getJsonResults(message);
         if (!results.isEmpty())
         {
-            m_firmwareVersion = results.at(0);
+            m_firmwareString = results.at(0);
+            m_firmwareVersion= QVersionNumber(m_firmwareString.right(1).toInt());
             m_istate = ServerVersionRequested;
             sendRequest("AppVersion");
         }
@@ -141,13 +148,14 @@ void USB2snes::onWebSocketTextReceived(QString message)
         QStringList results = getJsonResults(message);
         if (!results.isEmpty())
         {
-            m_serverVersion = results.at(0);
+            m_serverVersion = QVersionNumber::fromString(results.at(0));
             m_istate = IReady;
             changeState(Ready);
         }
         break;
     }
     }
+    emit textMessageReceived();
 }
 
 void USB2snes::onWebSocketBinaryReceived(QByteArray message)
@@ -254,17 +262,32 @@ USB2snes::State USB2snes::state()
     return m_state;
 }
 
-QString USB2snes::firmwareVersion()
+QStringList USB2snes::infos()
+{
+    sendRequest("Info");
+    QEventLoop  loop;
+    QObject::connect(this, SIGNAL(textMessageReceived()), &loop, SLOT(quit()));
+    loop.exec();
+    return getJsonResults(lastTextMessage);
+}
+
+QString USB2snes::firmwareString()
+{
+    return m_firmwareString;
+}
+
+QVersionNumber USB2snes::firmwareVersion()
 {
     return m_firmwareVersion;
 }
+
 
 QStringList USB2snes::deviceList()
 {
     return m_deviceList;
 }
 
-QString USB2snes::serverVersion()
+QVersionNumber USB2snes::serverVersion()
 {
     return m_serverVersion;
 }

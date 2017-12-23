@@ -94,7 +94,7 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;I have the USB2snes firmware version 5 or highter&lt;br/&gt;I have the USB2snes client version 5.1 or highter&lt;br/&gt;	You can found it at &lt;a href=&quot;https://github.com/RedGuyyyy/sd2snes/releases&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;USB2snes last release&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;I have the USB2snes firmware version 6 or highter&lt;br/&gt;I have the USB2snes client version 6 or highter&lt;br/&gt;	You can found it at &lt;a href=&quot;https://github.com/RedGuyyyy/sd2snes/releases&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;USB2snes last release&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
