@@ -29,6 +29,7 @@ USB2snes::USB2snes() : QObject()
 
     QObject::connect(&m_webSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(onWebSocketTextReceived(QString)));
     QObject::connect(&m_webSocket, SIGNAL(connected()), this, SLOT(onWebSocketConnected()));
+    QObject::connect(&m_webSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onWebSocketError(QAbstractSocket::SocketError)));
     QObject::connect(&m_webSocket, SIGNAL(disconnected()), this, SLOT(onWebSocketDisconnected()));
     QObject::connect(&m_webSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(onWebSocketBinaryReceived(QByteArray)));
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));
@@ -174,6 +175,11 @@ void USB2snes::onWebSocketBinaryReceived(QByteArray message)
     }
 }
 
+void USB2snes::onWebSocketError(QAbstractSocket::SocketError err)
+{
+    sDebug() << "Error " << m_webSocket.errorString();
+}
+
 void USB2snes::onTimerTick()
 {
     if (m_istate == AttachSent)
@@ -239,6 +245,7 @@ void USB2snes::setAddress(unsigned int addr, QByteArray data, Space space)
             data.remove(0, 1024);
         }
     }
+    sDebug() << "Done sending data for setAddress";
 }
 
 

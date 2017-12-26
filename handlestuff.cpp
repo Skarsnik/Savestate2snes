@@ -215,7 +215,8 @@ bool HandleStuff::addCategory(QStandardItem *newCategory, QStandardItem *parent)
         parentPath = saveDirectory.absolutePath() + "/" + gameLoaded;
     QFileInfo fi(parentPath + "/" + newCategory->text());
     QDir di(parentPath);
-    di.mkdir(newCategory->text());
+    if (!di.mkdir(newCategory->text()))
+        return false;
     newCategory->setData(fi.absoluteFilePath(), MyRolePath);
     QStandardItem* cloned = newCategory->clone();
     categoriesByPath[newCategory->data(MyRolePath).toString()] = cloned;
@@ -233,7 +234,8 @@ bool HandleStuff::addSubCategory(QStandardItem *newCategory, QStandardItem *pare
     sDebug() << parent->text() << parentPath;
     QFileInfo fi(parentPath + "/" + newCategory->text());
     QDir di(parentPath);
-    di.mkdir(newCategory->text());
+    if (!di.mkdir(newCategory->text()))
+        return false;
     newCategory->setData(fi.absoluteFilePath(), MyRolePath);
     categoriesByPath[parentPath]->appendRow(newCategory->clone());
     parent->appendRow(newCategory);
@@ -298,14 +300,16 @@ bool HandleStuff::removeCategory(QStandardItem *category)
     return false;
 }
 
-void HandleStuff::renameSaveState(QStandardItem *item)
+bool HandleStuff::renameSaveState(QStandardItem *item)
 {
     QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
     QString dirPath = catLoaded->data(MyRolePath).toString();
     if (QFile::rename(dirPath + "/" + saveList.at(item->row()) + ".svt", dirPath + "/" + item->text() + ".svt")) {
         saveList[item->row()] = item->text();
         writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+        return true;
     }
+    return false;
 }
 
 void HandleStuff::changeStateOrder(int from, int to)
@@ -315,16 +319,17 @@ void HandleStuff::changeStateOrder(int from, int to)
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
 }
 
-void HandleStuff::deleteSaveState(int row)
+bool HandleStuff::deleteSaveState(int row)
 {
     QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
     QString dirPath = catLoaded->data(MyRolePath).toString();
     QString filePath = dirPath + "/" + saveList.at(row) + ".svt";
     sDebug() << "Removing : " << filePath;
-    QFile::remove(filePath);
+    if (!QFile::remove(filePath))
+        return false;
     saveList.removeAt(row);
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
-
+    return true;
 }
 
 quint16 HandleStuff::shortcutSave()

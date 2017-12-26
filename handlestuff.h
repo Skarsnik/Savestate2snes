@@ -49,10 +49,10 @@ public:
     QStringList    loadSaveStates(QStandardItem* category);
     bool    addSaveState(QString name, bool trigger = true);
     bool    removeCategory(QStandardItem* category);
-    void    renameSaveState(QStandardItem* item);
+    bool    renameSaveState(QStandardItem* item);
     void    changeStateOrder(int from, int to);
     bool    loadSaveState(QString name);
-    void    deleteSaveState(int row);
+    bool    deleteSaveState(int row);
     quint16 shortcutSave();
     quint16 shortcutLoad();
     void    setShortcutLoad(quint16 shortcut);

@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QMenu>
+#include <QMessageBox>
 #include "savestate2snesw.h"
 #include "shortcuteditdialog.h"
 #include "ui_savestate2snesw.h"
@@ -170,12 +171,16 @@ void Savestate2snesw::on_actionAddCategory_triggered()
         QStandardItem* parent = repStateModel->invisibleRootItem();
         if (indexCatUnderMenu.isValid())
         {
-            QStandardItem* curItem = repStateModel->itemFromIndex(indexCatUnderMenu);
-            if (curItem->parent() != NULL)
-                parent = curItem->parent();
+            if (handleStuff.addCategory(new QStandardItem(text), parent))
+            {
+                QStandardItem* curItem = repStateModel->itemFromIndex(indexCatUnderMenu);
+                if (curItem->parent() != NULL)
+                    parent = curItem->parent();
+            } else {
+                QMessageBox::warning(this, tr("Error adding a category"), QString(tr("Something failed while trying to add the category : %1")).arg(text));
+            }
          }
-        handleStuff.addCategory(new QStandardItem(text), parent);
-    }
+     }
 }
 
 void Savestate2snesw::on_actionAddSubCategory_triggered()
@@ -187,7 +192,10 @@ void Savestate2snesw::on_actionAddSubCategory_triggered()
         sDebug() << "Adding a sub category";
         QStandardItem* curItem = repStateModel->itemFromIndex(indexCatUnderMenu);
         if (!handleStuff.addSubCategory(new QStandardItem(text), curItem))
-            qCritical() << "Can't add a new sub category";
+        {
+            QMessageBox::warning(this, tr("Error adding a sub category"), QString(tr("Something failed while trying to add the sub category : %1")).arg(text));
+            return ;
+        }
         ui->categoryTreeView->setExpanded(curItem->index(), true);
     }
 }
@@ -248,12 +256,16 @@ void    Savestate2snesw::newSaveState(bool triggerSave)
     while (!saveStateModel->findItems(name).isEmpty())
         name += "_";
     newSaveItem->setText(name);
-    saveStateModel->invisibleRootItem()->appendRow(newSaveItem);
-    ui->savestateListView->setCurrentIndex(newSaveItem->index());
-    qDebug() << newSaveItem->isEditable();
-    handleStuff.addSaveState(newSaveItem->text(), triggerSave);
-    ui->savestateListView->edit(newSaveItem->index());
-    newSaveInserted = newSaveItem;
+    if (handleStuff.addSaveState(newSaveItem->text(), triggerSave))
+    {
+        saveStateModel->invisibleRootItem()->appendRow(newSaveItem);
+        ui->savestateListView->setCurrentIndex(newSaveItem->index());
+        qDebug() << newSaveItem->isEditable();
+        ui->savestateListView->edit(newSaveItem->index());
+        newSaveInserted = newSaveItem;
+    } else {
+        QMessageBox::warning(this, tr("New savestate error"), QString(tr("Something failed when trying to save the new savestate : %1")).arg(newSaveItem->text()));
+    }
 }
 
 void Savestate2snesw::closeEvent(QCloseEvent *event)
@@ -403,9 +415,13 @@ void Savestate2snesw::on_deleteSavePushButton_clicked()
         return;
     sDebug() << "deleting  " << ui->savestateListView->currentIndex();
     int row = ui->savestateListView->currentIndex().row();
-    QList<QStandardItem*> lItem = saveStateModel->takeRow(row);
-    delete lItem.at(0);
-    handleStuff.deleteSaveState(row);
+    if (handleStuff.deleteSaveState(row))
+    {
+        QList<QStandardItem*> lItem = saveStateModel->takeRow(row);
+        delete lItem.at(0);
+    } else {
+        QMessageBox::warning(this, tr("Removing savestate error"), QString(tr("Something failed when deleting : %1")).arg(saveStateModel->item(row)->text()));
+    }
 }
 
 void Savestate2snesw::on_renameSavePushButton_clicked()

@@ -89,6 +89,7 @@ private slots:
     void    onWebSocketDisconnected();
     void    onWebSocketTextReceived(QString message);
     void    onWebSocketBinaryReceived(QByteArray message);
+    void    onWebSocketError(QAbstractSocket::SocketError err);
     void    onTimerTick();
 
 

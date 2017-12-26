@@ -32,18 +32,18 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     switch (type)
     {
         case QtDebugMsg:
-            logfile << QString("%5 - Debug: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20);
+            logfile << QString("%6 %5 - Debug: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
             break;
         case QtCriticalMsg:
-            logfile << QString("%5 - Critical: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20);
+            logfile << QString("%6 %5 - Critical: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
             QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
             qApp->exit(1);
             break;
         case QtWarningMsg:
-            logfile << QString("%5 - Warning: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20);
+            logfile << QString("%6 %5 - Warning: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
             break;
         case QtFatalMsg:
-            logfile << QString("%5 - Fatal: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20);
+            logfile << QString("%6 %5 - Fatal: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
             break;
     }
     logfile << "\n";
