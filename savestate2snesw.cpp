@@ -76,9 +76,13 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->usb2snesStatut->setUsb2snes(usb2snes);
 
     createMenus();
+    turnSaveStateAction(false);
 
     connect(ui->categoryTreeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(categoryListShowContextMenu(QPoint)));
     connect(saveStateModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(saveStateItemChanged(QStandardItem*)));
+    connect(saveStateModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(saveStateRowRemoved(QModelIndex, int, int)));
+    connect(saveStateModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(saveStateRowInserted(QModelIndex, int, int)));
+    connect(saveStateModel, SIGNAL(modelReset()), this, SLOT(saveStateModelReset()));
     //connect(saveStateModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(onSaveStateModelDataChanged(QModelIndex,QModelIndex,QVector<int>)));
     connect(ui->savestateListView->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(onSaveStateDelegateDataCommited(QWidget*)));
     connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SLOT(onReadyForSaveState()));
@@ -112,6 +116,14 @@ void Savestate2snesw::loadGames()
         }
     } else {
         ui->statusBar->showMessage("No game found into : " + gamesFolder);
+    }
+}
+
+void Savestate2snesw::turnSaveStateAction(bool on)
+{
+    foreach(QAbstractButton* but, ui->saveActionButtonGroup->buttons())
+    {
+        but->setEnabled(on);
     }
 }
 
@@ -159,7 +171,14 @@ void Savestate2snesw::on_actionRemoveCategory_triggered()
 {
     sDebug() << "Removing a category";
     if (handleStuff.removeCategory(repStateModel->itemFromIndex(indexCatUnderMenu)->data(MyRolePath).toString()))
+    {
         repStateModel->removeRow(indexCatUnderMenu.row(), indexCatUnderMenu.parent());
+        if (indexCatUnderMenu == ui->categoryTreeView->currentIndex())
+        {
+            saveStateModel->clear();
+            turnSaveStateAction(false);
+        }
+    }
 }
 
 void Savestate2snesw::on_actionAddCategory_triggered()
@@ -362,6 +381,25 @@ void Savestate2snesw::on_categoryTreeView_clicked(const QModelIndex &index)
 void Savestate2snesw::onSaveStateDelegateDataCommited(QWidget *e)
 {
     sDebug() << "Item edited" << saveStateModel->itemFromIndex(ui->savestateListView->currentIndex())->text();
+}
+
+void Savestate2snesw::saveStateRowRemoved(QModelIndex p, int begin, int last)
+{
+    Q_UNUSED(p) Q_UNUSED(begin) Q_UNUSED(last)
+    if (saveStateModel->rowCount() == 0)
+        turnSaveStateAction(false);
+}
+
+void Savestate2snesw::saveStateRowInserted(QModelIndex p, int begin, int last)
+{
+    Q_UNUSED(p) Q_UNUSED(begin) Q_UNUSED(last)
+    if (!ui->renameSavePushButton->isEnabled())
+            turnSaveStateAction(true);
+}
+
+void Savestate2snesw::saveStateModelReset()
+{
+    turnSaveStateAction(false);
 }
 
 

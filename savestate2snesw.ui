@@ -293,6 +293,9 @@
           <property name="text">
            <string>Rename</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">saveActionButtonGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -316,6 +319,9 @@
           <property name="text">
            <string/>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">saveActionButtonGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -326,6 +332,9 @@
           <property name="text">
            <string/>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">saveActionButtonGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -349,6 +358,9 @@
           <property name="text">
            <string/>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">saveActionButtonGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -535,4 +547,7 @@
  </customwidgets>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="saveActionButtonGroup"/>
+ </buttongroups>
 </ui>

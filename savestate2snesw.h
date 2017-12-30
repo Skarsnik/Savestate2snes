@@ -56,6 +56,9 @@ private slots:
     void on_categoryTreeView_clicked(const QModelIndex &index);
     //void    onSaveStateModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int> ());
     void    onSaveStateDelegateDataCommited(QWidget *e);
+    void    saveStateRowRemoved(QModelIndex p, int begin, int last);
+    void    saveStateRowInserted(QModelIndex p, int begin, int last);
+    void    saveStateModelReset();
 
     void    onReadyForSaveState();
     void    onUnReadyForSaveState();
@@ -97,6 +100,7 @@ private:
     void    loadGames();
     void    addSubName(QString name, QString parentPath);
     void    addState(QString name);
+    void    turnSaveStateAction(bool on);
     void    setStateTitle(QStandardItem *cat);
     void    newSaveState(bool triggerSave);
     void    closeEvent(QCloseEvent *event);
