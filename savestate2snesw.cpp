@@ -169,8 +169,16 @@ void Savestate2snesw::createMenus()
 
 void Savestate2snesw::on_actionRemoveCategory_triggered()
 {
-    sDebug() << "Removing a category";
-    if (handleStuff.removeCategory(repStateModel->itemFromIndex(indexCatUnderMenu)->data(MyRolePath).toString()))
+
+    QStandardItem *item = repStateModel->itemFromIndex(indexCatUnderMenu);
+    sDebug() << "Removing a category " << item->text();
+    if (item->rowCount() > 0)
+    {
+        if (QMessageBox::question(this, tr("Removing a category"),
+                                  QString(tr("You are about to remove the %1 category that include subcategories. Do you really want to proceed?")).arg(item->text())) != QMessageBox::Yes)
+            return ;
+    }
+    if (handleStuff.removeCategory(item->data(MyRolePath).toString()))
     {
         repStateModel->removeRow(indexCatUnderMenu.row(), indexCatUnderMenu.parent());
         if (indexCatUnderMenu == ui->categoryTreeView->currentIndex())

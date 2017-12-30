@@ -163,7 +163,8 @@ QStringList HandleStuff::getCacheOrderList(QString file, QString dirPath)
         {
             QString line = cache.readLine();
             QFileInfo fi(dirPath + "/" + line);
-            toRet << fi.completeBaseName();
+            if (fi.exists())
+                toRet << fi.completeBaseName();
         }
         cache.close();
     }
@@ -238,6 +239,8 @@ QStringList HandleStuff::loadSaveStates(QString categoryPath)
             QFileInfoList fil = dir.entryInfoList(QDir::Files);
             foreach(QFileInfo fi, fil)
             {
+                if (fi.fileName() == ORDERSAVEFILE)
+                    continue;
                 saveStates[categoryPath] << fi.baseName();
             }
         } else {
@@ -270,7 +273,10 @@ bool HandleStuff::addSaveState(QString name, bool trigger)
 
 bool HandleStuff::removeCategory(QString categoryPath)
 {
-    if (QDir::root().rmpath(categoryPath))
+    sDebug() << "remove category" << categoryPath;
+    QDir dir = QDir::root();
+    dir.cd(categoryPath);
+    if (dir.removeRecursively())
     {
         Category* cat = categoriesByPath.take(categoryPath);
         cat->parent->children.remove(cat->parent->children.indexOf(cat));
