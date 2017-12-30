@@ -158,7 +158,8 @@ void Savestate2snesw::createMenus()
 void Savestate2snesw::on_actionRemoveCategory_triggered()
 {
     sDebug() << "Removing a category";
-    repStateModel->removeRow(indexCatUnderMenu.row(), indexCatUnderMenu.parent());
+    if (handleStuff.removeCategory(repStateModel->itemFromIndex(indexCatUnderMenu)->data(MyRolePath).toString()))
+        repStateModel->removeRow(indexCatUnderMenu.row(), indexCatUnderMenu.parent());
 }
 
 void Savestate2snesw::on_actionAddCategory_triggered()
@@ -171,15 +172,22 @@ void Savestate2snesw::on_actionAddCategory_triggered()
         QStandardItem* parent = repStateModel->invisibleRootItem();
         if (indexCatUnderMenu.isValid())
         {
-            if (handleStuff.addCategory(new QStandardItem(text), parent))
-            {
-                QStandardItem* curItem = repStateModel->itemFromIndex(indexCatUnderMenu);
-                if (curItem->parent() != NULL)
-                    parent = curItem->parent();
-            } else {
+            QStandardItem* curItem = repStateModel->itemFromIndex(indexCatUnderMenu);
+            if (curItem->parent() != NULL)
+                parent = curItem->parent();
+        }
+        QString parentPath;
+        if (parent != repStateModel->invisibleRootItem())
+            parentPath = parent->data(MyRolePath).toString();
+        Category* newCat = handleStuff.addCategory(text, parentPath);
+        if (newCat != NULL)
+        {
+            QStandardItem*  newItem = new QStandardItem(newCat->name);
+            newItem->setData(newCat->path, MyRolePath);
+            parent->appendRow(newItem);
+        } else {
                 QMessageBox::warning(this, tr("Error adding a category"), QString(tr("Something failed while trying to add the category : %1")).arg(text));
-            }
-         }
+        }
      }
 }
 
@@ -191,11 +199,15 @@ void Savestate2snesw::on_actionAddSubCategory_triggered()
     {
         sDebug() << "Adding a sub category";
         QStandardItem* curItem = repStateModel->itemFromIndex(indexCatUnderMenu);
-        if (!handleStuff.addSubCategory(new QStandardItem(text), curItem))
+        Category* newCat = handleStuff.addCategory(text, curItem->data(MyRolePath).toString());
+        if (newCat == NULL)
         {
             QMessageBox::warning(this, tr("Error adding a sub category"), QString(tr("Something failed while trying to add the sub category : %1")).arg(text));
             return ;
         }
+        QStandardItem* newItem = new QStandardItem(text);
+        newItem->setData(newCat->path, MyRolePath);
+        curItem->appendRow(newItem);
         ui->categoryTreeView->setExpanded(curItem->index(), true);
     }
 }
@@ -215,14 +227,14 @@ void Savestate2snesw::on_newGamePushButton_clicked()
     }
 }
 
-void deepClone(QStandardItem* tocpy, QStandardItem *cpy)
+void createChildItems(QVector<Category*> cats, QStandardItem *parent)
 {
-    for (unsigned int i = 0; i < tocpy->rowCount(); i++)
+    foreach (Category* cat, cats)
     {
-        QStandardItem* childcpy = tocpy->child(i)->clone();
-        cpy->appendRow(childcpy);
-        if (tocpy->child(i)->rowCount() != 0)
-            deepClone(tocpy->child(i), childcpy);
+        QStandardItem *newItem = new QStandardItem(cat->name);
+        newItem->setData(cat->path, MyRolePath);
+        parent->appendRow(newItem);
+        createChildItems(cat->children, newItem);
     }
 }
 
@@ -233,17 +245,16 @@ void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
     sDebug() << "Selected game changed";
     repStateModel->clear();
     saveStateModel->clear();
-    QStandardItem* root = handleStuff.loadCategories(arg1);
-
+    QVector<Category*> categories = handleStuff.loadCategories(arg1);
+    if (categories.isEmpty())
+        return;
     m_settings->setValue("lastGameLoaded", arg1);
-    qDebug() << root;
-    for (unsigned int i = 0; i < root->rowCount(); i++)
+    foreach(Category* cat, categories)
     {
-        qDebug() << root->child(i)->text() << root->child(i);
-        QStandardItem* childcpy = root->child(i)->clone();
-        repStateModel->invisibleRootItem()->appendRow(childcpy);
-        qDebug() << "child cpy" << childcpy->parent();
-        deepClone(root->child(i), childcpy);
+        QStandardItem *newItem = new QStandardItem(cat->name);
+        newItem->setData(cat->path, MyRolePath);
+        repStateModel->invisibleRootItem()->appendRow(newItem);
+        createChildItems(cat->children, newItem);
     }
     ui->categoryTreeView->expandAll();
 }
@@ -264,6 +275,7 @@ void    Savestate2snesw::newSaveState(bool triggerSave)
         ui->savestateListView->edit(newSaveItem->index());
         newSaveInserted = newSaveItem;
     } else {
+        delete newSaveItem;
         QMessageBox::warning(this, tr("New savestate error"), QString(tr("Something failed when trying to save the new savestate : %1")).arg(newSaveItem->text()));
     }
 }
@@ -317,7 +329,7 @@ void Savestate2snesw::saveStateItemChanged(QStandardItem *item)
       item->setText(name);
     }
     avoid_loop = false;
-    handleStuff.renameSaveState(item);
+    handleStuff.renameSaveState(item->row(), item->text());
 }
 
 void    Savestate2snesw::setStateTitle(QStandardItem* cat)
@@ -339,7 +351,7 @@ void Savestate2snesw::on_categoryTreeView_clicked(const QModelIndex &index)
     sDebug() << "Category " << cat->text() << " selected";
     setStateTitle(cat);
     saveStateModel->clear();
-    QStringList saveList = handleStuff.loadSaveStates(cat);
+    QStringList saveList = handleStuff.loadSaveStates(cat->data(MyRolePath).toString());
     foreach (QString save, saveList)
     {
         saveStateModel->invisibleRootItem()->appendRow(new QStandardItem(save));

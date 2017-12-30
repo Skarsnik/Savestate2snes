@@ -25,6 +25,13 @@
 
 #define MyRolePath Qt::UserRole + 1
 
+struct Category {
+    struct Category*    parent;
+    QVector<Category*>  children;
+    QString             name;
+    QString             path;
+};
+
 struct  GameInfos
 {
     quint16 saveShortcut;
@@ -38,43 +45,42 @@ public:
     HandleStuff();
 
     QStringList loadGames();
-    void    setUsb2snes(USB2snes* usbsnes);
-    QByteArray UsbSNESSaveState(bool trigger);
-    void    UsbSNESLoadState();
-    QStandardItem*  loadCategories(QString game);
-    bool    addGame(QString newGame);
-    void    setSaveStateDir(QString dir);
-    bool    addCategory(QStandardItem* newCategory, QStandardItem* parent);
-    bool    addSubCategory(QStandardItem* newCategory, QStandardItem* parent);
-    QStringList    loadSaveStates(QStandardItem* category);
-    bool    addSaveState(QString name, bool trigger = true);
-    bool    removeCategory(QStandardItem* category);
-    bool    renameSaveState(QStandardItem* item);
-    void    changeStateOrder(int from, int to);
-    bool    loadSaveState(QString name);
-    bool    deleteSaveState(int row);
-    quint16 shortcutSave();
-    quint16 shortcutLoad();
-    void    setShortcutLoad(quint16 shortcut);
-    void    setShortcutSave(quint16 shortcut);
-    GameInfos    gameInfos();
-    void    setGameShortCut(quint16 save, quint16 load);
+    QVector<Category*>  loadCategories(QString game);
+    void        setUsb2snes(USB2snes* usbsnes);
+    bool        addGame(QString newGame);
+    void        setSaveStateDir(QString dir);
+    Category*   addCategory(QString newCategory, QString parentPath);
+    QStringList loadSaveStates(QString categoryPath);
+    bool        addSaveState(QString name, bool trigger = true);
+    bool        removeCategory(QString categoryPath);
+    bool        renameSaveState(int row, QString newName);
+    void        changeStateOrder(int from, int to);
+    bool        loadSaveState(QString name);
+    bool        deleteSaveState(int row);
+    quint16     shortcutSave();
+    quint16     shortcutLoad();
+    void        setShortcutLoad(quint16 shortcut);
+    void        setShortcutSave(quint16 shortcut);
+    GameInfos   gameInfos();
+    void        setGameShortCut(quint16 save, quint16 load);
 
 private:
     QDir                                    saveDirectory;
     QStringList                             games;
-    QMap<QString, QStandardItem*>           categories;
-    QMap<QString, QStandardItem*>           categoriesByPath;
+    QMap<QString, Category*>                categoriesByPath;
+    QMap<QString, Category*>                categories;
     QMap<QString, QStringList>              saveStates;
     QString                                 gameLoaded;
-    QStandardItem*                          catLoaded;
+    Category*                               catLoaded;
     USB2snes*                               usb2snes;
     GameInfos                               m_gameInfo;
 
-    void findCategory(QStandardItem *parent, QDir dir);
+    void findCategory(Category *parent, QDir dir);
     QStringList getCacheOrderList(QString file, QString dirPath);
     void        writeCacheOrderFile(QString file, QString dirPath);
     void checkForSafeState();
+    QByteArray UsbSNESSaveState(bool trigger);
+    void    UsbSNESLoadState();
 };
 
 #endif // HANDLESTUFF_H

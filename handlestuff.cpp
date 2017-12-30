@@ -49,15 +49,15 @@ QStringList HandleStuff::loadGames()
     return games;
 }
 
-QStandardItem *HandleStuff::loadCategories(QString game)
+QVector<Category *> HandleStuff::loadCategories(QString game)
 {
     sDebug() << "Loading categories for " << game;
     if (!categories.contains(game))
     {
-        QStandardItem *root = new QStandardItem();
+        Category* root = new Category();
         saveDirectory.cd(game);
-        root->setData(saveDirectory.absolutePath(), MyRolePath);
-        categoriesByPath[root->data(MyRolePath).toString()] = root;
+        root->parent = NULL;
+        categoriesByPath[saveDirectory.absolutePath()] = root;
         findCategory(root, saveDirectory);
         saveDirectory.cdUp();
         categories[game] = root;
@@ -75,7 +75,7 @@ QStandardItem *HandleStuff::loadCategories(QString game)
         m_gameInfo.name = file.value("_/game").toString();
 
     }
-    return categories[game];
+    return categories[game]->children;
 }
 
 void HandleStuff::setUsb2snes(USB2snes *usbsnes)
@@ -118,7 +118,7 @@ void    HandleStuff::checkForSafeState()
 
 bool    HandleStuff::loadSaveState(QString name)
 {
-    QFile saveFile(catLoaded->data(MyRolePath).toString() + "/" + name + ".svt");
+    QFile saveFile(catLoaded->path + "/" + name + ".svt");
     if (saveFile.open(QIODevice::ReadOnly))
     {
         QByteArray data = saveFile.readAll();
@@ -136,18 +136,20 @@ bool    HandleStuff::loadSaveState(QString name)
     return false;
 }
 
-void    HandleStuff::findCategory(QStandardItem* parent, QDir dir)
+void    HandleStuff::findCategory(Category* parent, QDir dir)
 {
     QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     foreach(QFileInfo fi, listDir)
     {
-        QStandardItem* item = new QStandardItem(fi.baseName());
-        item->setData(fi.absoluteFilePath(), MyRolePath);
-        categoriesByPath[item->data(MyRolePath).toString()] = item;
+        Category*   newCat = new Category();
+        newCat->name = fi.baseName();
+        newCat->path = fi.absoluteFilePath();
+        newCat->parent = parent;
+        newCat->parent->children.append(newCat);
+        categoriesByPath[newCat->path] = newCat;
         dir.cd(fi.baseName());
-        findCategory(item, dir);
+        findCategory(newCat, dir);
         dir.cdUp();
-        parent->appendRow(item);
     }
 }
 
@@ -191,11 +193,9 @@ bool HandleStuff::addGame(QString newGame)
     if (saveDirectory.mkdir(newGame))
     {
         games.append(newGame);
-        QStandardItem *newItem = new QStandardItem();
-        categories[newGame] = newItem;
-        saveDirectory.cd(newGame);
-        newItem->setData(saveDirectory.absolutePath(), MyRolePath);
-        saveDirectory.cdUp();
+        Category*   newCat = new Category;
+        newCat->parent = NULL;
+        categories[newGame] = newCat;
         return true;
     }
     return false;
@@ -206,77 +206,56 @@ void HandleStuff::setSaveStateDir(QString dir)
     saveDirectory.setPath(dir);
 }
 
-bool HandleStuff::addCategory(QStandardItem *newCategory, QStandardItem *parent)
+Category* HandleStuff::addCategory(QString newCategory, QString parentPath)
 {
-    QString parentPath;
-    if (parent->index().isValid())
-        parentPath = parent->data(MyRolePath).toString();
-    else
+    if (parentPath.isEmpty())
         parentPath = saveDirectory.absolutePath() + "/" + gameLoaded;
-    QFileInfo fi(parentPath + "/" + newCategory->text());
+    QFileInfo fi(parentPath + "/" + newCategory);
     QDir di(parentPath);
-    if (!di.mkdir(newCategory->text()))
-        return false;
-    newCategory->setData(fi.absoluteFilePath(), MyRolePath);
-    QStandardItem* cloned = newCategory->clone();
-    categoriesByPath[newCategory->data(MyRolePath).toString()] = cloned;
-    if (parent->index().isValid())
-        categoriesByPath[parentPath]->appendRow(cloned);
+    if (!di.mkdir(newCategory))
+        return NULL;
+    Category* newCat = new Category();
+    newCat->name = newCategory;
+    newCat->path = fi.absoluteFilePath();
+    if (categoriesByPath.contains(parentPath))
+        newCat->parent = categoriesByPath[parentPath];
     else
-        categories[gameLoaded]->appendRow(cloned);
-    parent->appendRow(newCategory);
-    return true;
+        newCat->parent = categories[gameLoaded];
+    categoriesByPath[newCat->path] = newCat;
+    newCat->parent->children.append(newCat);
+    return newCat;
 }
 
-bool HandleStuff::addSubCategory(QStandardItem *newCategory, QStandardItem *parent)
+QStringList HandleStuff::loadSaveStates(QString categoryPath)
 {
-    QString parentPath = parent->data(MyRolePath).toString();
-    sDebug() << parent->text() << parentPath;
-    QFileInfo fi(parentPath + "/" + newCategory->text());
-    QDir di(parentPath);
-    if (!di.mkdir(newCategory->text()))
-        return false;
-    newCategory->setData(fi.absoluteFilePath(), MyRolePath);
-    categoriesByPath[parentPath]->appendRow(newCategory->clone());
-    parent->appendRow(newCategory);
-    QStandardItem* cloned = newCategory->clone();
-    categoriesByPath[newCategory->data(MyRolePath).toString()] = cloned;
-    categoriesByPath[parentPath]->appendRow(cloned);
-    return true;
-}
-
-QStringList HandleStuff::loadSaveStates(QStandardItem *category)
-{
-    QString savePath = category->data(MyRolePath).toString();
-    if (!saveStates.contains(savePath))
+    if (!saveStates.contains(categoryPath))
     {
-        QStringList cachedList = getCacheOrderList(ORDERSAVEFILE, savePath);
+        QStringList cachedList = getCacheOrderList(ORDERSAVEFILE, categoryPath);
         if (cachedList.isEmpty())
         {
 
-            QDir dir(savePath);
+            QDir dir(categoryPath);
             QFileInfoList fil = dir.entryInfoList(QDir::Files);
             foreach(QFileInfo fi, fil)
             {
-                saveStates[savePath] << fi.baseName();
+                saveStates[categoryPath] << fi.baseName();
             }
         } else {
             foreach(QString s, cachedList)
             {
-                saveStates[savePath] << QFileInfo(s).baseName();
+                saveStates[categoryPath] << QFileInfo(s).baseName();
             }
         }
     }
-    catLoaded = category;
-    return saveStates[savePath];
+    catLoaded = categoriesByPath[categoryPath];
+    return saveStates[categoryPath];
 }
 
 bool HandleStuff::addSaveState(QString name, bool trigger)
 {
-    //QStandardItem*  newItem = new QStandardItem(name);
-    QFileInfo fi(catLoaded->data(MyRolePath).toString() + "/" + name + ".svt");
-    saveStates[catLoaded->data(MyRolePath).toString()] << fi.baseName();
-    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+    QFileInfo fi(catLoaded->path + "/" + name + ".svt");
+    saveStates[catLoaded->path] << fi.baseName();
+    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
     //QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
     QByteArray data = UsbSNESSaveState(trigger);
     QFile saveFile(fi.absoluteFilePath());
@@ -289,24 +268,27 @@ bool HandleStuff::addSaveState(QString name, bool trigger)
     return false;
 }
 
-bool HandleStuff::removeCategory(QStandardItem *category)
+bool HandleStuff::removeCategory(QString categoryPath)
 {
-    QString path = category->data(MyRolePath).toString();
-    if (QDir::root().rmpath(path))
+    if (QDir::root().rmpath(categoryPath))
     {
-        categoriesByPath[path]->parent()->removeRow(category->row());
+        Category* cat = categoriesByPath.take(categoryPath);
+        cat->parent->children.remove(cat->parent->children.indexOf(cat));
+        if (catLoaded == cat)
+            catLoaded = NULL;
+        delete cat;
         return true;
     }
     return false;
 }
 
-bool HandleStuff::renameSaveState(QStandardItem *item)
+bool HandleStuff::renameSaveState(int row, QString newName)
 {
-    QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
-    QString dirPath = catLoaded->data(MyRolePath).toString();
-    if (QFile::rename(dirPath + "/" + saveList.at(item->row()) + ".svt", dirPath + "/" + item->text() + ".svt")) {
-        saveList[item->row()] = item->text();
-        writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+    QStringList& saveList = saveStates[catLoaded->path];
+    QString dirPath = catLoaded->path;
+    if (QFile::rename(dirPath + "/" + saveList.at(row) + ".svt", dirPath + "/" + newName + ".svt")) {
+        saveList[row] = newName;
+        writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
         return true;
     }
     return false;
@@ -314,21 +296,21 @@ bool HandleStuff::renameSaveState(QStandardItem *item)
 
 void HandleStuff::changeStateOrder(int from, int to)
 {
-    QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
+    QStringList& saveList = saveStates[catLoaded->path];
     saveList.move(from, to);
-    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
 }
 
 bool HandleStuff::deleteSaveState(int row)
 {
-    QStringList& saveList = saveStates[catLoaded->data(MyRolePath).toString()];
-    QString dirPath = catLoaded->data(MyRolePath).toString();
+    QStringList& saveList = saveStates[catLoaded->path];
+    QString dirPath = catLoaded->path;
     QString filePath = dirPath + "/" + saveList.at(row) + ".svt";
     sDebug() << "Removing : " << filePath;
     if (!QFile::remove(filePath))
         return false;
     saveList.removeAt(row);
-    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->data(MyRolePath).toString());
+    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
     return true;
 }
 
