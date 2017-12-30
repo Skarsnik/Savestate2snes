@@ -29,21 +29,25 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 {
     QByteArray localMsg = msg.toLocal8Bit();
     //cout << msg;
+    QString logString = QString("%6 %5 - %7: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
     switch (type)
     {
         case QtDebugMsg:
-            logfile << QString("%6 %5 - Debug: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            logfile << logString.arg("Debug");
             break;
         case QtCriticalMsg:
-            logfile << QString("%6 %5 - Critical: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            logfile << logString.arg("Critical");
             QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
             qApp->exit(1);
             break;
         case QtWarningMsg:
-            logfile << QString("%6 %5 - Warning: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            logfile << logString.arg("Warning");
             break;
         case QtFatalMsg:
-            logfile << QString("%6 %5 - Fatal: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            logfile << logString.arg("Fatal");
+            break;
+        case QtInfoMsg:
+            logfile << logString.arg("Info");
             break;
     }
     logfile << "\n";
