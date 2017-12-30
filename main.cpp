@@ -68,6 +68,10 @@ int main(int argc, char *argv[])
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
         qInstallMessageHandler(myMessageOutput);
     QSettings settings("skarsnik.nyo.fr", "SaveState2SNES");
+    QTranslator translator;
+    QString locale = QLocale::system().name().split('_').first();
+    translator.load(a.applicationDirPath() + "/i18n/savestate2snes_" + locale + ".qm");
+    a.installTranslator(&translator);
     /*ShortcutEditDialog sdiag;
     sdiag.exec();
     return 1;*/
