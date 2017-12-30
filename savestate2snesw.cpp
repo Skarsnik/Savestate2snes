@@ -301,6 +301,7 @@ void    Savestate2snesw::newSaveState(bool triggerSave)
 
 void Savestate2snesw::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event)
     m_settings->setValue("windowState", saveState());
     m_settings->setValue("windowGeometry", saveGeometry());
     m_settings->setValue("lastSaveStateDir", gamesFolder);
@@ -380,6 +381,7 @@ void Savestate2snesw::on_categoryTreeView_clicked(const QModelIndex &index)
 
 void Savestate2snesw::onSaveStateDelegateDataCommited(QWidget *e)
 {
+    Q_UNUSED(e)
     sDebug() << "Item edited" << saveStateModel->itemFromIndex(ui->savestateListView->currentIndex())->text();
 }
 
@@ -483,6 +485,7 @@ void Savestate2snesw::on_renameSavePushButton_clicked()
 
 void Savestate2snesw::on_savestateListView_doubleClicked(const QModelIndex &index)
 {
+    Q_UNUSED(index)
     on_loadStatePushButton_clicked();
 }
 

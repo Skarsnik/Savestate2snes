@@ -155,6 +155,8 @@ void USB2snes::onWebSocketTextReceived(QString message)
         }
         break;
     }
+    default:
+        break;
     }
     emit textMessageReceived();
 }
@@ -167,7 +169,7 @@ void USB2snes::onWebSocketBinaryReceived(QByteArray message)
     else
       sDebug() << "<<B" << "Received " << message.size() << " byte of data";
     buffer.append(message);
-    if (buffer.size() == requestedBinaryReadSize)
+    if ((unsigned int) buffer.size() == requestedBinaryReadSize)
     {
         lastBinaryMessage = buffer;
         emit binaryMessageReceived();
@@ -177,6 +179,7 @@ void USB2snes::onWebSocketBinaryReceived(QByteArray message)
 
 void USB2snes::onWebSocketError(QAbstractSocket::SocketError err)
 {
+    Q_UNUSED(err)
     sDebug() << "Error " << m_webSocket.errorString();
 }
 
@@ -197,6 +200,7 @@ void USB2snes::onTimerTick()
 
 void USB2snes::sendRequest(QString opCode, QStringList operands, Space space, QStringList flags)
 {
+    Q_UNUSED(flags)
     QJsonArray      jOp;
     QJsonObject     jObj;
 
