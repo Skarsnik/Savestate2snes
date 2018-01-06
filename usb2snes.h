@@ -54,7 +54,8 @@ public:
         AttachSent,
         FirmwareVersionRequested,
         ServerVersionRequested,
-        IReady
+        IReady,
+        IBusy
     };
     Q_ENUM(InternalState)
 
@@ -105,7 +106,6 @@ private:
     QByteArray      lastBinaryMessage;
     QString         lastTextMessage;
     unsigned int    requestedBinaryReadSize;
-    QMutex          wsMutext;
 
     QTimer          timer;
 

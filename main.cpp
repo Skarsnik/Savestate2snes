@@ -64,7 +64,6 @@ int main(int argc, char *argv[])
     QDir("/").mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
     QFile   mlog(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/log.txt");
     logfile.setDevice(&mlog);
-    //qSetMessagePattern("%{category} %{message}");
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
         qInstallMessageHandler(myMessageOutput);
     QSettings settings("skarsnik.nyo.fr", "SaveState2SNES");

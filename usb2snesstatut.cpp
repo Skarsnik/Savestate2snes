@@ -86,9 +86,9 @@ QString snesjoy2string(QByteArray input)
 
 void USB2SnesStatut::refreshShortcuts()
 {
-    sDebug() << "Refreshing shortcuts";
     QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
     QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
+    sDebug() << "Refreshing shortcuts : " << saveButton.toHex() << loadButton.toHex() << snesjoy2string(saveButton) << snesjoy2string(loadButton);
     ui->shortcutLabel->setText(QString(tr("Shortcuts: - Save: %1 - Load: %2")).arg(snesjoy2string(saveButton)).arg(snesjoy2string(loadButton)));
     ui->shortcutLabel->setEnabled(true);
 }
@@ -172,8 +172,9 @@ bool USB2SnesStatut::isPatchedRom()
 
 void USB2SnesStatut::onTimerTick()
 {
-    //emit readyForSaveState();
     QStringList infos = usb2snes->infos();
+    if (infos.isEmpty())
+        return ;
     if (infos.at(2) != "/sd2snes/menu.bin" && romRunning == false)
     {
         romRunning = true;

@@ -219,22 +219,24 @@ void USB2snes::changeState(USB2snes::State s)
 
 QByteArray USB2snes::getAddress(unsigned int addr, unsigned int size, Space space)
 {
-    wsMutext.lock();
+    m_istate = IBusy;
     sendRequest("GetAddress", QStringList() << QString::number(addr, 16) << QString::number(size, 16), space);
     requestedBinaryReadSize = size;
     QEventLoop  loop;
     QObject::connect(this, SIGNAL(binaryMessageReceived()), &loop, SLOT(quit()));
     loop.exec();
     requestedBinaryReadSize = 0;
-    wsMutext.unlock();
+    sDebug() << "Getting data,  size : " << lastBinaryMessage.size() << "- MD5 : " << QCryptographicHash::hash(lastBinaryMessage, QCryptographicHash::Md5).toHex();
+    m_istate = IReady;
     return lastBinaryMessage;
 }
 
 void USB2snes::setAddress(unsigned int addr, QByteArray data, Space space)
 {
-    wsMutext.lock();
+    m_istate = IBusy;
     sendRequest("PutAddress", QStringList() << QString::number(addr, 16) << QString::number(data.size(), 16), space);
     //Dumb shit for bad win7 C# websocket api
+    sDebug() << "Sending data,  size : " << data.size() << "- MD5 : " << QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
     if (data.size() <= 1024)
       m_webSocket.sendBinaryMessage(data);
     else
@@ -245,8 +247,8 @@ void USB2snes::setAddress(unsigned int addr, QByteArray data, Space space)
             data.remove(0, 1024);
         }
     }
-    wsMutext.unlock();
-    sDebug() << "Done sending data for setAddress";
+    m_istate = IReady;
+    sDebug() << "Done sending data for setAddress " + QString::number(addr, 16);
 }
 
 
@@ -256,11 +258,9 @@ bool USB2snes::patchROM(QString patch)
     if (fPatch.open(QIODevice::ReadOnly))
     {
         unsigned int size = fPatch.size();
-        wsMutext.lock();
         sendRequest("PutIPS", QStringList() << "hook" << QString::number(size, 16));
         QByteArray data = fPatch.readAll();
         m_webSocket.sendBinaryMessage(data);
-        wsMutext.unlock();
         return true;
     }
     return false;
@@ -274,6 +274,8 @@ USB2snes::State USB2snes::state()
 
 QStringList USB2snes::infos()
 {
+    if (m_istate != IReady)
+        return QStringList();
     sendRequest("Info");
     QEventLoop  loop;
     QObject::connect(this, SIGNAL(textMessageReceived()), &loop, SLOT(quit()));
