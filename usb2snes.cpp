@@ -36,13 +36,6 @@ USB2snes::USB2snes() : QObject()
     requestedBinaryReadSize = 0;
 }
 
-QPair<QString, QString> USB2snes::autoFind()
-{
-    QPair<QString, QString> toret;
-
-    return toret;
-}
-
 void    USB2snes::usePort(QString port)
 {
     m_port = port;
@@ -226,17 +219,20 @@ void USB2snes::changeState(USB2snes::State s)
 
 QByteArray USB2snes::getAddress(unsigned int addr, unsigned int size, Space space)
 {
+    wsMutext.lock();
     sendRequest("GetAddress", QStringList() << QString::number(addr, 16) << QString::number(size, 16), space);
     requestedBinaryReadSize = size;
     QEventLoop  loop;
     QObject::connect(this, SIGNAL(binaryMessageReceived()), &loop, SLOT(quit()));
     loop.exec();
     requestedBinaryReadSize = 0;
+    wsMutext.unlock();
     return lastBinaryMessage;
 }
 
 void USB2snes::setAddress(unsigned int addr, QByteArray data, Space space)
 {
+    wsMutext.lock();
     sendRequest("PutAddress", QStringList() << QString::number(addr, 16) << QString::number(data.size(), 16), space);
     //Dumb shit for bad win7 C# websocket api
     if (data.size() <= 1024)
@@ -249,6 +245,7 @@ void USB2snes::setAddress(unsigned int addr, QByteArray data, Space space)
             data.remove(0, 1024);
         }
     }
+    wsMutext.unlock();
     sDebug() << "Done sending data for setAddress";
 }
 
@@ -259,9 +256,11 @@ bool USB2snes::patchROM(QString patch)
     if (fPatch.open(QIODevice::ReadOnly))
     {
         unsigned int size = fPatch.size();
+        wsMutext.lock();
         sendRequest("PutIPS", QStringList() << "hook" << QString::number(size, 16));
         QByteArray data = fPatch.readAll();
         m_webSocket.sendBinaryMessage(data);
+        wsMutext.unlock();
         return true;
     }
     return false;

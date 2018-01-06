@@ -59,7 +59,6 @@ public:
     Q_ENUM(InternalState)
 
     USB2snes();
-    QPair<QString, QString> autoFind();
     void                    usePort(QString port);
     QString                 port();
     QString                 getRomName();
@@ -106,6 +105,7 @@ private:
     QByteArray      lastBinaryMessage;
     QString         lastTextMessage;
     unsigned int    requestedBinaryReadSize;
+    QMutex          wsMutext;
 
     QTimer          timer;
 
