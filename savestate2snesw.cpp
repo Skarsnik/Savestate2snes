@@ -310,6 +310,7 @@ void    Savestate2snesw::newSaveState(bool triggerSave)
 void Savestate2snesw::closeEvent(QCloseEvent *event)
 {
     Q_UNUSED(event)
+    usb2snes->close();
     m_settings->setValue("windowState", saveState());
     m_settings->setValue("windowGeometry", saveGeometry());
     m_settings->setValue("lastSaveStateDir", gamesFolder);

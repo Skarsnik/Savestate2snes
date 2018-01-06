@@ -229,6 +229,7 @@ void USB2SnesStatut::onUsb2snesDisconnected()
 
 USB2SnesStatut::~USB2SnesStatut()
 {
+    timer.stop();
     delete ui;
 }
 

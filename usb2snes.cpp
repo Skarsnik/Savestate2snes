@@ -66,6 +66,12 @@ void USB2snes::connect()
         m_webSocket.open(QUrl(USB2SNESURL));
 }
 
+void USB2snes::close()
+{
+    if (m_state != None)
+       m_webSocket.close();
+}
+
 void USB2snes::setAppName(QString name)
 {
     sendRequest("Name", QStringList() << name);

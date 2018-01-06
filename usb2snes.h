@@ -64,6 +64,7 @@ public:
     QString                 port();
     QString                 getRomName();
     void                    connect();
+    void                    close();
     void                    setAppName(QString name);
     QByteArray              getAddress(unsigned int addr, unsigned int size, Space space = SNES);
     void                    setAddress(unsigned int addr, QByteArray data, Space space = SNES);
