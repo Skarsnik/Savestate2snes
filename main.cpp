@@ -71,9 +71,6 @@ int main(int argc, char *argv[])
     QString locale = QLocale::system().name().split('_').first();
     translator.load(a.applicationDirPath() + "/i18n/savestate2snes_" + locale + ".qm");
     a.installTranslator(&translator);
-    /*ShortcutEditDialog sdiag;
-    sdiag.exec();
-    return 1;*/
     if (!settings.contains("lastSaveStateDir"))
     {
         FirstTimeDialog diag;
