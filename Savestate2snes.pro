@@ -38,4 +38,5 @@ RESOURCES += \
     images.qrc
 
 TRANSLATIONS = savestate2snes_fr.ts \
-               savestate2snes_de.ts
+               savestate2snes_de.ts \
+               savestate2snes_sv.ts

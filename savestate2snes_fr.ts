@@ -277,27 +277,27 @@
         <translation>Quelque chose à échoué lors de l&apos;enregistrement de la savestate : %1</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="419"/>
+        <location filename="savestate2snesw.cpp" line="420"/>
         <source>USB2Snes is ready for savestates.</source>
         <translation>USB2Snes est prêt pour les savestates.</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="435"/>
+        <location filename="savestate2snesw.cpp" line="436"/>
         <source>USB2Snes is not ready for savestates.</source>
         <translation>USB2Snes n&apos;est pas prêt pour les savestates.</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="483"/>
+        <location filename="savestate2snesw.cpp" line="484"/>
         <source>Removing savestate error</source>
         <translation>Erreur de suppression d&apos;une savestate</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="483"/>
+        <location filename="savestate2snesw.cpp" line="484"/>
         <source>Something failed when deleting : %1</source>
         <translation>Quelque chose à échoué lors de la suppression de : %1</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="503"/>
+        <location filename="savestate2snesw.cpp" line="504"/>
         <source>Choose Games Directory</source>
         <translation>Choississez le répertoire des jeux</translation>
     </message>
@@ -310,27 +310,32 @@
         <translation>Dialogue d&apos;édition des racourcis</translation>
     </message>
     <message>
-        <location filename="shortcuteditdialog.ui" line="38"/>
+        <location filename="shortcuteditdialog.ui" line="23"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Here you can edit the console shortcuts used by the savestate patch to load or save savestates. It will trigger nothing in Savestate2snes&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Ici vous pouvez éditer les racourcis utilisés par le patch de savestate pour sauver ou charger sa savestate. Cela ne va rien faire dans Savestate2snes&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="shortcuteditdialog.ui" line="58"/>
         <source>Save</source>
         <translation>Sauvegarde</translation>
     </message>
     <message>
-        <location filename="shortcuteditdialog.ui" line="64"/>
+        <location filename="shortcuteditdialog.ui" line="84"/>
         <source>Load</source>
         <translation>Chargement</translation>
     </message>
     <message>
-        <location filename="shortcuteditdialog.ui" line="102"/>
+        <location filename="shortcuteditdialog.ui" line="122"/>
         <source>Editing shortcut for Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="shortcuteditdialog.ui" line="557"/>
+        <location filename="shortcuteditdialog.ui" line="577"/>
         <source>Save shortcut</source>
         <translation>racourcis sauvegarde</translation>
     </message>
     <message>
-        <location filename="shortcuteditdialog.ui" line="601"/>
+        <location filename="shortcuteditdialog.ui" line="621"/>
         <source>Load shortcut</source>
         <translation>racourcis chargement</translation>
     </message>
@@ -441,17 +446,17 @@
 </translation>
     </message>
     <message>
-        <location filename="usb2snesstatut.cpp" line="185"/>
+        <location filename="usb2snesstatut.cpp" line="186"/>
         <source>SD2SNES on Menu</source>
         <translation>SD2SNES sur le menu</translation>
     </message>
     <message>
-        <location filename="usb2snesstatut.cpp" line="207"/>
+        <location filename="usb2snesstatut.cpp" line="208"/>
         <source>Your usb2snes client version (%1) and/or usb2snes firmware version (%2) are not enought to run Savestate2snes&lt;br/&gt;You need at least version 6 for both.&lt;br/&gt; You can get it at  &lt;a href=&quot;https://github.com/RedGuyyyy/sd2snes/releases&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;USB2snes last release&lt;/span&gt;&lt;/a&gt;</source>
         <translation>Votre version de l&apos;application USB2snes  (%1) et/ou la version de votre firmware (%2) ne sont pas suffisante pour utiliser Savestate2snes&lt;br/&gt;Vous avez besoin de la version 6 au mininum pour les deux.&lt;br/&gt; Vous pouvez la récupérer àt  &lt;a href=&quot;https://github.com/RedGuyyyy/sd2snes/releases&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;USB2snes dernière version&lt;/span&gt;&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="usb2snesstatut.cpp" line="211"/>
+        <location filename="usb2snesstatut.cpp" line="212"/>
         <source>Version error</source>
         <translation>Erreur de version</translation>
     </message>
