@@ -38,7 +38,7 @@ If you find an issue with Savestate2snes the best way to repport it is to create
 You will need a github account for that. You can also directly mail me at skarsnik@nyo.fr
 
 Savestate2snes create a log file with debug information, please attach this file when you encounter the bug (it's cleared at each start of the application).
-Type `%appData%/Savestate2snes/ on the file address bar of your file browser to find the log file.
+Type `%appData%/Savestate2snes/` on the file address bar of your file browser to find the log file.
 
 
 
