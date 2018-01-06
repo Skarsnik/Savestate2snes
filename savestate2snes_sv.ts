@@ -171,7 +171,7 @@
     <message>
         <location filename="savestate2snesw.ui" line="509"/>
         <source>Categories - right click on the area to perform actions</source>
-        <translation>Kategorier - Högerklicka på den vita ytan för att utföra uppgifter</translation>
+        <translation>Kategorier - Högerklicka inom den inre ytan för att utföra uppgifter</translation>
     </message>
     <message>
         <location filename="savestate2snesw.ui" line="520"/>
@@ -416,8 +416,7 @@
         <location filename="usb2snesstatut.cpp" line="139"/>
         <source>USB2SNES connection not ready
 </source>
-        <translation>USB2SNES-anslutning är inte redo
-</translation>
+        <translation>USB2SNES-anslutning är inte redo</translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="141"/>
@@ -428,22 +427,19 @@
         <location filename="usb2snesstatut.cpp" line="146"/>
         <source>SD2SNES is on menu, not a rom
 </source>
-        <translation>SD2SNES är i menyn, inte i ett spel
-</translation>
+        <translation>SD2SNES är i menyn, inte i ett spel</translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="148"/>
         <source>SD2SNES On : %1
 </source>
-        <translation>SD2SNES På : %1
-</translation>
+        <translation>SD2SNES På : %1</translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="149"/>
         <source>Firmware version is %1 and USB2SNES app version : %2 : %3
 </source>
-        <translation>Mjukvaruversion är %1 och USB2SNES-appens version är : %2 : %3
-</translation>
+        <translation>Mjukvaruversion är %1 och USB2SNES-appens version är : %2 : %3</translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="186"/>
