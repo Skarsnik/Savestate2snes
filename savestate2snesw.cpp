@@ -495,7 +495,8 @@ void Savestate2snesw::on_renameSavePushButton_clicked()
 void Savestate2snesw::on_savestateListView_doubleClicked(const QModelIndex &index)
 {
     Q_UNUSED(index)
-    on_loadStatePushButton_clicked();
+    if (ui->loadStatePushButton->isEnabled())
+        on_loadStatePushButton_clicked();
 }
 
 

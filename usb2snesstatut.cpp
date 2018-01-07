@@ -136,17 +136,18 @@ void USB2SnesStatut::buildStatusInfo()
     }
     if (!readyOnce)
     {
-        statusString = tr("USB2SNES connection not ready\n");
+        statusString = tr("USB2SNES connection not ready") + "\n";
         if (usb2snes->deviceList().isEmpty())
             statusString.append(tr("No sd2nes devices found."));
         goto setStatusToolTips;
     }
     if (menuRunning)
     {
-        statusString = tr("SD2SNES is on menu, not a rom\n");
+        statusString = tr("SD2SNES is on menu, not a rom") + "\n";
     }
-    statusString += QString(tr("SD2SNES On : %1\n")).arg(usb2snes->deviceList().at(0));
-    statusString += QString(tr("Firmware version is %1 and USB2SNES app version : %2 : %3\n")).arg(usb2snes->firmwareString()).arg(usb2snes->serverVersion().toString()).arg(validVersion() ? "OK" : "NOK");
+    statusString += QString(tr("SD2SNES On : %1")).arg(usb2snes->deviceList().at(0)) + "\n";
+    statusString += QString(tr("Firmware version is %1 and USB2SNES app version : %2 : %3")).arg(usb2snes->firmwareString()).arg(usb2snes->serverVersion().toString()).arg(validVersion() ? "OK" : "NOK");
+    statusString += "\n";
     setStatusToolTips:
         sDebug() << statusString;
         ui->statusPushButton->setToolTip(statusString);

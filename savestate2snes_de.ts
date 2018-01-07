@@ -414,8 +414,9 @@
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="139"/>
-        <source>USB2SNES connection not ready
-</source>
+        <source>USB2SNES connection not ready</source>
+        <oldsource>USB2SNES connection not ready
+</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -425,34 +426,37 @@
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="146"/>
-        <source>SD2SNES is on menu, not a rom
-</source>
+        <source>SD2SNES is on menu, not a rom</source>
+        <oldsource>SD2SNES is on menu, not a rom
+</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="148"/>
-        <source>SD2SNES On : %1
-</source>
+        <source>SD2SNES On : %1</source>
+        <oldsource>SD2SNES On : %1
+</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="149"/>
-        <source>Firmware version is %1 and USB2SNES app version : %2 : %3
-</source>
+        <source>Firmware version is %1 and USB2SNES app version : %2 : %3</source>
+        <oldsource>Firmware version is %1 and USB2SNES app version : %2 : %3
+</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="usb2snesstatut.cpp" line="186"/>
+        <location filename="usb2snesstatut.cpp" line="187"/>
         <source>SD2SNES on Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="usb2snesstatut.cpp" line="208"/>
+        <location filename="usb2snesstatut.cpp" line="209"/>
         <source>Your usb2snes client version (%1) and/or usb2snes firmware version (%2) are not enought to run Savestate2snes&lt;br/&gt;You need at least version 6 for both.&lt;br/&gt; You can get it at  &lt;a href=&quot;https://github.com/RedGuyyyy/sd2snes/releases&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;USB2snes last release&lt;/span&gt;&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="usb2snesstatut.cpp" line="212"/>
+        <location filename="usb2snesstatut.cpp" line="213"/>
         <source>Version error</source>
         <translation type="unfinished"></translation>
     </message>
