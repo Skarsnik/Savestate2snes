@@ -297,7 +297,7 @@
         <translation>Quelque chose à échoué lors de la suppression de : %1</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="504"/>
+        <location filename="savestate2snesw.cpp" line="505"/>
         <source>Choose Games Directory</source>
         <translation>Choississez le répertoire des jeux</translation>
     </message>
@@ -417,8 +417,7 @@
         <source>USB2SNES connection not ready</source>
         <oldsource>USB2SNES connection not ready
 </oldsource>
-        <translation type="unfinished">Connection USB2SNES pas prêtre
-</translation>
+        <translation>Connection USB2SNES pas prêtre</translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="141"/>
@@ -430,24 +429,21 @@
         <source>SD2SNES is on menu, not a rom</source>
         <oldsource>SD2SNES is on menu, not a rom
 </oldsource>
-        <translation type="unfinished">SD2SNES est sur le menu, pas une rom
-</translation>
+        <translation>SD2SNES est sur le menu, pas une rom</translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="148"/>
         <source>SD2SNES On : %1</source>
         <oldsource>SD2SNES On : %1
 </oldsource>
-        <translation type="unfinished">SD2SNES en : %1
-</translation>
+        <translation>SD2SNES en : %1</translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="149"/>
         <source>Firmware version is %1 and USB2SNES app version : %2 : %3</source>
         <oldsource>Firmware version is %1 and USB2SNES app version : %2 : %3
 </oldsource>
-        <translation type="unfinished">Version du firmware est %1 et l&apos;app USB2SNES version est : %2 : %3
-</translation>
+        <translation>Version du firmware est %1 et l&apos;app USB2SNES version est : %2 : %3</translation>
     </message>
     <message>
         <location filename="usb2snesstatut.cpp" line="187"/>

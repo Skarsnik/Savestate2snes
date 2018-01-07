@@ -297,7 +297,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="504"/>
+        <location filename="savestate2snesw.cpp" line="505"/>
         <source>Choose Games Directory</source>
         <translation type="unfinished"></translation>
     </message>
