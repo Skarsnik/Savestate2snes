@@ -250,7 +250,7 @@ void Savestate2snesw::on_newGamePushButton_clicked()
         {
             ui->gameComboBox->addItem(text);
         } else {
-            qCCritical(log_MainUI()) << "Can't add a new game";
+            qFatal() << "Can't add a new game";
         }
     }
 }

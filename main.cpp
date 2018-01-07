@@ -37,14 +37,14 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
             break;
         case QtCriticalMsg:
             logfile << logString.arg("Critical");
-            QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
-            qApp->exit(1);
             break;
         case QtWarningMsg:
             logfile << logString.arg("Warning");
             break;
         case QtFatalMsg:
             logfile << logString.arg("Fatal");
+            QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
+            qApp->exit(1);
             break;
         case QtInfoMsg:
             logfile << logString.arg("Info");

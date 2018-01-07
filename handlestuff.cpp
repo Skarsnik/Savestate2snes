@@ -133,6 +133,7 @@ bool    HandleStuff::loadSaveState(QString name)
         saveFile.close();
         return true;
     }
+    qCWarning(log_handleStuff()) << "Can't open savestate file : " << saveFile.errorString();
     return false;
 }
 
@@ -183,6 +184,8 @@ void HandleStuff::writeCacheOrderFile(QString file, QString dirPath)
                cache.write(QByteArray(save.toUtf8() + ".svt\n"));
            }
            cache.close();
+        } else {
+            qCWarning(log_handleStuff()) << "Can't write to cache file : " << cache.errorString();
         }
     }
 }
@@ -198,6 +201,8 @@ bool HandleStuff::addGame(QString newGame)
         newCat->parent = NULL;
         categories[newGame] = newCat;
         return true;
+    } else {
+        qCCritical(log_handleStuff()) << "Can't create the directory for the game " << newGame;
     }
     return false;
 }
@@ -214,7 +219,10 @@ Category* HandleStuff::addCategory(QString newCategory, QString parentPath)
     QFileInfo fi(parentPath + "/" + newCategory);
     QDir di(parentPath);
     if (!di.mkdir(newCategory))
+    {
+        qCCritical(log_handleStuff()) << "Can't create a new category directory " << newCategory;
         return NULL;
+    }
     Category* newCat = new Category();
     newCat->name = newCategory;
     newCat->path = fi.absoluteFilePath();
@@ -267,6 +275,8 @@ bool HandleStuff::addSaveState(QString name, bool trigger)
         saveFile.write(data);
         saveFile.close();
         return true;
+    } else {
+        qCCritical(log_handleStuff()) << "Can't create file for savestate : " << saveFile.errorString();
     }
     return false;
 }
@@ -285,6 +295,7 @@ bool HandleStuff::removeCategory(QString categoryPath)
         delete cat;
         return true;
     }
+    qCWarning(log_handleStuff()) << "Can't remove category directory";
     return false;
 }
 
@@ -297,6 +308,7 @@ bool HandleStuff::renameSaveState(int row, QString newName)
         writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
         return true;
     }
+    qCInfo(log_handleStuff()) << "Can't rename savestate";
     return false;
 }
 
@@ -314,7 +326,10 @@ bool HandleStuff::deleteSaveState(int row)
     QString filePath = dirPath + "/" + saveList.at(row) + ".svt";
     sDebug() << "Removing : " << filePath;
     if (!QFile::remove(filePath))
+    {
+        qCWarning(log_handleStuff()) << "Can't remove savestate";
         return false;
+    }
     saveList.removeAt(row);
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
     return true;
