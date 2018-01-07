@@ -90,6 +90,7 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     loadGames();
 
     usb2snes->connect();
+    setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion());
 }
 
 void Savestate2snesw::loadGames()
