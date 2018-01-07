@@ -163,11 +163,15 @@ QStringList HandleStuff::getCacheOrderList(QString file, QString dirPath)
         while (!cache.atEnd())
         {
             QString line = cache.readLine();
-            QFileInfo fi(dirPath + "/" + line);
+            QFileInfo fi(dirPath + "/" + line.trimmed());
             if (fi.exists())
                 toRet << fi.completeBaseName();
+            else
+                sDebug() << "File in cache : " << fi.absoluteFilePath() + "Does not exists";
         }
         cache.close();
+    } else {
+        sDebug() << "Can't open the cache file" << cache.errorString();
     }
     return toRet;
 }
@@ -237,6 +241,7 @@ Category* HandleStuff::addCategory(QString newCategory, QString parentPath)
 
 QStringList HandleStuff::loadSaveStates(QString categoryPath)
 {
+    sDebug() << "Loading savestate for " << categoryPath;
     if (!saveStates.contains(categoryPath))
     {
         QStringList cachedList = getCacheOrderList(ORDERSAVEFILE, categoryPath);
@@ -252,6 +257,7 @@ QStringList HandleStuff::loadSaveStates(QString categoryPath)
                 saveStates[categoryPath] << fi.baseName();
             }
         } else {
+            sDebug() << "Category has cache file";
             foreach(QString s, cachedList)
             {
                 saveStates[categoryPath] << QFileInfo(s).baseName();
@@ -266,7 +272,6 @@ bool HandleStuff::addSaveState(QString name, bool trigger)
 {
     QFileInfo fi(catLoaded->path + "/" + name + ".svt");
     saveStates[catLoaded->path] << fi.baseName();
-    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
     //QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
     QByteArray data = UsbSNESSaveState(trigger);
     QFile saveFile(fi.absoluteFilePath());
@@ -274,6 +279,7 @@ bool HandleStuff::addSaveState(QString name, bool trigger)
     {
         saveFile.write(data);
         saveFile.close();
+        writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
         return true;
     } else {
         qCCritical(log_handleStuff()) << "Can't create file for savestate : " << saveFile.errorString();
