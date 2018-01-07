@@ -42,7 +42,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="main.cpp" line="40"/>
+        <location filename="main.cpp" line="46"/>
         <source>Critical error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -199,105 +199,105 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="177"/>
+        <location filename="savestate2snesw.cpp" line="178"/>
         <source>Removing a category</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="178"/>
+        <location filename="savestate2snesw.cpp" line="179"/>
         <source>You are about to remove the %1 category that include subcategories. Do you really want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="195"/>
-        <location filename="savestate2snesw.cpp" line="224"/>
+        <location filename="savestate2snesw.cpp" line="196"/>
+        <location filename="savestate2snesw.cpp" line="225"/>
         <source>Enter a name for the new category</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="195"/>
-        <location filename="savestate2snesw.cpp" line="224"/>
+        <location filename="savestate2snesw.cpp" line="196"/>
+        <location filename="savestate2snesw.cpp" line="225"/>
         <source>Category name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="195"/>
-        <location filename="savestate2snesw.cpp" line="224"/>
+        <location filename="savestate2snesw.cpp" line="196"/>
+        <location filename="savestate2snesw.cpp" line="225"/>
         <source>New Category</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="216"/>
+        <location filename="savestate2snesw.cpp" line="217"/>
         <source>Error adding a category</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="216"/>
+        <location filename="savestate2snesw.cpp" line="217"/>
         <source>Something failed while trying to add the category : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="232"/>
+        <location filename="savestate2snesw.cpp" line="233"/>
         <source>Error adding a sub category</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="232"/>
+        <location filename="savestate2snesw.cpp" line="233"/>
         <source>Something failed while trying to add the sub category : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="245"/>
+        <location filename="savestate2snesw.cpp" line="246"/>
         <source>Enter a new game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="245"/>
+        <location filename="savestate2snesw.cpp" line="246"/>
         <source>Game name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="245"/>
+        <location filename="savestate2snesw.cpp" line="246"/>
         <source>New game</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="292"/>
+        <location filename="savestate2snesw.cpp" line="293"/>
         <source>New Savestate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="306"/>
+        <location filename="savestate2snesw.cpp" line="307"/>
         <source>New savestate error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="306"/>
+        <location filename="savestate2snesw.cpp" line="307"/>
         <source>Something failed when trying to save the new savestate : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="420"/>
+        <location filename="savestate2snesw.cpp" line="421"/>
         <source>USB2Snes is ready for savestates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="436"/>
+        <location filename="savestate2snesw.cpp" line="437"/>
         <source>USB2Snes is not ready for savestates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="484"/>
+        <location filename="savestate2snesw.cpp" line="485"/>
         <source>Removing savestate error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="484"/>
+        <location filename="savestate2snesw.cpp" line="485"/>
         <source>Something failed when deleting : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="505"/>
+        <location filename="savestate2snesw.cpp" line="506"/>
         <source>Choose Games Directory</source>
         <translation type="unfinished"></translation>
     </message>

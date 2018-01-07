@@ -167,7 +167,7 @@ QStringList HandleStuff::getCacheOrderList(QString file, QString dirPath)
             if (fi.exists())
                 toRet << fi.completeBaseName();
             else
-                sDebug() << "File in cache : " << fi.absoluteFilePath() + "Does not exists";
+                sDebug() << "File in cache : " << fi.absoluteFilePath() + " Does not exists";
         }
         cache.close();
     } else {

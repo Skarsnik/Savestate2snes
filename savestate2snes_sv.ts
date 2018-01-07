@@ -42,7 +42,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="main.cpp" line="40"/>
+        <location filename="main.cpp" line="46"/>
         <source>Critical error</source>
         <translation>Kritiskt fel</translation>
     </message>
@@ -199,105 +199,105 @@
         <translation>Välj sparningsmapp</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="177"/>
+        <location filename="savestate2snesw.cpp" line="178"/>
         <source>Removing a category</source>
         <translation>Tar bort en kategori</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="178"/>
+        <location filename="savestate2snesw.cpp" line="179"/>
         <source>You are about to remove the %1 category that include subcategories. Do you really want to proceed?</source>
         <translation>Du håller på att ta bort kategorin %1  som dessutom innehåller underkategorier. Vill du verkligen fortsätta?</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="195"/>
-        <location filename="savestate2snesw.cpp" line="224"/>
+        <location filename="savestate2snesw.cpp" line="196"/>
+        <location filename="savestate2snesw.cpp" line="225"/>
         <source>Enter a name for the new category</source>
         <translation>Skriv in ett namn för den nya kategorin</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="195"/>
-        <location filename="savestate2snesw.cpp" line="224"/>
+        <location filename="savestate2snesw.cpp" line="196"/>
+        <location filename="savestate2snesw.cpp" line="225"/>
         <source>Category name:</source>
         <translation>Kategorinamn:</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="195"/>
-        <location filename="savestate2snesw.cpp" line="224"/>
+        <location filename="savestate2snesw.cpp" line="196"/>
+        <location filename="savestate2snesw.cpp" line="225"/>
         <source>New Category</source>
         <translation>Ny kategori</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="216"/>
+        <location filename="savestate2snesw.cpp" line="217"/>
         <source>Error adding a category</source>
         <translation>Fel av kategoriskapande</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="216"/>
+        <location filename="savestate2snesw.cpp" line="217"/>
         <source>Something failed while trying to add the category : %1</source>
         <translation>Någonting gick fel när följande kategori försökte läggas till: %1</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="232"/>
+        <location filename="savestate2snesw.cpp" line="233"/>
         <source>Error adding a sub category</source>
         <translation>Fel av underkategoriskapande</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="232"/>
+        <location filename="savestate2snesw.cpp" line="233"/>
         <source>Something failed while trying to add the sub category : %1</source>
         <translation>Någonting gick fel när följande underkategori försökte läggas till: %1</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="245"/>
+        <location filename="savestate2snesw.cpp" line="246"/>
         <source>Enter a new game</source>
         <translation>Skriv in ett nytt spel</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="245"/>
+        <location filename="savestate2snesw.cpp" line="246"/>
         <source>Game name:</source>
         <translation>Spelnamn:</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="245"/>
+        <location filename="savestate2snesw.cpp" line="246"/>
         <source>New game</source>
         <translation>Nytt spel</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="292"/>
+        <location filename="savestate2snesw.cpp" line="293"/>
         <source>New Savestate</source>
         <translation>Ny sparning</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="306"/>
+        <location filename="savestate2snesw.cpp" line="307"/>
         <source>New savestate error</source>
         <translation>Ny sparning gick fel</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="306"/>
+        <location filename="savestate2snesw.cpp" line="307"/>
         <source>Something failed when trying to save the new savestate : %1</source>
         <translation>Någonting gick fel när följande sparning försökte läggas till: %1</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="420"/>
+        <location filename="savestate2snesw.cpp" line="421"/>
         <source>USB2Snes is ready for savestates.</source>
         <translation>USB2SNES är redo för sparning.</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="436"/>
+        <location filename="savestate2snesw.cpp" line="437"/>
         <source>USB2Snes is not ready for savestates.</source>
         <translation>USB2SNES är inte redo för sparning.</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="484"/>
+        <location filename="savestate2snesw.cpp" line="485"/>
         <source>Removing savestate error</source>
         <translation>Borttagande av sparande gick fel</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="484"/>
+        <location filename="savestate2snesw.cpp" line="485"/>
         <source>Something failed when deleting : %1</source>
         <translation>Någonting gick fel när följande försökte tas bort: %1</translation>
     </message>
     <message>
-        <location filename="savestate2snesw.cpp" line="505"/>
+        <location filename="savestate2snesw.cpp" line="506"/>
         <source>Choose Games Directory</source>
         <translation>Välj Spelmapp</translation>
     </message>
