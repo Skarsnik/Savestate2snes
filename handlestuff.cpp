@@ -70,9 +70,10 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
     {
         sDebug() << "Game has file info";
         QSettings file(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS, QSettings::IniFormat);
-        m_gameInfo.loadShortcut = file.value("_/loadShorcut").toString().toUInt(NULL, 16);
-        m_gameInfo.saveShortcut = file.value("_/saveShorcut").toString().toUInt(NULL, 16);
+        m_gameInfo.loadShortcut = file.value("_/loadShortcut").toString().toUInt(NULL, 16);
+        m_gameInfo.saveShortcut = file.value("_/saveShortcut").toString().toUInt(NULL, 16);
         m_gameInfo.name = file.value("_/game").toString();
+        sDebug() << "Shortcuts are : (s/l)" << QString::number(m_gameInfo.saveShortcut, 16) << QString::number(m_gameInfo.loadShortcut, 16);
 
     }
     return categories[game]->children;
