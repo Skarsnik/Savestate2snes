@@ -37,7 +37,7 @@ RC_FILE = savestate2snes.rc
 RESOURCES += \
     images.qrc
 
-TRANSLATIONS = savestate2snes_fr.ts \
-               savestate2snes_de.ts \
-               savestate2snes_sv.ts \
-               savestate2snes_nl.ts
+TRANSLATIONS = Translations\savestate2snes_fr.ts \
+               Translations\savestate2snes_de.ts \
+               Translations\savestate2snes_sv.ts \
+               Translations\savestate2snes_nl.ts

@@ -40,6 +40,7 @@ echo Generating Translation
 mkdir %deployPath%\i18n
 
 lrelease %projectPath%\Savestate2snes.pro
-xcopy /y %projectPath%\savestate2snes_fr.qm %deployPath%\i18n
-xcopy /y %projectPath%\savestate2snes_de.qm %deployPath%\i18n
-xcopy /y %projectPath%\savestate2snes_sv.qm %deployPath%\i18n
+xcopy /y %projectPath%\Translations\savestate2snes_fr.qm %deployPath%\i18n
+xcopy /y %projectPath%\Translations\savestate2snes_de.qm %deployPath%\i18n
+xcopy /y %projectPath%\Translations\savestate2snes_sv.qm %deployPath%\i18n
+xcopy /y %projectPath%\Translations\savestate2snes_nl.qm %deployPath%\i18n
