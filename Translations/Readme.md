@@ -1,6 +1,6 @@
 You don't need to install the whole toolchains needed to build the project (Qt framework) to work on translations.
 
-Just download http://www.open-tx.org/2017/03/24/QtLinguist-download 
+Just download http://www.softpedia.com/get/Others/Home-Education/Qt-Linguist.shtml
 and follow http://doc.qt.io/qt-5/linguist-translators.html
 
 You will need to download the code source to get some context, 
