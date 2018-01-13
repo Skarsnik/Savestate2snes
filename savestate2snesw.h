@@ -90,7 +90,7 @@ private:
     QMenu*              categoryMenu;
     QAction*            customAddCatAction;
     QModelIndex         indexCatUnderMenu;
-    HandleStuff         handleStuff;
+    HandleStuff*        handleStuff;
     QStandardItem*      newSaveInserted;
     USB2snes*           usb2snes;
     QString             gamesFolder;

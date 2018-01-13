@@ -16,6 +16,9 @@
 
 
 #include <QDebug>
+#include <QLoggingCategory>
+#include <QObject>
+#include <QSettings>
 #include "handlestuff.h"
 
 Q_LOGGING_CATEGORY(log_handleStuff, "HandleStuff")
@@ -79,43 +82,6 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
     return categories[game]->children;
 }
 
-void HandleStuff::setUsb2snes(USB2snes *usbsnes)
-{
-    usb2snes = usbsnes;
-}
-
-//$FC2000 db saveState  (Make sure both load and save are zero before setting this to nonzero)
-//$FC2001 db loadState  (Make sure both load and save are zero before setting this to nonzero)
-//$FC2002 dw saveButton (Set to $FFFF first and then set to correct value)
-//$FC2004 dw loadButton (Set to $FFFF first and then set to correct value)
-
-QByteArray HandleStuff::UsbSNESSaveState(bool trigger)
-{
-    QByteArray data;
-    if (trigger)
-    {
-        checkForSafeState();
-        data.resize(2);
-        data[0] = 0;
-        /*data[1] = 0;
-        usb2snes->setAddress(0xFC2000, data);*/
-        data[0] = 1;
-        usb2snes->setAddress(0xFC2000, data);
-    }
-    checkForSafeState();
-    QByteArray saveData = usb2snes->getAddress(0xF00000, 320 * 1024);
-    return saveData;
-}
-
-void    HandleStuff::checkForSafeState()
-{
-    QByteArray data = usb2snes->getAddress(0xFC2000, 2);
-    while (!(data.at(0) == 0 && data.at(1) == 0))
-    {
-            QThread::usleep(100);
-            data = usb2snes->getAddress(0xFC2000, 2);
-    }
-}
 
 bool    HandleStuff::loadSaveState(QString name)
 {
@@ -123,14 +89,7 @@ bool    HandleStuff::loadSaveState(QString name)
     if (saveFile.open(QIODevice::ReadOnly))
     {
         QByteArray data = saveFile.readAll();
-        checkForSafeState();
-        usb2snes->setAddress(0xF00000, data);
-        data.resize(2);
-        data[0] = 0;
-        /*data[1] = 0;
-        usb2snes->setAddress(0xFC2000, data);*/
-        data[1] = 1;
-        usb2snes->setAddress(0xFC2000, data);
+        loadState(data);
         saveFile.close();
         return true;
     }
@@ -274,7 +233,7 @@ bool HandleStuff::addSaveState(QString name, bool trigger)
     QFileInfo fi(catLoaded->path + "/" + name + ".svt");
     saveStates[catLoaded->path] << fi.baseName();
     //QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
-    QByteArray data = UsbSNESSaveState(trigger);
+    QByteArray data = saveState(trigger);
     QFile saveFile(fi.absoluteFilePath());
     if (saveFile.open(QIODevice::WriteOnly))
     {
@@ -340,38 +299,6 @@ bool HandleStuff::deleteSaveState(int row)
     saveList.removeAt(row);
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
     return true;
-}
-
-quint16 HandleStuff::shortcutSave()
-{
-    QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
-    quint16 toret = (saveButton.at(1) << 8) + saveButton.at(0);
-    return toret;
-}
-
-quint16 HandleStuff::shortcutLoad()
-{
-    QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
-    quint16 toret = (loadButton.at(1) << 8) + loadButton.at(0);
-    return toret;
-}
-
-void HandleStuff::setShortcutLoad(quint16 shortcut)
-{
-    QByteArray data;
-    data.resize(2);
-    data[0] = shortcut & 0x00FF;
-    data[1] = shortcut >> 8;
-    usb2snes->setAddress(0xFC2004, data);
-}
-
-void HandleStuff::setShortcutSave(quint16 shortcut)
-{
-    QByteArray data;
-    data.resize(2);
-    data[0] = shortcut & 0x00FF;
-    data[1] = shortcut >> 8;
-    usb2snes->setAddress(0xFC2002, data);
 }
 
 GameInfos HandleStuff::gameInfos()

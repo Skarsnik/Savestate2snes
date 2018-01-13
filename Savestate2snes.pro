@@ -18,14 +18,16 @@ SOURCES += main.cpp\
     usb2snes.cpp \
     usb2snesstatut.cpp \
     firsttimedialog.cpp \
-    shortcuteditdialog.cpp
+    shortcuteditdialog.cpp \
+    handlestuffusb2snes.cpp
 
 HEADERS  += savestate2snesw.h \
     handlestuff.h \
     usb2snes.h \
     usb2snesstatut.h \
     firsttimedialog.h \
-    shortcuteditdialog.h
+    shortcuteditdialog.h \
+    handlestuffusb2snes.h
 
 FORMS    += savestate2snesw.ui \
     usb2snesstatut.ui \
