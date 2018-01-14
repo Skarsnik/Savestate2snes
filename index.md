@@ -11,6 +11,8 @@ It based on the USB2Snes firmware and software that allow to talk to the Console
 
 ![Savestate2snes preview](https://skarsnik.github.io/Savestate2snes/webimage/main.png){:height="457px" width="800px"}
 
+#Contents
+{:.no_toc}
 
 * TOC
 {:toc}
