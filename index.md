@@ -9,7 +9,7 @@ Savestate2snes is a tool that let you create and manage savestates on your SNES 
 
 It based on the USB2Snes firmware and software that allow to talk to the Console using an USB cable.
 
-![Savestate2snes preview](https://skarsnik.github.io/Savestate2snes/webimage/main.png =800x457)
+![Savestate2snes preview](https://skarsnik.github.io/Savestate2snes/webimage/main.png){:height="800px" width="457px"}
 
 
 # Features
@@ -23,4 +23,4 @@ It based on the USB2Snes firmware and software that allow to talk to the Console
 
 You can download the latest release [here](https://github.com/Skarsnik/Savestate2snes/releases/latest) It's a Windows 64 bits version.
 
-You will need the latest USB2Snes firmware that can find [here] (https://github.com/RedGuyyyy/sd2snes/releases)
+You will need the latest USB2Snes firmware that can find [here](https://github.com/RedGuyyyy/sd2snes/releases)
