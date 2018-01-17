@@ -19,7 +19,11 @@ SOURCES += main.cpp\
     usb2snesstatut.cpp \
     firsttimedialog.cpp \
     shortcuteditdialog.cpp \
-    handlestuffusb2snes.cpp
+    handlestuffusb2snes.cpp \
+    snesclassicstuff/desktopclient/miniftp.cpp \
+    snesclassicstuff/desktopclient/telnetconnection.cpp \
+    snesclassicstatut.cpp \
+    handlestuffsnesclassic.cpp
 
 HEADERS  += savestate2snesw.h \
     handlestuff.h \
@@ -27,12 +31,17 @@ HEADERS  += savestate2snesw.h \
     usb2snesstatut.h \
     firsttimedialog.h \
     shortcuteditdialog.h \
-    handlestuffusb2snes.h
+    handlestuffusb2snes.h \
+    snesclassicstuff/desktopclient/miniftp.h \
+    snesclassicstuff/desktopclient/telnetconnection.h \
+    snesclassicstatut.h \
+    handlestuffsnesclassic.h
 
 FORMS    += savestate2snesw.ui \
     usb2snesstatut.ui \
     firsttimedialog.ui \
-    shortcuteditdialog.ui
+    shortcuteditdialog.ui \
+    snesclassicstatut.ui
 
 RC_FILE = savestate2snes.rc
 

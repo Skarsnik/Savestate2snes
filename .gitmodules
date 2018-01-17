@@ -1,0 +1,3 @@
+[submodule "snesclassicstuff"]
+	path = snesclassicstuff
+	url = https://github.com/Skarsnik/snesclassicstuff.git

@@ -44,7 +44,6 @@ USB2SnesStatut::USB2SnesStatut(QWidget *parent) :
      menuRunning = false;
      romRunning = false;
      ui->romPatchedLabel->hide();
-     ui->pushButton->hide();
 }
 
 void USB2SnesStatut::setUsb2snes(USB2snes *usnes)

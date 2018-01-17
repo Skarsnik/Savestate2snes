@@ -74,9 +74,9 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->savestateListView->setModel(saveStateModel);
     ui->categoryTreeView->setModel(repStateModel);
     newSaveInserted = NULL;
-    usb2snes = new USB2snes();
+    /*usb2snes = new USB2snes();
     ((HandleStuffUsb2snes*) handleStuff)->setUsb2snes(usb2snes);
-    ui->usb2snesStatut->setUsb2snes(usb2snes);
+    ui->usb2snesStatut->setUsb2snes(usb2snes);*/
 
     createMenus();
     turnSaveStateAction(false);
@@ -92,7 +92,7 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SLOT(onUnReadyForSaveState()));
     loadGames();
 
-    usb2snes->connect();
+    //usb2snes->connect();
     setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion());
 }
 
