@@ -368,7 +368,7 @@ Die aktuelle Versionen findest du &lt;a href=&quot;https://github.com/RedGuyyyy/
     <message>
         <location filename="../usb2snesstatut.ui" line="41"/>
         <source>ROM running : </source>
-        <translation>Keine ROM geladen:</translation>
+        <translation>aktuelle ROM:</translation>
     </message>
     <message>
         <location filename="../usb2snesstatut.ui" line="48"/>
