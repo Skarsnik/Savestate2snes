@@ -1,10 +1,12 @@
 @ECHO ON
-set projectPath=D:\Project\Savestate2snes
+set projectPath=D:\Project\copy\Savestate2snes
 set compilePath=D:\Project\compile\savestate2snes
 set deployPath=D:\Project\deploy\savestate2snes
 set originalBinDir=%compilePath%
 set vscdll=D:\Visual Studio\VC\Redist\MSVC\14.12.25810\x64\Microsoft.VC141.CRT\msvcp140.dll
 
+rmdir /Q /S %compilePath%
+mkdir %compilePath%
 rmdir /Q /S %deployPath%
 mkdir %deployPath%
 :: Compile
@@ -20,12 +22,9 @@ nmake
 
 xcopy /y %originalBinDir%\release\savestate2snes.exe %deployPath%
 
-::mkdir %deployPath%\qml\
-::xcopy /e %projectPath%\qml %deployPath%\qml /r
-
 echo "Deploy QT"
 windeployqt.exe --no-translations --no-system-d3d-compiler --no-opengl --no-svg --no-webkit --no-webkit2 --release %deployPath%\savestate2snes.exe
-xcopy /e %projectPath%\Patches %deployPath%\Patches /r
+xcopy /e %projectPath%\Patches %deployPath%\Patches\ /r
 
 :: Clean up Qt extra stuff
 rmdir /Q /S %deployPath%\imageformats
@@ -44,3 +43,10 @@ xcopy /y %projectPath%\Translations\savestate2snes_fr.qm %deployPath%\i18n
 xcopy /y %projectPath%\Translations\savestate2snes_de.qm %deployPath%\i18n
 xcopy /y %projectPath%\Translations\savestate2snes_sv.qm %deployPath%\i18n
 xcopy /y %projectPath%\Translations\savestate2snes_nl.qm %deployPath%\i18n
+
+
+xcopy /y %projectPath%\License-GPL3.txt %deployPath%
+xcopy /i /y %projectPath%\README.md %deployPath%\Readme.txt
+
+
+cd %projectPath%
