@@ -30,7 +30,7 @@
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item>
-       <widget class="USB2SnesStatut" name="usb2snesStatut" native="true">
+       <widget class="SNESClassicStatut" name="usb2snesStatut" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -539,9 +539,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>USB2SnesStatut</class>
+   <class>SNESClassicStatut</class>
    <extends>QWidget</extends>
-   <header>usb2snesstatut.h</header>
+   <header>snesclassicstatut.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

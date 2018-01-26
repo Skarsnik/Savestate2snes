@@ -4,6 +4,8 @@
 #
 #-------------------------------------------------
 
+#include(qtftp/modules/qt_ftp.pri)
+
 QT       += core gui websockets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -23,7 +25,9 @@ SOURCES += main.cpp\
     snesclassicstuff/desktopclient/miniftp.cpp \
     snesclassicstuff/desktopclient/telnetconnection.cpp \
     snesclassicstatut.cpp \
-    handlestuffsnesclassic.cpp
+    handlestuffsnesclassic.cpp \
+    qtftp/src/qftp/qftp.cpp \
+    qtftp/src/qftp/qurlinfo.cpp
 
 HEADERS  += savestate2snesw.h \
     handlestuff.h \
@@ -35,7 +39,9 @@ HEADERS  += savestate2snesw.h \
     snesclassicstuff/desktopclient/miniftp.h \
     snesclassicstuff/desktopclient/telnetconnection.h \
     snesclassicstatut.h \
-    handlestuffsnesclassic.h
+    handlestuffsnesclassic.h \
+    qtftp/src/qftp/qftp.h \
+    qtftp/src/qftp/qurlinfo.h
 
 FORMS    += savestate2snesw.ui \
     usb2snesstatut.ui \

@@ -16,10 +16,12 @@ SNESClassicStatut::SNESClassicStatut(QWidget *parent) :
 
     connect(this, SIGNAL(canoeStarted()), this, SLOT(onCanoeStarted()));
     connect(this, SIGNAL(canoeStopped()), this, SLOT(onCanoeStopped()));
+    miniFtp->connect();
 }
 
 void SNESClassicStatut::onTimerTick()
 {
+    ftpReady = miniFtp->state() == MiniFtp::Connected;
     if (cmdCo->state() == TelnetConnection::Ready || cmdCo->state() == TelnetConnection::Connected)
     {
         QByteArray result = cmdCo->syncExecuteCommand("pidof canoe-shvc > /dev/null && echo 1 || echo 0");
@@ -37,12 +39,13 @@ void SNESClassicStatut::onTimerTick()
             cmdCo->conneect();
         timer.setInterval(5000);
     }
-    ftpReady = !miniFtp->get("").isEmpty();
 }
 
 
 SNESClassicStatut::~SNESClassicStatut()
 {
+    timer.stop();
+    cmdCo->close();
     delete ui;
 }
 
@@ -65,6 +68,7 @@ void SNESClassicStatut::onCanoeStarted()
         QString canoeStr = result.mid(result.indexOf("canoe"));
         QStringList canoeArgs = canoeStr.split(" ");
         ui->romNameLabel->setText(canoeArgs.at(canoeArgs.indexOf("-rom") + 1));
+        timer.stop();
         emit readyForSaveState();
     }
 }

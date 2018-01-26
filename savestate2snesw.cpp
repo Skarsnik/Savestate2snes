@@ -26,6 +26,7 @@
 #include "shortcuteditdialog.h"
 #include "ui_savestate2snesw.h"
 #include "handlestuffusb2snes.h"
+#include "handlestuffsnesclassic.h"
 
 Q_LOGGING_CATEGORY(log_MainUI, "MainUI")
 
@@ -63,7 +64,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
                                                         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QFileDialog::ShowDirsOnly);
     }
 
-    handleStuff = new HandleStuffUsb2snes();
+    //handleStuff = new HandleStuffUsb2snes();
+    handleStuff = new HandleStuffSnesClassic();
     handleStuff->setSaveStateDir(gamesFolder);
     ui->pathLineEdit->setText(gamesFolder);
 
@@ -77,6 +79,9 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     /*usb2snes = new USB2snes();
     ((HandleStuffUsb2snes*) handleStuff)->setUsb2snes(usb2snes);
     ui->usb2snesStatut->setUsb2snes(usb2snes);*/
+    TelnetConnection* cmdCo = new TelnetConnection("localhost", 1023, "root", "clover");
+    ((HandleStuffSnesClassic*) handleStuff)->setCommandCo(cmdCo);
+    ui->usb2snesStatut->setCommandCo(cmdCo);
 
     createMenus();
     turnSaveStateAction(false);
@@ -314,7 +319,7 @@ void    Savestate2snesw::newSaveState(bool triggerSave)
 void Savestate2snesw::closeEvent(QCloseEvent *event)
 {
     Q_UNUSED(event)
-    usb2snes->close();
+    //usb2snes->close();
     m_settings->setValue("windowState", saveState());
     m_settings->setValue("windowGeometry", saveGeometry());
     m_settings->setValue("lastSaveStateDir", gamesFolder);
@@ -432,7 +437,7 @@ void Savestate2snesw::onReadyForSaveState()
         {
             ((HandleStuffUsb2snes*) handleStuff)->setShortcutSave(handleStuff->gameInfos().saveShortcut);
             ((HandleStuffUsb2snes*) handleStuff)->setShortcutLoad(handleStuff->gameInfos().loadShortcut);
-            ui->usb2snesStatut->refreshShortcuts();
+            //ui->usb2snesStatut->refreshShortcuts();
         }
     }
 }
@@ -528,7 +533,7 @@ void Savestate2snesw::on_editShortcutButton_clicked()
         sDebug() << "Setting shortcuts s/l : " << QString::number(save, 16) << QString::number(load, 16);
         hs->setShortcutSave(save);
         hs->setShortcutLoad(load);
-        ui->usb2snesStatut->refreshShortcuts();
+        //ui->usb2snesStatut->refreshShortcuts();
         hs->setGameShortCut(save, load);
     }
 }
