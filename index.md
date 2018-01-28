@@ -7,7 +7,7 @@ Welcome to Savestate2snes webpage.
 
 Savestate2snes is a tool that let you create and manage savestates on your SNES console with a SD2SNES.
 
-It based on the USB2Snes firmware and software that allow to talk to the Console using an USB cable.
+It based on the USB2Snes firmware and software that allow to talk to a SNES Console using an USB cable.
 
 ![Savestate2snes preview](https://skarsnik.github.io/Savestate2snes/webimage/main.png){:height="457px" width="800px"}
 
@@ -28,16 +28,40 @@ It based on the USB2Snes firmware and software that allow to talk to the Console
 
 You can download the latest release [here](https://github.com/Skarsnik/Savestate2snes/releases/latest) It's a Windows 64 bits version.
 
-You will need the latest USB2Snes firmware that can find [here](https://github.com/RedGuyyyy/sd2snes/releases)
+You will need the latest USB2Snes firmware and software that can find [here](https://github.com/RedGuyyyy/sd2snes/releases)
 
 # Tutorial
 
+Until a proper video tutorial is made, here some quick steps to start using Savestate2snes.
+
+* Get USB2SNES version 6 or later.
+* Download Savestate2snes and extract it
+* You can put Savestate2snes folder on `usb2snes/apps` folder
+* Power on your console
+* Start the usb2snes application
+* Start Savestate2snes from the client menu on usb2snes
+* Create a new game with the `New game` button
+* Right-click on the category view to add a category and click on it (you can do sub categories!)
+* Run your game (You can do that when you want)
+* When the `patch rom` button became available click on it
+* Load/Save/Make Savestate buttons should be available: You are good to go!
+
+## Notes
+
+The `Make savestate` button will trigger a savestate from the game, understand: it will create a savestate with the current state.
+
+The `Save savestate` button will save the last savestate made 
+(ether with the controller save savestate shortcut or a previous `Make savestate` action) and save it.
+It does not trigger a savestate.
+
+Savestates and categories are just files and folder created on your computer. 
+You can move them around if you want to move/copy savestate across categories but It's recommended to close Savestate2snes before doing that.
 
 # Bugs
 
 ## Knows issues
 
-If you power on/off your console, there is a chance USB2SNES get lost (very likly on Windows 7) and will refuse for Save2snes to reconnect to it. You have to restart usb2snes and savestate2snes.
+If you power on/off your console, there is a chance USB2SNES get lost (very likly on Windows 7) and will refuse for Savestate2snes to reconnect to it. You will have to restart usb2snes and savestate2snes.
 
 
 ## Reporting bugs
