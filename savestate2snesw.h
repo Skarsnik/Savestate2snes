@@ -81,6 +81,10 @@ private slots:
 
     void on_editShortcutButton_clicked();
 
+    void on_actionReload_last_savestate_triggered();
+
+    void on_actionMake_a_savestate_triggered();
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;

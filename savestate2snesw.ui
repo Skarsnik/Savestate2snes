@@ -535,6 +535,22 @@
     <string>Add category</string>
    </property>
   </action>
+  <action name="actionReload_last_savestate">
+   <property name="text">
+    <string>Reload last savestate</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionMake_a_savestate">
+   <property name="text">
+    <string>Make a savestate</string>
+   </property>
+   <property name="shortcut">
+    <string>F9</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

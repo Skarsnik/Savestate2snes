@@ -102,6 +102,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
 
     //usb2snes->connect();
     setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion());
+    addAction(ui->actionReload_last_savestate);
+    addAction(ui->actionMake_a_savestate);
 }
 
 void Savestate2snesw::loadGames()
@@ -539,4 +541,16 @@ void Savestate2snesw::on_editShortcutButton_clicked()
         //ui->usb2snesStatut->refreshShortcuts();
         hs->setGameShortCut(save, load);
     }
+}
+
+void Savestate2snesw::on_actionReload_last_savestate_triggered()
+{
+    if (ui->loadStatePushButton->isEnabled())
+        on_loadStatePushButton_clicked();
+}
+
+void Savestate2snesw::on_actionMake_a_savestate_triggered()
+{
+    if (ui->addSaveStatePushButton->isEnabled())
+        on_addSaveStatePushButton_clicked();
 }
