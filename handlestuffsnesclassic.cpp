@@ -25,15 +25,16 @@ QStringList HandleStuffSnesClassic::getCanoeExecution()
 {
     QByteArray ba = telCo->syncExecuteCommand("ps | grep canoe | grep -v grep");
     QString result = ba.trimmed();
-    QString canoeStr = result.mid(result.indexOf("canoe"));
+    QString canoeStr = result.mid(result.indexOf("canoe-shvc"));
+    sDebug() << "Canoe Str : " << canoeStr;
     QStringList canoeArgs = canoeStr.split(" ");
     return canoeArgs;
 }
 
-void    HandleStuffSnesClassic::killCanoe()
+void    HandleStuffSnesClassic::killCanoe(int signal = 2)
 {
     QString canoePid = telCo->syncExecuteCommand("pidof canoe-shvc").trimmed();
-    telCo->syncExecuteCommand(KILLCANOECMD);
+    telCo->syncExecuteCommand(QString("kill -%1 `pidof canoe-shvc`").arg(signal));
     telCo->syncExecuteCommand("test -e /tmp/plop || (sleep 1 && kill -2 `pidof ReedPlayer-Clover` && touch /tmp/plop)");
     telCo->syncExecuteCommand("wait " + canoePid);
 }
@@ -41,23 +42,27 @@ void    HandleStuffSnesClassic::killCanoe()
 void    HandleStuffSnesClassic::runCanoe(QStringList canoeArgs)
 {
     sDebug() << "Running canoe : " << canoeArgs;
-    canoeCo->executeCommand(canoeArgs.join(" "));
+    canoeCo->executeCommand(canoeArgs.join(" ") + " 2>/dev/null");
 }
 
 void    HandleStuffSnesClassic::removeCanoeUnnecessaryArg(QStringList &canoeRun)
 {
     QStringList optArgToremove;
     optArgToremove << "-rollback-snapshot-period" << "--load-time-path" << "-rollback-input-dir"  << "-rollback-output-dir" << "--save-time-path" << "--wait-transition-fd";
-    optArgToremove << "--finish-transition-fd" << "--start-transition-fd" << "--rollback-ui" << "-rollback-snapshot-period";
+    optArgToremove << "--finish-transition-fd" << "--start-transition-fd" << "--rollback-ui" << "-rollback-snapshot-period" << "-rollback-mode";
     foreach( QString arg, optArgToremove)
     {
         int i = canoeRun.indexOf(arg);
-        if (i != 1)
+        if (i != -1)
         {
+            qDebug() << "Removing : " << arg;
             canoeRun.removeAt(i);
             canoeRun.removeAt(i);
         }
     }
+    int i = canoeRun.indexOf("--enable-sram-file-hash");
+    if (i != -1)
+        canoeRun.removeAt(i); 
 }
 
 QByteArray HandleStuffSnesClassic::saveState(bool trigger)
@@ -72,6 +77,30 @@ QByteArray HandleStuffSnesClassic::saveState(bool trigger)
     {
         sDebug() << "First run inside savestate2snes";
         killCanoe();
+        //  First we change what rollback file to load
+        int spos = canoeRun.indexOf("--save-time-path");
+        int ripos = canoeRun.indexOf("-rollback-input-dir");
+        int ropos = canoeRun.indexOf("-rollback-output-dir");
+        int lpos = canoeRun.indexOf("--load-time-path");
+        if (lpos == -1)
+        {
+            canoeRun.append("--load-time-path");
+            canoeRun.append(canoeRun.at(spos + 1));
+        } else {
+            canoeRun[lpos + 1] = canoeRun.at(spos + 1);
+        }
+        if (ripos == - 1)
+        {
+            canoeRun.append("--rollback-input-dir");
+            canoeRun.append(canoeRun.at(ropos + 1));
+        } else {
+            canoeRun[ripos + 1] = canoeRun.at(ropos + 1);
+        }
+
+        // probably useless
+        canoeRun.removeAt(canoeRun.indexOf("--enable-sram-file-hash"));
+
+        // Adding save savestate
         canoeRun.append("--save-on-quit");
         canoeRun.append(CLOVERSAVESTATEPATH);
         int sshot = canoeRun.indexOf("--save-screenshot-on-quit");
@@ -80,15 +109,21 @@ QByteArray HandleStuffSnesClassic::saveState(bool trigger)
         canoeRun << "--save-screenshot-on-quit" << SCREENSHOTPATH;
         runCanoe(canoeRun);
         //return QByteArray();
-        QThread::msleep(200);
+        QThread::msleep(400);
     }
     sDebug() << "Killing canoe to restart";
     killCanoe();
     /*telCo->syncExecuteCommand(QString("cp %1 %2 && cd %2/../ && tar czf /tmp/rollback.tar.gz rollback/ && cd ~/").arg(fileSavePath).arg(rollbackDir));
     if (rollbackDir != "/tmp/rollback/")
         telCo->syncExecuteCommand("cp -r " + rollbackDir + "/* /tmp/rollback/");*/
-    telCo->syncExecuteCommand("ls -l " + CLOVERSAVESTATEPATH);
+    QThread::msleep(200);
+    telCo->syncExecuteCommand("ls -l " + QString(CLOVERSAVESTATEPATH));
     QByteArray toret = ftpCo->get(CLOVERSAVESTATEPATH);
+    if (canoeRun.indexOf("-resume") == -1)
+    {
+        canoeRun.append("-resume");
+        canoeRun.append(CLOVERSAVESTATEPATH);
+    }
     if (soq == -1)
     {
         removeCanoeUnnecessaryArg(canoeRun);
@@ -103,10 +138,11 @@ QByteArray HandleStuffSnesClassic::saveState(bool trigger)
 void HandleStuffSnesClassic::loadState(QByteArray data)
 {
     QStringList  canoeRun = getCanoeExecution();
-    killCanoe();
+    sDebug() << "Loading State canoerun : " << canoeRun;
     int soq = canoeRun.indexOf("--save-on-quit");
     if (soq == -1)
     {
+        killCanoe();
         removeCanoeUnnecessaryArg(canoeRun);
         canoeRun.append("--save-on-quit");
         canoeRun.append(CLOVERSAVESTATEPATH);
@@ -116,8 +152,17 @@ void HandleStuffSnesClassic::loadState(QByteArray data)
         canoeRun << "--save-screenshot-on-quit" << SCREENSHOTPATH;
         canoeRun.append("-resume");
         canoeRun.append(CLOVERSAVESTATEPATH);
+    } else
+        killCanoe(9); // We don't want to create a savestate
+    // Don't write a new file when it's the same
+    if (canoeRun.indexOf("-resume") == -1)
+    {
+        canoeRun.append("-resume");
+        canoeRun.append(CLOVERSAVESTATEPATH);
     }
-    ftpCo->put(CLOVERSAVESTATEPATH, data);
+    if (lastLoadMD5 != QCryptographicHash::hash(data, QCryptographicHash::Md5))
+        ftpCo->put(CLOVERSAVESTATEPATH, data);
+    lastLoadMD5 = QCryptographicHash::hash(data, QCryptographicHash::Md5);
     runCanoe(canoeRun);
 }
 
@@ -131,10 +176,11 @@ bool HandleStuffSnesClassic::hasShortcutsEdit()
     return false;
 }
 
-void HandleStuffSnesClassic::setCommandCo(TelnetConnection *co)
+void HandleStuffSnesClassic::setCommandCo(TelnetConnection *co, TelnetConnection *canoe)
 {
     telCo = co;
-    canoeCo = new TelnetConnection("localhost", 1023, "root", "clover");
+    canoeCo = canoe;
+    /*canoeCo = new TelnetConnection("localhost", 1023, "root", "clover");
     canoeCo->debugName = "Canoe";
-    canoeCo->conneect();
+    canoeCo->conneect();*/
 }

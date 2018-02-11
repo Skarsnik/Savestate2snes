@@ -80,8 +80,11 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ((HandleStuffUsb2snes*) handleStuff)->setUsb2snes(usb2snes);
     ui->usb2snesStatut->setUsb2snes(usb2snes);*/
     TelnetConnection* cmdCo = new TelnetConnection("localhost", 1023, "root", "clover");
-    ((HandleStuffSnesClassic*) handleStuff)->setCommandCo(cmdCo);
-    ui->usb2snesStatut->setCommandCo(cmdCo);
+    TelnetConnection* canoeCo = new TelnetConnection("localhost", 1023, "root", "clover");
+    cmdCo->debugName = "Command";
+    canoeCo->debugName = "Canoe";
+    ((HandleStuffSnesClassic*) handleStuff)->setCommandCo(cmdCo, canoeCo);
+    ui->usb2snesStatut->setCommandCo(cmdCo, canoeCo);
 
     createMenus();
     turnSaveStateAction(false);

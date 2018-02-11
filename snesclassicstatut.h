@@ -17,7 +17,7 @@ class SNESClassicStatut : public QWidget
 public:
     explicit SNESClassicStatut(QWidget *parent = 0);
     ~SNESClassicStatut();
-    setCommandCo(TelnetConnection* telco);
+    setCommandCo(TelnetConnection* telco, TelnetConnection *canoe);
 
 signals:
     void    readyForSaveState();
@@ -33,9 +33,12 @@ private slots:
     void    onCommandCoError(TelnetConnection::ConnectionError);
     void    onTimerTick();
 
+    void on_iniButton_clicked();
+
 private:
     Ui::SNESClassicStatut   *ui;
     TelnetConnection        *cmdCo;
+    TelnetConnection        *canoeCo;
     MiniFtp                 *miniFtp;
     QTimer                  timer;
     bool                    canoeRunning;

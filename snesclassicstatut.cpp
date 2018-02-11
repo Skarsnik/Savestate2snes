@@ -1,6 +1,8 @@
 #include "snesclassicstatut.h"
 #include "ui_snesclassicstatut.h"
 
+#include <QThread>
+
 SNESClassicStatut::SNESClassicStatut(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SNESClassicStatut)
@@ -37,6 +39,8 @@ void SNESClassicStatut::onTimerTick()
     } else {
         if (cmdCo->state() == TelnetConnection::Offline)
             cmdCo->conneect();
+        if (canoeCo->state() == TelnetConnection::Offline)
+            canoeCo->conneect();
         timer.setInterval(5000);
     }
 }
@@ -49,14 +53,16 @@ SNESClassicStatut::~SNESClassicStatut()
     delete ui;
 }
 
-SNESClassicStatut::setCommandCo(TelnetConnection *telco)
+SNESClassicStatut::setCommandCo(TelnetConnection *telco, TelnetConnection *canoe)
 {
     cmdCo = telco;
+    canoeCo = canoe;
     connect(cmdCo, SIGNAL(connectionError(TelnetConnection::ConnectionError)), this, SLOT(onCommandCoError(TelnetConnection::ConnectionError)));
     connect(cmdCo, SIGNAL(disconnected()), this, SLOT(onCommandCoDisconnected()));
     connect(cmdCo, SIGNAL(connected()), this, SLOT(onCommandCoConnected()));
     cmdCo->conneect();
-    timer.start(500);
+    canoeCo->conneect();
+    timer.start(1000);
 }
 
 void SNESClassicStatut::onCanoeStarted()
@@ -69,7 +75,8 @@ void SNESClassicStatut::onCanoeStarted()
         QStringList canoeArgs = canoeStr.split(" ");
         ui->romNameLabel->setText(canoeArgs.at(canoeArgs.indexOf("-rom") + 1));
         timer.stop();
-        emit readyForSaveState();
+        ui->iniButton->setEnabled(true);
+        //emit readyForSaveState();
     }
 }
 
@@ -92,4 +99,53 @@ void SNESClassicStatut::onCommandCoDisconnected()
 void SNESClassicStatut::onCommandCoError(TelnetConnection::ConnectionError)
 {
     emit unReadyForSaveState();
+}
+
+
+#define CLOVERSAVESTATEPATH "/tmp/savestate2snes.svt"
+#define CLOVERROLLBACKPATH "/tmp/rollback/"
+#define SCREENSHOTPATH "/tmp/savestate2snes.png"
+
+void SNESClassicStatut::on_iniButton_clicked()
+{
+    QByteArray ba = cmdCo->syncExecuteCommand("ps | grep canoe | grep -v grep");
+    QString result = ba.trimmed();
+    QString canoeStr = result.mid(result.indexOf("canoe-shvc"));
+    //sDebug() << "Canoe Str : " << canoeStr;
+    QStringList canoeRun = canoeStr.split(" ");
+
+    if (canoeRun.indexOf("-rollback-output-dir") == -1)
+    {
+        emit readyForSaveState();
+        return ;
+    }
+    QStringList optArgToremove;
+    optArgToremove << "-rollback-snapshot-period" << "--load-time-path" << "-rollback-input-dir"  << "-rollback-output-dir" << "--save-time-path" << "--wait-transition-fd";
+    optArgToremove << "--finish-transition-fd" << "--start-transition-fd" << "--rollback-ui" << "-rollback-snapshot-period" << "-rollback-mode";
+    foreach( QString arg, optArgToremove)
+    {
+        int i = canoeRun.indexOf(arg);
+        if (i != -1)
+        {
+            qDebug() << "Removing : " << arg;
+            canoeRun.removeAt(i);
+            canoeRun.removeAt(i);
+        }
+    }
+    int i = canoeRun.indexOf("--enable-sram-file-hash");
+    if (i != -1)
+        canoeRun.removeAt(i);
+    QString canoePid = cmdCo->syncExecuteCommand("pidof canoe-shvc").trimmed();
+    cmdCo->syncExecuteCommand(QString("kill -%1 `pidof canoe-shvc`").arg(2));
+    cmdCo->syncExecuteCommand("test -e /tmp/plop || (sleep 1 && kill -2 `pidof ReedPlayer-Clover` && touch /tmp/plop)");
+    cmdCo->syncExecuteCommand("wait " + canoePid);
+    canoeRun.append("--save-on-quit");
+    canoeRun.append(CLOVERSAVESTATEPATH);
+    int sshot = canoeRun.indexOf("--save-screenshot-on-quit");
+    canoeRun.removeAt(sshot);
+    canoeRun.removeAt(sshot);
+    canoeRun << "--save-screenshot-on-quit" << SCREENSHOTPATH;
+    QThread::sleep(2);
+    canoeCo->executeCommand(canoeRun.join(" ") + " 2>/dev/null");
+    emit readyForSaveState();
 }

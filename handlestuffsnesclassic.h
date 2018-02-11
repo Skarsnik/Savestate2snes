@@ -10,7 +10,7 @@ class HandleStuffSnesClassic : public HandleStuff
 {
 public:
     HandleStuffSnesClassic();
-    void            setCommandCo(TelnetConnection* co);
+    void            setCommandCo(TelnetConnection* co, TelnetConnection *canoe);
 
 protected:
     QByteArray      saveState(bool trigger);
@@ -22,10 +22,11 @@ private:
     TelnetConnection*        telCo;
     TelnetConnection*        canoeCo;
     MiniFtp*                 ftpCo;
+    QByteArray               lastLoadMD5;
 
     void        runCanoe(QStringList canoeArgs);
     QStringList getCanoeExecution();
-    void        killCanoe();
+    void        killCanoe(int signal);
     void removeCanoeUnnecessaryArg(QStringList &canoeRun);
 };
 
