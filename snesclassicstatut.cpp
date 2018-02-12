@@ -35,13 +35,13 @@ void SNESClassicStatut::onTimerTick()
             emit canoeStarted();
         if (oldcr == true && canoeRunning == false)
             emit canoeStopped();
-        timer.setInterval(5000);
+        timer.setInterval(1000);
     } else {
         if (cmdCo->state() == TelnetConnection::Offline)
             cmdCo->conneect();
         if (canoeCo->state() == TelnetConnection::Offline)
             canoeCo->conneect();
-        timer.setInterval(5000);
+        timer.setInterval(1000);
     }
 }
 
@@ -63,6 +63,16 @@ SNESClassicStatut::setCommandCo(TelnetConnection *telco, TelnetConnection *canoe
     cmdCo->conneect();
     canoeCo->conneect();
     timer.start(1000);
+}
+
+QString SNESClassicStatut::readString() const
+{
+    return tr("SNES classic ready for savestate");
+}
+
+QString SNESClassicStatut::unreadyString() const
+{
+    return tr("SNES classic not ready for savestate");
 }
 
 void SNESClassicStatut::onCanoeStarted()
@@ -148,4 +158,5 @@ void SNESClassicStatut::on_iniButton_clicked()
     QThread::sleep(2);
     canoeCo->executeCommand(canoeRun.join(" ") + " 2>/dev/null");
     emit readyForSaveState();
+    ui->iniButton->setEnabled(false);
 }

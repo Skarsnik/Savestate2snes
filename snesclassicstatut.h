@@ -18,6 +18,8 @@ public:
     explicit SNESClassicStatut(QWidget *parent = 0);
     ~SNESClassicStatut();
     setCommandCo(TelnetConnection* telco, TelnetConnection *canoe);
+    QString readString() const;
+    QString unreadyString() const;
 
 signals:
     void    readyForSaveState();

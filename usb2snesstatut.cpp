@@ -92,6 +92,16 @@ void USB2SnesStatut::refreshShortcuts()
     ui->shortcutLabel->setEnabled(true);
 }
 
+QString USB2SnesStatut::readyString() const
+{
+    return tr("USB2Snes ready for savestate");
+}
+
+QString USB2SnesStatut::unreadyString() const
+{
+    return tr("USB2Snes not ready for savestate");
+}
+
 void USB2SnesStatut::onRomStarted()
 {
     sDebug() << "Rom started";
