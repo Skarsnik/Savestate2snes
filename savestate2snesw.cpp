@@ -65,8 +65,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     }
 
     //handleStuff = new HandleStuffUsb2snes();
-    handleStuff = new HandleStuffSnesClassic();
-    handleStuff->setSaveStateDir(gamesFolder);
+    //handleStuff = new HandleStuffSnesClassic();
+    //handleStuff->setSaveStateDir(gamesFolder);
     ui->pathLineEdit->setText(gamesFolder);
 
     ui->categoryTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -78,14 +78,15 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     newSaveInserted = NULL;
     /*usb2snes = new USB2snes();
     ((HandleStuffUsb2snes*) handleStuff)->setUsb2snes(usb2snes);
-    ui->usb2snesStatut->setUsb2snes(usb2snes);*/
+    ui->usb2snesStatut->setUsb2snes(usb2snes);
     TelnetConnection* cmdCo = new TelnetConnection("localhost", 1023, "root", "clover");
     TelnetConnection* canoeCo = new TelnetConnection("localhost", 1023, "root", "clover");
     cmdCo->debugName = "Command";
     canoeCo->debugName = "Canoe";
     ((HandleStuffSnesClassic*) handleStuff)->setCommandCo(cmdCo, canoeCo);
-    ui->usb2snesStatut->setCommandCo(cmdCo, canoeCo);
-
+    ui->usb2snesStatut->setCommandCo(cmdCo, canoeCo);*/
+    handleStuff = ui->consoleSwitcher->getHandle();
+    handleStuff->setSaveStateDir(gamesFolder);
     createMenus();
     turnSaveStateAction(false);
 
@@ -96,14 +97,15 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     connect(saveStateModel, SIGNAL(modelReset()), this, SLOT(saveStateModelReset()));
     //connect(saveStateModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(onSaveStateModelDataChanged(QModelIndex,QModelIndex,QVector<int>)));
     connect(ui->savestateListView->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(onSaveStateDelegateDataCommited(QWidget*)));
-    connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SLOT(onReadyForSaveState()));
-    connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SLOT(onUnReadyForSaveState()));
+    connect(ui->consoleSwitcher, SIGNAL(readyForSaveState()), this, SLOT(onReadyForSaveState()));
+    connect(ui->consoleSwitcher, SIGNAL(unReadyForSaveState()), this, SLOT(onUnReadyForSaveState()));
     loadGames();
 
     //usb2snes->connect();
     setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion());
     addAction(ui->actionReload_last_savestate);
     addAction(ui->actionMake_a_savestate);
+    ui->consoleSwitcher->start();
 }
 
 void Savestate2snesw::loadGames()
@@ -440,9 +442,9 @@ void Savestate2snesw::onReadyForSaveState()
         ui->editShortcutButton->setEnabled(true);
         if (handleStuff->gameInfos().saveShortcut != 0)
         {
-            ((HandleStuffUsb2snes*) handleStuff)->setShortcutSave(handleStuff->gameInfos().saveShortcut);
-            ((HandleStuffUsb2snes*) handleStuff)->setShortcutLoad(handleStuff->gameInfos().loadShortcut);
-            //ui->usb2snesStatut->refreshShortcuts();
+            handleStuff->setShortcutSave(handleStuff->gameInfos().saveShortcut);
+            handleStuff->setShortcutLoad(handleStuff->gameInfos().loadShortcut);
+            ui->consoleSwitcher->refreshShortcuts();
         }
     }
 }
@@ -529,17 +531,18 @@ void Savestate2snesw::on_pathPushButton_clicked()
 
 void Savestate2snesw::on_editShortcutButton_clicked()
 {
-    HandleStuffUsb2snes* hs = (HandleStuffUsb2snes*) handleStuff;
-    ShortcutEditDialog  diag(this, hs->shortcutSave(), hs->shortcutLoad());
+    if (!handleStuff->hasShortcutsEdit())
+        return ;
+    ShortcutEditDialog  diag(this, handleStuff->shortcutSave(), handleStuff->shortcutLoad());
     if (diag.exec())
     {
         quint16 save = diag.saveShortcut();
         quint16 load = diag.loadShortcut();
         sDebug() << "Setting shortcuts s/l : " << QString::number(save, 16) << QString::number(load, 16);
-        hs->setShortcutSave(save);
-        hs->setShortcutLoad(load);
+        handleStuff->setShortcutSave(save);
+        handleStuff->setShortcutLoad(load);
         //ui->usb2snesStatut->refreshShortcuts();
-        hs->setGameShortCut(save, load);
+        handleStuff->setGameShortCut(save, load);
     }
 }
 

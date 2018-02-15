@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     snesclassicstatut.cpp \
     handlestuffsnesclassic.cpp \
     qtftp/src/qftp/qftp.cpp \
-    qtftp/src/qftp/qurlinfo.cpp
+    qtftp/src/qftp/qurlinfo.cpp \
+    consoleswitcher.cpp
 
 HEADERS  += savestate2snesw.h \
     handlestuff.h \
@@ -41,13 +42,15 @@ HEADERS  += savestate2snesw.h \
     snesclassicstatut.h \
     handlestuffsnesclassic.h \
     qtftp/src/qftp/qftp.h \
-    qtftp/src/qftp/qurlinfo.h
+    qtftp/src/qftp/qurlinfo.h \
+    consoleswitcher.h
 
 FORMS    += savestate2snesw.ui \
     usb2snesstatut.ui \
     firsttimedialog.ui \
     shortcuteditdialog.ui \
-    snesclassicstatut.ui
+    snesclassicstatut.ui \
+    consoleswitcher.ui
 
 RC_FILE = savestate2snes.rc
 

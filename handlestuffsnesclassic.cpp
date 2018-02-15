@@ -184,3 +184,23 @@ void HandleStuffSnesClassic::setCommandCo(TelnetConnection *co, TelnetConnection
     canoeCo->debugName = "Canoe";
     canoeCo->conneect();*/
 }
+
+void HandleStuffSnesClassic::setShortcutLoad(quint16 shortcut)
+{
+
+}
+
+void HandleStuffSnesClassic::setShortcutSave(quint16 shortcut)
+{
+
+}
+
+quint16 HandleStuffSnesClassic::shortcutLoad()
+{
+    return 0;
+}
+
+quint16 HandleStuffSnesClassic::shortcutSave()
+{
+    return 0;
+}

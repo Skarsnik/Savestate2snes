@@ -11,12 +11,17 @@ class HandleStuffSnesClassic : public HandleStuff
 public:
     HandleStuffSnesClassic();
     void            setCommandCo(TelnetConnection* co, TelnetConnection *canoe);
+    void            setShortcutLoad(quint16 shortcut);
+    void            setShortcutSave(quint16 shortcut);
+    quint16         shortcutLoad();
+    quint16         shortcutSave();
+    bool            hasScreenshots();
+    bool            hasShortcutsEdit();
 
 protected:
     QByteArray      saveState(bool trigger);
     void            loadState(QByteArray data);
-    bool            hasScreenshots();
-    bool            hasShortcutsEdit();
+
 
 private:
     TelnetConnection*        telCo;

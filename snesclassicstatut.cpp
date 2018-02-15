@@ -8,17 +8,11 @@ SNESClassicStatut::SNESClassicStatut(QWidget *parent) :
     ui(new Ui::SNESClassicStatut)
 {
     ui->setupUi(this);
-    miniFtp = new MiniFtp();
-    //cmdCo = new TelnetConnection("localhost", 1023, "root", "clover");
-
     canoeRunning = false;
     ftpReady = false;
-
     connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));
-
     connect(this, SIGNAL(canoeStarted()), this, SLOT(onCanoeStarted()));
     connect(this, SIGNAL(canoeStopped()), this, SLOT(onCanoeStopped()));
-    miniFtp->connect();
 }
 
 void SNESClassicStatut::onTimerTick()
@@ -49,7 +43,6 @@ void SNESClassicStatut::onTimerTick()
 SNESClassicStatut::~SNESClassicStatut()
 {
     timer.stop();
-    cmdCo->close();
     delete ui;
 }
 
@@ -60,9 +53,11 @@ SNESClassicStatut::setCommandCo(TelnetConnection *telco, TelnetConnection *canoe
     connect(cmdCo, SIGNAL(connectionError(TelnetConnection::ConnectionError)), this, SLOT(onCommandCoError(TelnetConnection::ConnectionError)));
     connect(cmdCo, SIGNAL(disconnected()), this, SLOT(onCommandCoDisconnected()));
     connect(cmdCo, SIGNAL(connected()), this, SLOT(onCommandCoConnected()));
-    cmdCo->conneect();
-    canoeCo->conneect();
-    timer.start(1000);
+}
+
+SNESClassicStatut::setFtp(MiniFtp *ftp)
+{
+    miniFtp = ftp;
 }
 
 QString SNESClassicStatut::readString() const

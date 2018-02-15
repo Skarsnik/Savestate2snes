@@ -58,6 +58,10 @@ public:
     void        setGameShortCut(quint16 save, quint16 load);
     virtual bool        hasShortcutsEdit() = 0;
     virtual bool        hasScreenshots() = 0;
+    virtual void        setShortcutSave(quint16 shortcut) = 0;
+    virtual void        setShortcutLoad(quint16 shortcut) = 0;
+    virtual quint16     shortcutSave() = 0;
+    virtual quint16     shortcutLoad() = 0;
 
 
 protected:
