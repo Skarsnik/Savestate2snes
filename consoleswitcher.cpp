@@ -39,7 +39,9 @@ void ConsoleSwitcher::start()
         usb2snes->connect();
     if (m_mode == SNESClassic)
     {
-
+        telnetCommandCo->conneect();
+        telnetCanoeCo->conneect();
+        miniFTP->connect();
     }
 }
 
@@ -50,10 +52,10 @@ ConsoleSwitcher::Mode ConsoleSwitcher::mode()
 
 ConsoleSwitcher::~ConsoleSwitcher()
 {
-    if (m_mode == USB2Snes)
+    /*if (m_mode == USB2Snes)
         m_settings->setValue("mode", "USB2Snes");
     if (m_mode == SNESClassic)
-        m_settings->setValue("mode", "SNESClassic");
+        m_settings->setValue("mode", "SNESClassic");*/
     delete ui;
 }
 
@@ -76,11 +78,11 @@ void ConsoleSwitcher::initUsb2snes()
 
 void ConsoleSwitcher::initSnesClassic()
 {
-    telnetCommandCo = new TelnetConnection("127.0.0.1", 21, "root", "clover");
+    telnetCommandCo = new TelnetConnection("127.0.0.1", 1023, "root", "clover");
     telnetCommandCo->debugName = "Command";
-    telnetCanoeCo = new TelnetConnection("127.0.0.1", 21, "root", "clover");
+    telnetCanoeCo = new TelnetConnection("127.0.0.1", 1023, "root", "clover");
     telnetCanoeCo->debugName = "Canoe";
-    telnetInputCo = new TelnetConnection("127.0.0.1", 21, "root", "clover");
+    telnetInputCo = new TelnetConnection("127.0.0.1", 1023, "root", "clover");
     telnetInputCo->debugName = "Input";
     miniFTP = new MiniFtp(this);
     ui->snesclassicStatut->setCommandCo(telnetCommandCo, telnetCanoeCo);
@@ -90,4 +92,21 @@ void ConsoleSwitcher::initSnesClassic()
     handleSNESClassic = new HandleStuffSnesClassic();
     handleSNESClassic->setCommandCo(telnetCommandCo, telnetCanoeCo);
     snesClassicInit = true;
+}
+
+void ConsoleSwitcher::cleanUpUSB2Snes()
+{
+    usb2snes->close();
+}
+
+void ConsoleSwitcher::on_snesClassicButton_clicked()
+{
+    cleanUpUSB2Snes();
+    if (!snesClassicInit)
+        initSnesClassic();
+    m_mode = SNESClassic;
+    start();
+    ui->snesclassicStackedWidget->setCurrentIndex(1);
+    ui->usb2snesStackedWidget->setCurrentIndex(0);
+    emit modeChanged(SNESClassic);
 }

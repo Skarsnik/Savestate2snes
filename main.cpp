@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     QTranslator translator;
     QString locale = QLocale::system().name().split('_').first();
     translator.load(a.applicationDirPath() + "/i18n/savestate2snes_" + locale + ".qm");
-    QApplication::setApplicationVersion("0.2");
+    QApplication::setApplicationVersion("0.3");
     a.installTranslator(&translator);
     if (!settings.contains("lastSaveStateDir"))
     {

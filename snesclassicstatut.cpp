@@ -1,7 +1,12 @@
 #include "snesclassicstatut.h"
 #include "ui_snesclassicstatut.h"
-
+#include <QDebug>
+#include <QLoggingCategory>
 #include <QThread>
+
+Q_LOGGING_CATEGORY(log_SNESClassicstatut, "SNESClassicStatut")
+
+#define sDebug() qCDebug(log_SNESClassicstatut)
 
 SNESClassicStatut::SNESClassicStatut(QWidget *parent) :
     QWidget(parent),
@@ -17,7 +22,29 @@ SNESClassicStatut::SNESClassicStatut(QWidget *parent) :
 
 void SNESClassicStatut::onTimerTick()
 {
-    ftpReady = miniFtp->state() == MiniFtp::Connected;
+    if (!checkForReady())
+    {
+        if (miniFtp->state() != MiniFtp::Connected)
+            miniFtp->connect();
+        if (!(cmdCo->state() == TelnetConnection::Ready || cmdCo->state() == TelnetConnection::Connected))
+            cmdCo->conneect();
+        timer.start(1000);
+    }
+    else
+        timer.stop();
+
+}
+
+void SNESClassicStatut::onMiniFTPConnected()
+{
+    sDebug() << "MiniFTP connected";
+    checkForReady();
+}
+
+bool SNESClassicStatut::checkForReady()
+{
+    if (miniFtp->state() != MiniFtp::Connected)
+        return false;
     if (cmdCo->state() == TelnetConnection::Ready || cmdCo->state() == TelnetConnection::Connected)
     {
         QByteArray result = cmdCo->syncExecuteCommand("pidof canoe-shvc > /dev/null && echo 1 || echo 0");
@@ -26,18 +53,16 @@ void SNESClassicStatut::onTimerTick()
         canoeRunning = (result.trimmed() == "1");
         qDebug() << canoeRunning;
         if (oldcr == false && canoeRunning == true)
+        {
             emit canoeStarted();
+            return true;
+        }
         if (oldcr == true && canoeRunning == false)
             emit canoeStopped();
-        timer.setInterval(1000);
-    } else {
-        if (cmdCo->state() == TelnetConnection::Offline)
-            cmdCo->conneect();
-        if (canoeCo->state() == TelnetConnection::Offline)
-            canoeCo->conneect();
-        timer.setInterval(1000);
     }
+    return false;
 }
+
 
 
 SNESClassicStatut::~SNESClassicStatut()
@@ -53,11 +78,13 @@ SNESClassicStatut::setCommandCo(TelnetConnection *telco, TelnetConnection *canoe
     connect(cmdCo, SIGNAL(connectionError(TelnetConnection::ConnectionError)), this, SLOT(onCommandCoError(TelnetConnection::ConnectionError)));
     connect(cmdCo, SIGNAL(disconnected()), this, SLOT(onCommandCoDisconnected()));
     connect(cmdCo, SIGNAL(connected()), this, SLOT(onCommandCoConnected()));
+    timer.start(1000);
 }
 
 SNESClassicStatut::setFtp(MiniFtp *ftp)
 {
     miniFtp = ftp;
+    connect(miniFtp, SIGNAL(connected()), this, SLOT(onMiniFTPConnected()));
 }
 
 QString SNESClassicStatut::readString() const
@@ -72,17 +99,14 @@ QString SNESClassicStatut::unreadyString() const
 
 void SNESClassicStatut::onCanoeStarted()
 {
-    if (ftpReady)
-    {
-        QByteArray ba = cmdCo->syncExecuteCommand("ps | grep canoe | grep -v grep");
-        QString result = ba.trimmed();
-        QString canoeStr = result.mid(result.indexOf("canoe"));
-        QStringList canoeArgs = canoeStr.split(" ");
-        ui->romNameLabel->setText(canoeArgs.at(canoeArgs.indexOf("-rom") + 1));
-        timer.stop();
-        ui->iniButton->setEnabled(true);
+    QByteArray ba = cmdCo->syncExecuteCommand("ps | grep canoe | grep -v grep");
+    QString result = ba.trimmed();
+    QString canoeStr = result.mid(result.indexOf("canoe"));
+    QStringList canoeArgs = canoeStr.split(" ");
+    ui->romNameLabel->setText(canoeArgs.at(canoeArgs.indexOf("-rom") + 1));
+    timer.stop();
+    ui->iniButton->setEnabled(true);
         //emit readyForSaveState();
-    }
 }
 
 void SNESClassicStatut::onCanoeStopped()
@@ -93,11 +117,13 @@ void SNESClassicStatut::onCanoeStopped()
 
 void SNESClassicStatut::onCommandCoConnected()
 {
-
+    sDebug() << "Command co connected";
+    checkForReady();
 }
 
 void SNESClassicStatut::onCommandCoDisconnected()
 {
+    sDebug() << "Command co disconnected";
     emit unReadyForSaveState();
 }
 

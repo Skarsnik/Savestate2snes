@@ -46,8 +46,11 @@ QStringList HandleStuff::loadGames()
     sDebug() << "Loading games" << listDir.size();
     foreach(QFileInfo fi, listDir)
     {
-        games << fi.baseName();
-        sDebug() << fi.baseName();
+        if (fi.baseName() != "SNESClassic" && fi.baseName() != "USB2Snes")
+        {
+            games << fi.baseName();
+            sDebug() << fi.baseName();
+        }
     }
     return games;
 }

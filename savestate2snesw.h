@@ -22,6 +22,7 @@
 #include <QStandardItemModel>
 #include "handlestuff.h"
 #include "usb2snes.h"
+#include "consoleswitcher.h"
 
 namespace Ui {
 class Savestate2snesw;
@@ -36,6 +37,8 @@ public:
     ~Savestate2snesw();
 
 private slots:
+    void    onModeChanged(ConsoleSwitcher::Mode mode);
+
     void    saveListShowContextMenu(QPoint point);
     void    categoryListShowContextMenu(QPoint point);
 

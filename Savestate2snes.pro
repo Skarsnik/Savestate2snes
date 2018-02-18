@@ -26,8 +26,8 @@ SOURCES += main.cpp\
     snesclassicstuff/desktopclient/telnetconnection.cpp \
     snesclassicstatut.cpp \
     handlestuffsnesclassic.cpp \
-    qtftp/src/qftp/qftp.cpp \
-    qtftp/src/qftp/qurlinfo.cpp \
+    snesclassicstuff/qtftp/src/qftp/qftp.cpp \
+    snesclassicstuff/qtftp/src/qftp/qurlinfo.cpp \
     consoleswitcher.cpp
 
 HEADERS  += savestate2snesw.h \
@@ -41,8 +41,8 @@ HEADERS  += savestate2snesw.h \
     snesclassicstuff/desktopclient/telnetconnection.h \
     snesclassicstatut.h \
     handlestuffsnesclassic.h \
-    qtftp/src/qftp/qftp.h \
-    qtftp/src/qftp/qurlinfo.h \
+    snesclassicstuff/qtftp/src/qftp/qftp.h \
+    snesclassicstuff/qtftp/src/qftp/qurlinfo.h \
     consoleswitcher.h
 
 FORMS    += savestate2snesw.ui \

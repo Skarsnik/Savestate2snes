@@ -19,12 +19,12 @@ class ConsoleSwitcher : public QWidget
 {
     Q_OBJECT
 
+public:
     enum Mode {
         USB2Snes,
         SNESClassic
     };
-
-public:
+    Q_ENUMS(Mode)
     explicit ConsoleSwitcher(QWidget *parent = 0);
     HandleStuff*    getHandle();
     void            start();
@@ -35,9 +35,12 @@ public slots:
     void    refreshShortcuts();
 
 signals:
-    void    modeChanged(Mode mode);
+    void    modeChanged(ConsoleSwitcher::Mode mode);
     void    readyForSaveState();
     void    unReadyForSaveState();
+
+private slots:
+    void on_snesClassicButton_clicked();
 
 private:
     Ui::ConsoleSwitcher *ui;
@@ -57,6 +60,8 @@ private:
 
     void    initUsb2snes();
     void    initSnesClassic();
+    void    cleanUpUSB2Snes();
+    void    cleanUpSNESClassic();
 
 };
 

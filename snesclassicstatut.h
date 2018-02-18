@@ -35,6 +35,7 @@ private slots:
     void    onCommandCoDisconnected();
     void    onCommandCoError(TelnetConnection::ConnectionError);
     void    onTimerTick();
+    void    onMiniFTPConnected();
 
     void on_iniButton_clicked();
 
@@ -46,6 +47,8 @@ private:
     QTimer                  timer;
     bool                    canoeRunning;
     bool                    ftpReady;
+
+    bool checkForReady();
 };
 
 #endif // SNESCLASSICSTATUT_H

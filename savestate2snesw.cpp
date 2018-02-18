@@ -63,10 +63,6 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
         gamesFolder = QFileDialog::getExistingDirectory(this, tr("Choose Savestatedir"),
                                                         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QFileDialog::ShowDirsOnly);
     }
-
-    //handleStuff = new HandleStuffUsb2snes();
-    //handleStuff = new HandleStuffSnesClassic();
-    //handleStuff->setSaveStateDir(gamesFolder);
     ui->pathLineEdit->setText(gamesFolder);
 
     ui->categoryTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -76,15 +72,6 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->savestateListView->setModel(saveStateModel);
     ui->categoryTreeView->setModel(repStateModel);
     newSaveInserted = NULL;
-    /*usb2snes = new USB2snes();
-    ((HandleStuffUsb2snes*) handleStuff)->setUsb2snes(usb2snes);
-    ui->usb2snesStatut->setUsb2snes(usb2snes);
-    TelnetConnection* cmdCo = new TelnetConnection("localhost", 1023, "root", "clover");
-    TelnetConnection* canoeCo = new TelnetConnection("localhost", 1023, "root", "clover");
-    cmdCo->debugName = "Command";
-    canoeCo->debugName = "Canoe";
-    ((HandleStuffSnesClassic*) handleStuff)->setCommandCo(cmdCo, canoeCo);
-    ui->usb2snesStatut->setCommandCo(cmdCo, canoeCo);*/
     handleStuff = ui->consoleSwitcher->getHandle();
     handleStuff->setSaveStateDir(gamesFolder);
     createMenus();
@@ -99,10 +86,11 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     connect(ui->savestateListView->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(onSaveStateDelegateDataCommited(QWidget*)));
     connect(ui->consoleSwitcher, SIGNAL(readyForSaveState()), this, SLOT(onReadyForSaveState()));
     connect(ui->consoleSwitcher, SIGNAL(unReadyForSaveState()), this, SLOT(onUnReadyForSaveState()));
+    connect(ui->consoleSwitcher, SIGNAL(modeChanged(ConsoleSwitcher::Mode)), this, SLOT(onModeChanged(ConsoleSwitcher::Mode)));
     loadGames();
 
     //usb2snes->connect();
-    setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion());
+    setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion() + " - Multi");
     addAction(ui->actionReload_last_savestate);
     addAction(ui->actionMake_a_savestate);
     ui->consoleSwitcher->start();
@@ -112,9 +100,9 @@ void Savestate2snesw::loadGames()
 {
     sDebug() << "Loading games";
     QStringList games = handleStuff->loadGames();
+    ui->gameComboBox->clear();
     if (games.size() != 0)
     {
-        ui->gameComboBox->clear();
         foreach(QString game, games)
         {
             ui->gameComboBox->addItem(game);
@@ -148,6 +136,18 @@ void Savestate2snesw::turnSaveStateAction(bool on)
 Savestate2snesw::~Savestate2snesw()
 {
     delete ui;
+}
+
+void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
+{
+    handleStuff = ui->consoleSwitcher->getHandle();
+    if (mode == ConsoleSwitcher::SNESClassic)
+        handleStuff->setSaveStateDir(gamesFolder + "/SNESClassic");
+    if (mode == ConsoleSwitcher::USB2Snes)
+        handleStuff->setSaveStateDir(gamesFolder);
+    saveStateModel->clear();
+    repStateModel->clear();
+    loadGames();
 }
 
 void Savestate2snesw::saveListShowContextMenu(QPoint point)
@@ -541,7 +541,7 @@ void Savestate2snesw::on_editShortcutButton_clicked()
         sDebug() << "Setting shortcuts s/l : " << QString::number(save, 16) << QString::number(load, 16);
         handleStuff->setShortcutSave(save);
         handleStuff->setShortcutLoad(load);
-        //ui->usb2snesStatut->refreshShortcuts();
+        ui->consoleSwitcher->refreshShortcuts();
         handleStuff->setGameShortCut(save, load);
     }
 }
