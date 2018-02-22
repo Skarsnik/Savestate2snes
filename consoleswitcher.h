@@ -42,6 +42,8 @@ signals:
 private slots:
     void on_snesClassicButton_clicked();
 
+    void on_usb2snesButton_clicked();
+
 private:
     Ui::ConsoleSwitcher *ui;
 

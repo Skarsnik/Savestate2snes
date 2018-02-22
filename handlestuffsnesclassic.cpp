@@ -70,6 +70,8 @@ QByteArray HandleStuffSnesClassic::saveState(bool trigger)
     Q_UNUSED(trigger)
     sDebug() << "Savestate";
     QStringList canoeRun = getCanoeExecution();
+    if (canoeRun.at(0) != "canoe-shvc")
+        return QByteArray();
     /*QString fileSavePath = canoeRun.at(canoeRun.indexOf("--save-time-path") + 1);
     QString rollbackDir = canoeRun.at(canoeRun.indexOf("-rollback-output-dir") + 1);*/
     int soq = canoeRun.indexOf("--save-on-quit");
@@ -138,6 +140,8 @@ QByteArray HandleStuffSnesClassic::saveState(bool trigger)
 void HandleStuffSnesClassic::loadState(QByteArray data)
 {
     QStringList  canoeRun = getCanoeExecution();
+    if (canoeRun.at(0) != "canoe-shvc")
+        return;
     sDebug() << "Loading State canoerun : " << canoeRun;
     int soq = canoeRun.indexOf("--save-on-quit");
     if (soq == -1)

@@ -52,10 +52,22 @@ ConsoleSwitcher::Mode ConsoleSwitcher::mode()
 
 ConsoleSwitcher::~ConsoleSwitcher()
 {
-    /*if (m_mode == USB2Snes)
-        m_settings->setValue("mode", "USB2Snes");
+    qDebug() << "DELETE CONSOLESWITCHER";
+    if (m_mode == USB2Snes)
+    {
+       // m_settings->setValue("mode", "USB2Snes");
+        cleanUpUSB2Snes();
+        delete usb2snes;
+    }
     if (m_mode == SNESClassic)
-        m_settings->setValue("mode", "SNESClassic");*/
+    {
+       // m_settings->setValue("mode", "SNESClassic");
+        cleanUpSNESClassic();
+        /*delete telnetCommandCo;
+        delete telnetCanoeCo;
+        //delete miniFTP;*/
+    }
+    qDebug() << "DELETE UI";
     delete ui;
 }
 
@@ -99,6 +111,14 @@ void ConsoleSwitcher::cleanUpUSB2Snes()
     usb2snes->close();
 }
 
+void ConsoleSwitcher::cleanUpSNESClassic()
+{
+    telnetCommandCo->executeCommand("killall canoe-shvc");
+    telnetCanoeCo->close();
+    telnetCommandCo->close();
+    miniFTP->close();
+}
+
 void ConsoleSwitcher::on_snesClassicButton_clicked()
 {
     cleanUpUSB2Snes();
@@ -109,4 +129,16 @@ void ConsoleSwitcher::on_snesClassicButton_clicked()
     ui->snesclassicStackedWidget->setCurrentIndex(1);
     ui->usb2snesStackedWidget->setCurrentIndex(0);
     emit modeChanged(SNESClassic);
+}
+
+void ConsoleSwitcher::on_usb2snesButton_clicked()
+{
+    cleanUpSNESClassic();
+    if (usb2snesInit)
+        initUsb2snes();
+    m_mode = USB2Snes;
+    start();
+    ui->snesclassicStackedWidget->setCurrentIndex(0);
+    ui->usb2snesStackedWidget->setCurrentIndex(1);
+    emit modeChanged(USB2Snes);
 }

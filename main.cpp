@@ -23,37 +23,54 @@
 #include "shortcuteditdialog.h"
 
 static QTextStream logfile;
+static QTextStream lowlogfile;
 static QTextStream cout(stdout);
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
+    QTextStream*    log = &logfile;
     //cout << msg;
     QString logString = QString("%6 %5 - %7: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+    if (QString(context.category).left(8) == "LowLevel")
+    {
+        //cout << "log is lowlevel. Writing to lowlevelfile";
+        log = &lowlogfile;
+    }
     switch (type)
     {
         case QtDebugMsg:
-            logfile << logString.arg("Debug");
+            *log << logString.arg("Debug");
             break;
         case QtCriticalMsg:
-            logfile << logString.arg("Critical");
+            *log << logString.arg("Critical");
             break;
         case QtWarningMsg:
-            logfile << logString.arg("Warning");
+            *log << logString.arg("Warning");
             break;
         case QtFatalMsg:
-            logfile << logString.arg("Fatal");
+            *log << logString.arg("Fatal");
             QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
             qApp->exit(1);
             break;
         case QtInfoMsg:
-            logfile << logString.arg("Info");
+            *log << logString.arg("Info");
             break;
     }
-    logfile << "\n";
-    logfile.flush();
-    cout << QString("%1 : %2").arg(context.category, 20).arg(msg) << "\n";
-    cout.flush();
+    *log << "\n";
+    log->flush();
+    if (QString(context.category) == "Telnet")
+    {
+        //cout << "Writing to lowlevelfile";
+        lowlogfile << logString.arg("MSG");
+        lowlogfile << "\n";
+        lowlogfile.flush();
+    }
+    if (log != &lowlogfile)
+    {
+        cout << QString("%1 : %2").arg(context.category, 20).arg(msg) << "\n";
+        cout.flush();
+    }
 }
 
 int main(int argc, char *argv[])
@@ -63,9 +80,14 @@ int main(int argc, char *argv[])
 
     QDir("/").mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
     QFile   mlog(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/log.txt");
+    QFile   mlowlog(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/loglow.txt");
     logfile.setDevice(&mlog);
+    lowlogfile.setDevice(&mlowlog);
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        mlowlog.open(QIODevice::WriteOnly | QIODevice::Text);
         qInstallMessageHandler(myMessageOutput);
+    }
     QApplication::setApplicationName("Savestate2SNES");
     QSettings settings("skarsnik.nyo.fr", "SaveState2SNES");
     QTranslator translator;

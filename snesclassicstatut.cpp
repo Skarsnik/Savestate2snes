@@ -18,6 +18,8 @@ SNESClassicStatut::SNESClassicStatut(QWidget *parent) :
     connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));
     connect(this, SIGNAL(canoeStarted()), this, SLOT(onCanoeStarted()));
     connect(this, SIGNAL(canoeStopped()), this, SLOT(onCanoeStopped()));
+    ui->ftpStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
+    ui->telnetStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
 }
 
 void SNESClassicStatut::onTimerTick()
@@ -38,6 +40,7 @@ void SNESClassicStatut::onTimerTick()
 void SNESClassicStatut::onMiniFTPConnected()
 {
     sDebug() << "MiniFTP connected";
+    ui->ftpStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
     checkForReady();
 }
 
@@ -118,6 +121,7 @@ void SNESClassicStatut::onCanoeStopped()
 void SNESClassicStatut::onCommandCoConnected()
 {
     sDebug() << "Command co connected";
+    ui->telnetStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
     checkForReady();
 }
 
@@ -139,15 +143,25 @@ void SNESClassicStatut::onCommandCoError(TelnetConnection::ConnectionError)
 
 void SNESClassicStatut::on_iniButton_clicked()
 {
+    if (!firstCanoeRun.isEmpty())
+    {
+        cmdCo->syncExecuteCommand("kill -9 `pidof canoe-shvc`");
+        QThread::usleep(200);
+        canoeCo->executeCommand(firstCanoeRun);
+        return ;
+    }
+
     QByteArray ba = cmdCo->syncExecuteCommand("ps | grep canoe | grep -v grep");
     QString result = ba.trimmed();
     QString canoeStr = result.mid(result.indexOf("canoe-shvc"));
-    //sDebug() << "Canoe Str : " << canoeStr;
+    sDebug() << "Init pressed - Canoe Str : " << canoeStr;
     QStringList canoeRun = canoeStr.split(" ");
-
     if (canoeRun.indexOf("-rollback-output-dir") == -1)
     {
+ready:
+        firstCanoeRun = canoeRun.join(" ") + " 2>/dev/null";
         emit readyForSaveState();
+        ui->iniButton->setText(tr("Reset", "Reset canoe run"));
         return ;
     }
     QStringList optArgToremove;
@@ -178,6 +192,5 @@ void SNESClassicStatut::on_iniButton_clicked()
     canoeRun << "--save-screenshot-on-quit" << SCREENSHOTPATH;
     QThread::sleep(2);
     canoeCo->executeCommand(canoeRun.join(" ") + " 2>/dev/null");
-    emit readyForSaveState();
-    ui->iniButton->setEnabled(false);
+    goto ready;
 }

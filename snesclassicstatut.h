@@ -44,6 +44,7 @@ private:
     TelnetConnection        *cmdCo;
     TelnetConnection        *canoeCo;
     MiniFtp                 *miniFtp;
+    QString                 firstCanoeRun;
     QTimer                  timer;
     bool                    canoeRunning;
     bool                    ftpReady;
