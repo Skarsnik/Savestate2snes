@@ -148,6 +148,7 @@ void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
     saveStateModel->clear();
     repStateModel->clear();
     loadGames();
+    ui->savestateListView->setHandleStuff(handleStuff);
 }
 
 void Savestate2snesw::saveListShowContextMenu(QPoint point)

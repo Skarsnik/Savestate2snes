@@ -408,7 +408,7 @@
        </layout>
       </item>
       <item row="2" column="1">
-       <widget class="QListView" name="savestateListView">
+       <widget class="SaveStateListView" name="savestateListView">
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
@@ -588,6 +588,11 @@
    <extends>QWidget</extends>
    <header>consoleswitcher.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SaveStateListView</class>
+   <extends>QListView</extends>
+   <header location="global">savestatelistview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

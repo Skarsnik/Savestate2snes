@@ -54,8 +54,12 @@ public:
     void        changeStateOrder(int from, int to);
     bool        loadSaveState(QString name);
     bool        deleteSaveState(int row);
+
+    QPixmap     getScreenshot(QString name);
+    QString     getScreenshotPath(QString name);
     GameInfos   gameInfos();
     void        setGameShortCut(quint16 save, quint16 load);
+    virtual QByteArray  getScreenshotData() = 0;
     virtual bool        hasShortcutsEdit() = 0;
     virtual bool        hasScreenshots() = 0;
     virtual void        setShortcutSave(quint16 shortcut) = 0;

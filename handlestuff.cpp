@@ -19,6 +19,7 @@
 #include <QLoggingCategory>
 #include <QObject>
 #include <QSettings>
+#include <QCryptographicHash>
 #include "handlestuff.h"
 
 Q_LOGGING_CATEGORY(log_handleStuff, "HandleStuff")
@@ -105,6 +106,8 @@ void    HandleStuff::findCategory(Category* parent, QDir dir)
     QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     foreach(QFileInfo fi, listDir)
     {
+        if (fi.baseName() == "ScreenShots")
+            continue;
         Category*   newCat = new Category();
         newCat->name = fi.baseName();
         newCat->path = fi.absoluteFilePath();
@@ -199,6 +202,11 @@ Category* HandleStuff::addCategory(QString newCategory, QString parentPath)
         newCat->parent = categories[gameLoaded];
     categoriesByPath[newCat->path] = newCat;
     newCat->parent->children.append(newCat);
+    if (hasScreenshots())
+    {
+        di.cd(newCategory);
+        di.mkdir("ScreenShots");
+    }
     return newCat;
 }
 
@@ -215,7 +223,7 @@ QStringList HandleStuff::loadSaveStates(QString categoryPath)
             QFileInfoList fil = dir.entryInfoList(QDir::Files);
             foreach(QFileInfo fi, fil)
             {
-                if (fi.fileName() == ORDERSAVEFILE)
+                if (fi.fileName() == ORDERSAVEFILE || fi.fileName() == "ScreenShots")
                     continue;
                 saveStates[categoryPath] << fi.baseName();
             }
@@ -237,6 +245,16 @@ bool HandleStuff::addSaveState(QString name, bool trigger)
     saveStates[catLoaded->path] << fi.baseName();
     //QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
     QByteArray data = saveState(trigger);
+    if (hasScreenshots())
+    {
+        QByteArray scData = getScreenshotData();
+        QFile scFile(catLoaded->path + "/ScreenShots/" + QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex() + ".png");
+        if (scFile.open(QIODevice::WriteOnly))
+        {
+            scFile.write(scData);
+            scFile.close();
+        }
+    }
     QFile saveFile(fi.absoluteFilePath());
     if (saveFile.open(QIODevice::WriteOnly))
     {
@@ -302,6 +320,30 @@ bool HandleStuff::deleteSaveState(int row)
     saveList.removeAt(row);
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
     return true;
+}
+
+QPixmap HandleStuff::getScreenshot(QString name)
+{
+    QFile saveFile(catLoaded->path + "/" + name + ".svt");
+    if (saveFile.open(QIODevice::ReadOnly))
+    {
+        QByteArray data = saveFile.readAll();
+        QString screenShotFile = QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex() + ".png";
+        return QPixmap(catLoaded->path+ "/ScreenShots/" + screenShotFile);
+    }
+    return QPixmap();
+}
+
+QString HandleStuff::getScreenshotPath(QString name)
+{
+    QFile saveFile(catLoaded->path + "/" + name + ".svt");
+    if (saveFile.open(QIODevice::ReadOnly))
+    {
+        QByteArray data = saveFile.readAll();
+        QString screenShotFile = QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex() + ".png";
+        return catLoaded->path + "/ScreenShots/" + screenShotFile;
+    }
+    return QString();
 }
 
 GameInfos HandleStuff::gameInfos()

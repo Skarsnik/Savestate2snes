@@ -11,6 +11,7 @@ public:
     void        setUsb2snes(USB2snes* usb);
     quint16     shortcutSave();
     quint16     shortcutLoad();
+    QByteArray  getScreenshotData();
     void        setShortcutLoad(quint16 shortcut);
     void        setShortcutSave(quint16 shortcut);
     bool        hasScreenshots();

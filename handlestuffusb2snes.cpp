@@ -70,6 +70,11 @@ quint16 HandleStuffUsb2snes::shortcutLoad()
     return toret;
 }
 
+QByteArray HandleStuffUsb2snes::getScreenshotData()
+{
+    return QByteArray();
+}
+
 void HandleStuffUsb2snes::setShortcutLoad(quint16 shortcut)
 {
     QByteArray data;

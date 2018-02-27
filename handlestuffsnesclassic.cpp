@@ -199,6 +199,11 @@ void HandleStuffSnesClassic::setShortcutSave(quint16 shortcut)
 
 }
 
+QByteArray HandleStuffSnesClassic::getScreenshotData()
+{
+    return ftpCo->get(SCREENSHOTPATH);
+}
+
 quint16 HandleStuffSnesClassic::shortcutLoad()
 {
     return 0;

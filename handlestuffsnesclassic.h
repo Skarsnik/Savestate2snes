@@ -13,6 +13,7 @@ public:
     void            setCommandCo(TelnetConnection* co, TelnetConnection *canoe);
     void            setShortcutLoad(quint16 shortcut);
     void            setShortcutSave(quint16 shortcut);
+    QByteArray      getScreenshotData();
     quint16         shortcutLoad();
     quint16         shortcutSave();
     bool            hasScreenshots();

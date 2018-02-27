@@ -50,6 +50,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
             break;
         case QtFatalMsg:
             *log << logString.arg("Fatal");
+            *log<< "\n"; log->flush();
             QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
             qApp->exit(1);
             break;
