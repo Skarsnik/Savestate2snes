@@ -10,7 +10,7 @@ class SaveStateListView : public QListView
 {
 public:
     explicit SaveStateListView(QWidget *parent = 0);
-    setHandleStuff(HandleStuff* hs);
+    void setHandleStuff(HandleStuff* hs);
 protected:
     bool    viewportEvent(QEvent *event);
 

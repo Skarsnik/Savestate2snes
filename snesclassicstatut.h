@@ -17,8 +17,8 @@ class SNESClassicStatut : public QWidget
 public:
     explicit SNESClassicStatut(QWidget *parent = 0);
     ~SNESClassicStatut();
-    setCommandCo(TelnetConnection* telco, TelnetConnection *canoe);
-    setFtp(MiniFtp* ftp);
+    void    setCommandCo(TelnetConnection* telco, TelnetConnection *canoe);
+    void    setFtp(MiniFtp* ftp);
     QString readString() const;
     QString unreadyString() const;
 

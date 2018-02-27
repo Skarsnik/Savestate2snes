@@ -9,7 +9,7 @@ SaveStateListView::SaveStateListView(QWidget *parent) : QListView(parent)
 
 }
 
-SaveStateListView::setHandleStuff(HandleStuff *hs)
+void    SaveStateListView::setHandleStuff(HandleStuff *hs)
 {
     m_handleStuff = hs;
 }

@@ -4,8 +4,6 @@
 #
 #-------------------------------------------------
 
-#include(qtftp/modules/qt_ftp.pri)
-
 QT       += core gui websockets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -14,7 +12,7 @@ TARGET = Savestate2snes
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
+SOURCES = main.cpp\
         savestate2snesw.cpp \
     handlestuff.cpp \
     usb2snes.cpp \
@@ -31,7 +29,7 @@ SOURCES += main.cpp\
     consoleswitcher.cpp \
     savestatelistview.cpp
 
-HEADERS  += savestate2snesw.h \
+HEADERS  = savestate2snesw.h \
     handlestuff.h \
     usb2snes.h \
     usb2snesstatut.h \
@@ -47,7 +45,7 @@ HEADERS  += savestate2snesw.h \
     consoleswitcher.h \
     savestatelistview.h
 
-FORMS    += savestate2snesw.ui \
+FORMS    = savestate2snesw.ui \
     usb2snesstatut.ui \
     firsttimedialog.ui \
     shortcuteditdialog.ui \

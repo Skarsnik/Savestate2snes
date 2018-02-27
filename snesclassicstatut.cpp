@@ -74,7 +74,7 @@ SNESClassicStatut::~SNESClassicStatut()
     delete ui;
 }
 
-SNESClassicStatut::setCommandCo(TelnetConnection *telco, TelnetConnection *canoe)
+void    SNESClassicStatut::setCommandCo(TelnetConnection *telco, TelnetConnection *canoe)
 {
     cmdCo = telco;
     canoeCo = canoe;
@@ -84,7 +84,7 @@ SNESClassicStatut::setCommandCo(TelnetConnection *telco, TelnetConnection *canoe
     timer.start(1000);
 }
 
-SNESClassicStatut::setFtp(MiniFtp *ftp)
+void SNESClassicStatut::setFtp(MiniFtp *ftp)
 {
     miniFtp = ftp;
     connect(miniFtp, SIGNAL(connected()), this, SLOT(onMiniFTPConnected()));
