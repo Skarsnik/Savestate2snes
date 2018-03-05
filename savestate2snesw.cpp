@@ -142,7 +142,15 @@ void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
 {
     handleStuff = ui->consoleSwitcher->getHandle();
     if (mode == ConsoleSwitcher::SNESClassic)
-        handleStuff->setSaveStateDir(gamesFolder + "/SNESClassic");
+    {
+        QString snescdir = gamesFolder + "/SNESClassic";
+        if (!QFileInfo::exists(snescdir))
+        {
+            QDir newDir(gamesFolder);
+            newDir.mkdir("SNESClassic");
+        }
+        handleStuff->setSaveStateDir(snescdir);
+    }
     if (mode == ConsoleSwitcher::USB2Snes)
         handleStuff->setSaveStateDir(gamesFolder);
     saveStateModel->clear();
