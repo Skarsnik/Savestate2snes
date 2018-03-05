@@ -140,6 +140,7 @@ Savestate2snesw::~Savestate2snesw()
 
 void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
 {
+    sDebug() << "Mode changed" << mode;
     handleStuff = ui->consoleSwitcher->getHandle();
     if (mode == ConsoleSwitcher::SNESClassic)
     {
@@ -442,7 +443,7 @@ void Savestate2snesw::saveStateModelReset()
 void Savestate2snesw::onReadyForSaveState()
 {
     sDebug() << "Ready for savestate";
-    ui->statusBar->showMessage(tr("USB2Snes is ready for savestates."));
+    ui->statusBar->showMessage(ui->consoleSwitcher->readyString());
     ui->addSaveStatePushButton->setEnabled(true);
     ui->loadStatePushButton->setEnabled(true);
     ui->saveSaveStatePushButton->setEnabled(true);
@@ -461,7 +462,7 @@ void Savestate2snesw::onReadyForSaveState()
 void Savestate2snesw::onUnReadyForSaveState()
 {
     sDebug() << "Unready for savestate";
-    ui->statusBar->showMessage(tr("USB2Snes is not ready for savestates."));
+    ui->statusBar->showMessage(ui->consoleSwitcher->unreadyString());
     ui->addSaveStatePushButton->setEnabled(false);
     ui->loadStatePushButton->setEnabled(false);
     ui->saveSaveStatePushButton->setEnabled(false);

@@ -19,7 +19,7 @@ public:
     ~SNESClassicStatut();
     void    setCommandCo(TelnetConnection* telco, TelnetConnection *canoe);
     void    setFtp(MiniFtp* ftp);
-    QString readString() const;
+    QString readyString() const;
     QString unreadyString() const;
 
 signals:

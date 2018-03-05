@@ -50,6 +50,22 @@ ConsoleSwitcher::Mode ConsoleSwitcher::mode()
     return m_mode;
 }
 
+QString ConsoleSwitcher::readyString() const
+{
+    if (m_mode == USB2Snes)
+        return ui->usb2snesStatut->readyString();
+    if (m_mode == SNESClassic)
+        return ui->snesclassicStatut->readyString();
+}
+
+QString ConsoleSwitcher::unreadyString() const
+{
+    if (m_mode == USB2Snes)
+        return ui->usb2snesStatut->unreadyString();
+    if (m_mode == SNESClassic)
+        return ui->snesclassicStatut->unreadyString();
+}
+
 ConsoleSwitcher::~ConsoleSwitcher()
 {
     qDebug() << "DELETE CONSOLESWITCHER";
@@ -83,8 +99,6 @@ void ConsoleSwitcher::initUsb2snes()
     handleUSB2Snes = new HandleStuffUsb2snes();
     ui->usb2snesStatut->setUsb2snes(usb2snes);
     handleUSB2Snes->setUsb2snes(usb2snes);
-    connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
-    connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
     usb2snesInit = true;
 }
 
@@ -99,8 +113,6 @@ void ConsoleSwitcher::initSnesClassic()
     miniFTP = new MiniFtp(this);
     ui->snesclassicStatut->setCommandCo(telnetCommandCo, telnetCanoeCo);
     ui->snesclassicStatut->setFtp(miniFTP);
-    connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
-    connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
     handleSNESClassic = new HandleStuffSnesClassic();
     handleSNESClassic->setCommandCo(telnetCommandCo, telnetCanoeCo);
     snesClassicInit = true;
@@ -121,6 +133,7 @@ void ConsoleSwitcher::cleanUpSNESClassic()
 
 void ConsoleSwitcher::on_snesClassicButton_clicked()
 {
+    emit unReadyForSaveState();
     cleanUpUSB2Snes();
     if (!snesClassicInit)
         initSnesClassic();
@@ -128,11 +141,15 @@ void ConsoleSwitcher::on_snesClassicButton_clicked()
     start();
     ui->snesclassicStackedWidget->setCurrentIndex(1);
     ui->usb2snesStackedWidget->setCurrentIndex(0);
+    disconnect(ui->usb2snesStatut, 0, this, 0);
+    connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
+    connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
     emit modeChanged(SNESClassic);
 }
 
 void ConsoleSwitcher::on_usb2snesButton_clicked()
 {
+    emit unReadyForSaveState();
     cleanUpSNESClassic();
     if (usb2snesInit)
         initUsb2snes();
@@ -140,5 +157,9 @@ void ConsoleSwitcher::on_usb2snesButton_clicked()
     start();
     ui->snesclassicStackedWidget->setCurrentIndex(0);
     ui->usb2snesStackedWidget->setCurrentIndex(1);
+    disconnect(ui->snesclassicStatut, 0, this, 0);
+    connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
+    connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
+
     emit modeChanged(USB2Snes);
 }

@@ -29,6 +29,8 @@ public:
     HandleStuff*    getHandle();
     void            start();
     Mode            mode();
+    QString         readyString() const;
+    QString         unreadyString() const;
     ~ConsoleSwitcher();
 
 public slots:

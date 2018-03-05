@@ -90,7 +90,7 @@ void SNESClassicStatut::setFtp(MiniFtp *ftp)
     connect(miniFtp, SIGNAL(connected()), this, SLOT(onMiniFTPConnected()));
 }
 
-QString SNESClassicStatut::readString() const
+QString SNESClassicStatut::readyString() const
 {
     return tr("SNES classic ready for savestate");
 }
