@@ -1,6 +1,26 @@
 #include "consoleswitcher.h"
 #include "ui_consoleswitcher.h"
 
+Q_LOGGING_CATEGORY(log_consoleSwitcher, "ConsoleSwitcher")
+
+#define sDebug() qCDebug(log_consoleSwitcher())
+
+#define B_A_BITMASK 0x0080
+#define B_B_BITMASK 0x8000
+#define B_Y_BITMASK 0x4000
+#define B_X_BITMASK 0x0040
+#define B_START_BITMASK 0x1000
+#define B_SELECT_BITMASK 0x2000
+#define B_UP_BITMASK 0x0800
+#define B_DOWN_BITMASK 0x0400
+#define B_LEFT_BITMASK 0x0200
+#define B_RIGHT_BITMASK 0x0100
+#define B_L_BITMASK 0x0020
+#define B_R_BITMASK 0x0010
+
+#define HEXDUMPSTR "hexdump -v -e '32/1 \"%02X\" \"\\n\"' /dev/input/by-path/platform-twi.1-event-joystick"
+
+
 ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ConsoleSwitcher)
@@ -24,6 +44,25 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
         ui->tabWidget->setCurrentIndex(1);
         ui->snesclassicStackedWidget->setCurrentIndex(1);
     }
+    snesClassicInputDecoder = new InputDecoder();
+    telnetInputCo = NULL;
+    snesClassicShortcutActivated = false;
+    snesClassicReady = false;
+    connect(snesClassicInputDecoder, SIGNAL(buttonPressed(InputDecoder::SNESButton)), this, SLOT(on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton)));
+    connect(snesClassicInputDecoder, SIGNAL(buttonReleased(InputDecoder::SNESButton)), this, SLOT(on_snesClassicInputDecoderButtonReleased(InputDecoder::SNESButton)));
+    connect(ui->snesclassicStatut, SIGNAL(shortcutsToggled(bool)), this, SLOT(on_snesClassicShortcutsToggled(bool)));
+    mapEnumToSNES[InputDecoder::A] = B_A_BITMASK;
+    mapEnumToSNES[InputDecoder::B] = B_B_BITMASK;
+    mapEnumToSNES[InputDecoder::Y] = B_Y_BITMASK;
+    mapEnumToSNES[InputDecoder::X] = B_Y_BITMASK;
+    mapEnumToSNES[InputDecoder::Start] = B_START_BITMASK;
+    mapEnumToSNES[InputDecoder::Select] = B_SELECT_BITMASK;
+    mapEnumToSNES[InputDecoder::L] = B_L_BITMASK;
+    mapEnumToSNES[InputDecoder::R] = B_R_BITMASK;
+    mapEnumToSNES[InputDecoder::Left] = B_LEFT_BITMASK;
+    mapEnumToSNES[InputDecoder::Right] = B_RIGHT_BITMASK;
+    mapEnumToSNES[InputDecoder::Up] = B_UP_BITMASK;
+    mapEnumToSNES[InputDecoder::Down] = B_DOWN_BITMASK;
 }
 
 HandleStuff *ConsoleSwitcher::getHandle()
@@ -93,6 +132,74 @@ void ConsoleSwitcher::refreshShortcuts()
         ui->usb2snesStatut->refreshShortcuts();
 }
 
+void ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton but)
+{
+    snesClassicButtonPressed.append(but);
+    sDebug() << snesClassicButtonPressed.size();
+    int currentInput = 0;
+    foreach(int button, snesClassicButtonPressed)
+    {
+        currentInput = currentInput | mapEnumToSNES[button];
+    }
+    sDebug() << QString::number(currentInput, 16) << QString::number(handleSNESClassic->shortcutLoad(), 16) << QString::number(handleSNESClassic->shortcutSave(), 16);
+    if (currentInput == handleSNESClassic->shortcutLoad())
+        handleSNESClassic->controllerLoadState();
+    if (currentInput == handleSNESClassic->shortcutSave())
+        handleSNESClassic->controllerSaveState();
+}
+
+void ConsoleSwitcher::on_snesClassicInputDecoderButtonReleased(InputDecoder::SNESButton but)
+{
+    snesClassicButtonPressed.removeAll(but);
+}
+
+void ConsoleSwitcher::on_snesClassicInputCoReturnNewLine(QByteArray data)
+{
+    snesClassicInputDecoder->decodeHexdump(data);
+}
+
+void ConsoleSwitcher::on_snesClassicInputConnected()
+{
+    sDebug() << "Input co connected";
+    telnetInputCo->executeCommand(HEXDUMPSTR);
+}
+
+void ConsoleSwitcher::on_snesClassicShortcutsToggled(bool toggled)
+{
+    sDebug() << "Snes classic shortcut toggled : " << toggled;
+    snesClassicShortcutActivated = toggled;
+    if (toggled)
+    {
+        if (telnetInputCo->state() == TelnetConnection::Offline)
+            telnetInputCo->conneect();
+        else {
+            if (telnetInputCo->state() == TelnetConnection::Connected || telnetInputCo->state() == TelnetConnection::Ready)
+                telnetInputCo->executeCommand(HEXDUMPSTR);
+        }
+    } else {
+        if (telnetInputCo != NULL)
+        {
+            telnetCommandCo->syncExecuteCommand("killall hexdump");
+        }
+    }
+}
+
+void ConsoleSwitcher::on_snesClassicReadyForSaveState()
+{
+    snesClassicReady = true;
+    if (snesClassicShortcutActivated && telnetInputCo != NULL && telnetInputCo->state() == TelnetConnection::Offline)
+    {
+        telnetInputCo->conneect();
+    }
+}
+
+void ConsoleSwitcher::on_snesClassicUnReadyForSaveState()
+{
+    snesClassicReady = false;
+    if (snesClassicShortcutActivated)
+        telnetInputCo->close();
+}
+
 void ConsoleSwitcher::initUsb2snes()
 {
     usb2snes = new USB2snes();
@@ -110,11 +217,14 @@ void ConsoleSwitcher::initSnesClassic()
     telnetCanoeCo->debugName = "Canoe";
     telnetInputCo = new TelnetConnection("127.0.0.1", 1023, "root", "clover");
     telnetInputCo->debugName = "Input";
+    telnetInputCo->setOneCommandMode(true);
     miniFTP = new MiniFtp(this);
     ui->snesclassicStatut->setCommandCo(telnetCommandCo, telnetCanoeCo);
     ui->snesclassicStatut->setFtp(miniFTP);
     handleSNESClassic = new HandleStuffSnesClassic();
     handleSNESClassic->setCommandCo(telnetCommandCo, telnetCanoeCo);
+    connect(telnetInputCo, SIGNAL(commandReturnedNewLine(QByteArray)), this, SLOT(on_snesClassicInputCoReturnNewLine(QByteArray)));
+    connect(telnetInputCo, SIGNAL(connected()), this, SLOT(on_snesClassicInputConnected()));
     snesClassicInit = true;
 }
 
@@ -125,6 +235,8 @@ void ConsoleSwitcher::cleanUpUSB2Snes()
 
 void ConsoleSwitcher::cleanUpSNESClassic()
 {
+    if (telnetInputCo != NULL && telnetInputCo->state() != TelnetConnection::Offline)
+        telnetCommandCo->syncExecuteCommand("killall hexdump");
     telnetCommandCo->executeCommand("killall canoe-shvc");
     telnetCanoeCo->close();
     telnetCommandCo->close();
@@ -143,7 +255,9 @@ void ConsoleSwitcher::on_snesClassicButton_clicked()
     ui->usb2snesStackedWidget->setCurrentIndex(0);
     disconnect(ui->usb2snesStatut, 0, this, 0);
     connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
+    connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SLOT(on_snesClassicReadyForSaveState()));
     connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
+    connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SLOT(on_snesClassicUnReadyForSaveState()));
     emit modeChanged(SNESClassic);
 }
 

@@ -22,6 +22,7 @@ SOURCES = main.cpp\
     handlestuffusb2snes.cpp \
     snesclassicstuff/desktopclient/miniftp.cpp \
     snesclassicstuff/desktopclient/telnetconnection.cpp \
+    snesclassicstuff/desktopclient/inputdecoder.cpp \
     snesclassicstatut.cpp \
     handlestuffsnesclassic.cpp \
     snesclassicstuff/qtftp/src/qftp/qftp.cpp \
@@ -38,6 +39,7 @@ HEADERS  = savestate2snesw.h \
     handlestuffusb2snes.h \
     snesclassicstuff/desktopclient/miniftp.h \
     snesclassicstuff/desktopclient/telnetconnection.h \
+    snesclassicstuff/desktopclient/inputdecoder.h \
     snesclassicstatut.h \
     handlestuffsnesclassic.h \
     snesclassicstuff/qtftp/src/qftp/qftp.h \

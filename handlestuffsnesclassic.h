@@ -18,6 +18,8 @@ public:
     quint16         shortcutSave();
     bool            hasScreenshots();
     bool            hasShortcutsEdit();
+    void            controllerSaveState();
+    void            controllerLoadState();
 
 protected:
     QByteArray      saveState(bool trigger);
@@ -25,15 +27,19 @@ protected:
 
 
 private:
-    TelnetConnection*        telCo;
-    TelnetConnection*        canoeCo;
-    MiniFtp*                 ftpCo;
-    QByteArray               lastLoadMD5;
+    TelnetConnection*       telCo;
+    TelnetConnection*       canoeCo;
+    MiniFtp*                ftpCo;
+    QByteArray              lastLoadMD5;
+    quint16                 saveShortcut;
+    quint16                 loadShortcut;
 
     void        runCanoe(QStringList canoeArgs);
     QStringList getCanoeExecution();
     void        killCanoe(int signal);
     void removeCanoeUnnecessaryArg(QStringList &canoeRun);
+    QByteArray  mySaveState(bool trigger, bool noGet);
+    void        myLoadState(QByteArray data, bool noPut);
 };
 
 #endif // HANDLESTUFFSNESCLASSIC_H

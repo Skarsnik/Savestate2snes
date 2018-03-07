@@ -24,12 +24,17 @@ SNESClassicStatut::SNESClassicStatut(QWidget *parent) :
 
 void SNESClassicStatut::onTimerTick()
 {
+    //timer.stop();
     if (!checkForReady())
     {
+        sDebug() << "Not ready";
         if (miniFtp->state() != MiniFtp::Connected)
             miniFtp->connect();
         if (!(cmdCo->state() == TelnetConnection::Ready || cmdCo->state() == TelnetConnection::Connected))
-            cmdCo->conneect();
+        {
+            sDebug() << "Command co not connected, trying to reconnect" << cmdCo->state();
+            //cmdCo->conneect();
+        }
         timer.start(1000);
     }
     else
@@ -50,9 +55,11 @@ bool SNESClassicStatut::checkForReady()
         return false;
     if (cmdCo->state() == TelnetConnection::Ready || cmdCo->state() == TelnetConnection::Connected)
     {
+        sDebug() << "Checking for canoe running";
         QByteArray result = cmdCo->syncExecuteCommand("pidof canoe-shvc > /dev/null && echo 1 || echo 0");
         bool oldcr = canoeRunning;
-        //qDebug() << result << result.trimmed();
+        sDebug() << "Is canoerunning?" << canoeRunning;
+        //sDebug() << result << result.trimmed();
         canoeRunning = (result.trimmed() == "1");
         qDebug() << canoeRunning;
         if (oldcr == false && canoeRunning == true)
@@ -81,7 +88,7 @@ void    SNESClassicStatut::setCommandCo(TelnetConnection *telco, TelnetConnectio
     connect(cmdCo, SIGNAL(connectionError(TelnetConnection::ConnectionError)), this, SLOT(onCommandCoError(TelnetConnection::ConnectionError)));
     connect(cmdCo, SIGNAL(disconnected()), this, SLOT(onCommandCoDisconnected()));
     connect(cmdCo, SIGNAL(connected()), this, SLOT(onCommandCoConnected()));
-    timer.start(1000);
+    timer.start(2000);
 }
 
 void SNESClassicStatut::setFtp(MiniFtp *ftp)
@@ -122,7 +129,7 @@ void SNESClassicStatut::onCommandCoConnected()
 {
     sDebug() << "Command co connected";
     ui->telnetStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
-    checkForReady();
+    //checkForReady();
 }
 
 void SNESClassicStatut::onCommandCoDisconnected()
@@ -193,4 +200,9 @@ ready:
     QThread::sleep(2);
     canoeCo->executeCommand(canoeRun.join(" ") + " 2>/dev/null");
     goto ready;
+}
+
+void SNESClassicStatut::on_shortcutCheckBox_toggled(bool checked)
+{
+    emit shortcutsToggled(checked);
 }

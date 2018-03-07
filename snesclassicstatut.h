@@ -27,6 +27,7 @@ signals:
     void    unReadyForSaveState();
     void    canoeStarted();
     void    canoeStopped();
+    void    shortcutsToggled(bool);
 
 private slots:
     void    onCanoeStarted();
@@ -37,12 +38,15 @@ private slots:
     void    onTimerTick();
     void    onMiniFTPConnected();
 
-    void on_iniButton_clicked();
+    void    on_iniButton_clicked();
+
+    void    on_shortcutCheckBox_toggled(bool checked);
 
 private:
     Ui::SNESClassicStatut   *ui;
     TelnetConnection        *cmdCo;
     TelnetConnection        *canoeCo;
+    TelnetConnection        *inputCo;
     MiniFtp                 *miniFtp;
     QString                 firstCanoeRun;
     QTimer                  timer;

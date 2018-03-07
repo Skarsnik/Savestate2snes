@@ -11,14 +11,12 @@ Q_LOGGING_CATEGORY(log_handleSNESClassic, "HSSnesClassic")
 
 #define sDebug() qCDebug(log_handleSNESClassic)
 
-// cp $statefile $rollback$/
-// tar czf /tmp/rollback.tar.gz $rollbackpath
-
-
 
 HandleStuffSnesClassic::HandleStuffSnesClassic()
 {
     ftpCo = new MiniFtp();
+    loadShortcut = 0;
+    saveShortcut = 0;
 }
 
 QStringList HandleStuffSnesClassic::getCanoeExecution()
@@ -62,13 +60,18 @@ void    HandleStuffSnesClassic::removeCanoeUnnecessaryArg(QStringList &canoeRun)
     }
     int i = canoeRun.indexOf("--enable-sram-file-hash");
     if (i != -1)
-        canoeRun.removeAt(i); 
+        canoeRun.removeAt(i);
 }
 
-QByteArray HandleStuffSnesClassic::saveState(bool trigger)
+QByteArray HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
 {
-    Q_UNUSED(trigger)
     sDebug() << "Savestate";
+    QByteArray toret;
+    if (trigger == false)
+    {
+        toret = ftpCo->get(CLOVERSAVESTATEPATH);
+        return toret;
+    }
     QStringList canoeRun = getCanoeExecution();
     if (canoeRun.at(0) != "canoe-shvc")
         return QByteArray();
@@ -120,7 +123,8 @@ QByteArray HandleStuffSnesClassic::saveState(bool trigger)
         telCo->syncExecuteCommand("cp -r " + rollbackDir + "/* /tmp/rollback/");*/
     QThread::msleep(200);
     telCo->syncExecuteCommand("ls -l " + QString(CLOVERSAVESTATEPATH));
-    QByteArray toret = ftpCo->get(CLOVERSAVESTATEPATH);
+    if (noGet == false)
+        toret = ftpCo->get(CLOVERSAVESTATEPATH);
     if (canoeRun.indexOf("-resume") == -1)
     {
         canoeRun.append("-resume");
@@ -137,7 +141,19 @@ QByteArray HandleStuffSnesClassic::saveState(bool trigger)
     return toret;
 }
 
+
+QByteArray HandleStuffSnesClassic::saveState(bool trigger)
+{
+    return mySaveState(trigger, false);
+
+}
+
 void HandleStuffSnesClassic::loadState(QByteArray data)
+{
+    myLoadState(data, false);
+}
+
+void HandleStuffSnesClassic::myLoadState(QByteArray data, bool noPut)
 {
     QStringList  canoeRun = getCanoeExecution();
     if (canoeRun.at(0) != "canoe-shvc")
@@ -164,7 +180,7 @@ void HandleStuffSnesClassic::loadState(QByteArray data)
         canoeRun.append("-resume");
         canoeRun.append(CLOVERSAVESTATEPATH);
     }
-    if (lastLoadMD5 != QCryptographicHash::hash(data, QCryptographicHash::Md5))
+    if (noPut == false && lastLoadMD5 != QCryptographicHash::hash(data, QCryptographicHash::Md5))
         ftpCo->put(CLOVERSAVESTATEPATH, data);
     lastLoadMD5 = QCryptographicHash::hash(data, QCryptographicHash::Md5);
     runCanoe(canoeRun);
@@ -177,26 +193,33 @@ bool HandleStuffSnesClassic::hasScreenshots()
 
 bool HandleStuffSnesClassic::hasShortcutsEdit()
 {
-    return false;
+    return true;
+}
+
+void HandleStuffSnesClassic::controllerSaveState()
+{
+    mySaveState(false, true);
+}
+
+void HandleStuffSnesClassic::controllerLoadState()
+{
+    myLoadState(QByteArray(), true);
 }
 
 void HandleStuffSnesClassic::setCommandCo(TelnetConnection *co, TelnetConnection *canoe)
 {
     telCo = co;
     canoeCo = canoe;
-    /*canoeCo = new TelnetConnection("localhost", 1023, "root", "clover");
-    canoeCo->debugName = "Canoe";
-    canoeCo->conneect();*/
 }
 
 void HandleStuffSnesClassic::setShortcutLoad(quint16 shortcut)
 {
-
+    loadShortcut = shortcut;
 }
 
 void HandleStuffSnesClassic::setShortcutSave(quint16 shortcut)
 {
-
+    saveShortcut = shortcut;
 }
 
 QByteArray HandleStuffSnesClassic::getScreenshotData()
@@ -206,10 +229,10 @@ QByteArray HandleStuffSnesClassic::getScreenshotData()
 
 quint16 HandleStuffSnesClassic::shortcutLoad()
 {
-    return 0;
+    return loadShortcut;
 }
 
 quint16 HandleStuffSnesClassic::shortcutSave()
 {
-    return 0;
+    return saveShortcut;
 }
