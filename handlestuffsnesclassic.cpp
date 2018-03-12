@@ -65,9 +65,9 @@ void    HandleStuffSnesClassic::removeCanoeUnnecessaryArg(QStringList &canoeRun)
 
 QByteArray HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
 {
-    sDebug() << "Savestate";
+    sDebug() << "Savestate : trigger " << trigger << " No get : " << noGet;
     QByteArray toret;
-    if (trigger == false)
+    if (trigger == false && noGet == false)
     {
         toret = ftpCo->get(CLOVERSAVESTATEPATH);
         return toret;

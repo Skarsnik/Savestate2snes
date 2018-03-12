@@ -88,6 +88,8 @@ private slots:
 
     void on_actionMake_a_savestate_triggered();
 
+    void on_actionSave_a_savestate_triggered();
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;

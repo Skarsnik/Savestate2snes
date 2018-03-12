@@ -15,11 +15,13 @@ SNESClassicStatut::SNESClassicStatut(QWidget *parent) :
     ui->setupUi(this);
     canoeRunning = false;
     ftpReady = false;
+    m_settings = new QSettings("skarsnik.nyo.fr", "SaveState2SNES");
     connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));
     connect(this, SIGNAL(canoeStarted()), this, SLOT(onCanoeStarted()));
     connect(this, SIGNAL(canoeStopped()), this, SLOT(onCanoeStopped()));
     ui->ftpStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
     ui->telnetStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
+    ui->shortcutCheckBox->setChecked(m_settings->value("SNESClassicShortcuts").toBool());
 }
 
 void SNESClassicStatut::onTimerTick()
@@ -33,7 +35,7 @@ void SNESClassicStatut::onTimerTick()
         if (!(cmdCo->state() == TelnetConnection::Ready || cmdCo->state() == TelnetConnection::Connected))
         {
             sDebug() << "Command co not connected, trying to reconnect" << cmdCo->state();
-            //cmdCo->conneect();
+            cmdCo->conneect();
         }
         timer.start(1000);
     }
@@ -47,6 +49,12 @@ void SNESClassicStatut::onMiniFTPConnected()
     sDebug() << "MiniFTP connected";
     ui->ftpStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
     checkForReady();
+}
+
+void SNESClassicStatut::onMiniFTPDisconnected()
+{
+    sDebug() << "MiniFTP disconnected";
+    ui->ftpStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
 }
 
 bool SNESClassicStatut::checkForReady()
@@ -95,6 +103,7 @@ void SNESClassicStatut::setFtp(MiniFtp *ftp)
 {
     miniFtp = ftp;
     connect(miniFtp, SIGNAL(connected()), this, SLOT(onMiniFTPConnected()));
+    connect(miniFtp, SIGNAL(disconnected()), this, SLOT(onMiniFTPDisconnected()));
 }
 
 QString SNESClassicStatut::readyString() const
@@ -135,6 +144,7 @@ void SNESClassicStatut::onCommandCoConnected()
 void SNESClassicStatut::onCommandCoDisconnected()
 {
     sDebug() << "Command co disconnected";
+    ui->telnetStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
     emit unReadyForSaveState();
 }
 

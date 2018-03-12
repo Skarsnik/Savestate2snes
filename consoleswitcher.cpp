@@ -30,6 +30,8 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     QString mode = m_settings->value("mode").toString();
     snesClassicInit = false;
     usb2snesInit = false;
+    telnetInputCo = NULL;
+    sDebug() << "Mode is " << mode;
     if (mode == "USB2Snes" || mode.isEmpty())
     {
         m_mode = USB2Snes;
@@ -43,9 +45,9 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
         initSnesClassic();
         ui->tabWidget->setCurrentIndex(1);
         ui->snesclassicStackedWidget->setCurrentIndex(1);
+        ui->usb2snesStackedWidget->setCurrentIndex(0);
     }
     snesClassicInputDecoder = new InputDecoder();
-    telnetInputCo = NULL;
     snesClassicShortcutActivated = false;
     snesClassicReady = false;
     connect(snesClassicInputDecoder, SIGNAL(buttonPressed(InputDecoder::SNESButton)), this, SLOT(on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton)));
@@ -81,6 +83,8 @@ void ConsoleSwitcher::start()
         telnetCommandCo->conneect();
         telnetCanoeCo->conneect();
         miniFTP->connect();
+        if (m_settings->value("SNESClassicShortcuts").toBool())
+            telnetInputCo->conneect();
     }
 }
 
@@ -110,13 +114,13 @@ ConsoleSwitcher::~ConsoleSwitcher()
     qDebug() << "DELETE CONSOLESWITCHER";
     if (m_mode == USB2Snes)
     {
-       // m_settings->setValue("mode", "USB2Snes");
+        m_settings->setValue("mode", "USB2Snes");
         cleanUpUSB2Snes();
         delete usb2snes;
     }
     if (m_mode == SNESClassic)
     {
-       // m_settings->setValue("mode", "SNESClassic");
+        m_settings->setValue("mode", "SNESClassic");
         cleanUpSNESClassic();
         /*delete telnetCommandCo;
         delete telnetCanoeCo;
@@ -182,6 +186,7 @@ void ConsoleSwitcher::on_snesClassicShortcutsToggled(bool toggled)
             telnetCommandCo->syncExecuteCommand("killall hexdump");
         }
     }
+    m_settings->setValue("SNESClassicShortcuts", toggled);
 }
 
 void ConsoleSwitcher::on_snesClassicReadyForSaveState()
@@ -211,6 +216,7 @@ void ConsoleSwitcher::initUsb2snes()
 
 void ConsoleSwitcher::initSnesClassic()
 {
+    sDebug() << "Init SNES Classic";
     telnetCommandCo = new TelnetConnection("127.0.0.1", 1023, "root", "clover");
     telnetCommandCo->debugName = "Command";
     telnetCanoeCo = new TelnetConnection("127.0.0.1", 1023, "root", "clover");

@@ -1,6 +1,7 @@
 #ifndef SNESCLASSICSTATUT_H
 #define SNESCLASSICSTATUT_H
 
+#include <QSettings>
 #include <QTimer>
 #include <QWidget>
 #include "snesclassicstuff/desktopclient/telnetconnection.h"
@@ -37,6 +38,7 @@ private slots:
     void    onCommandCoError(TelnetConnection::ConnectionError);
     void    onTimerTick();
     void    onMiniFTPConnected();
+    void    onMiniFTPDisconnected();
 
     void    on_iniButton_clicked();
 
@@ -52,6 +54,7 @@ private:
     QTimer                  timer;
     bool                    canoeRunning;
     bool                    ftpReady;
+    QSettings*              m_settings;
 
     bool checkForReady();
 };

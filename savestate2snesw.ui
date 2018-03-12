@@ -580,6 +580,14 @@
     <string>F9</string>
    </property>
   </action>
+  <action name="actionSave_a_savestate">
+   <property name="text">
+    <string>Save a savestate</string>
+   </property>
+   <property name="shortcut">
+    <string>F7</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

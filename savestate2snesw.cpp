@@ -567,3 +567,9 @@ void Savestate2snesw::on_actionMake_a_savestate_triggered()
     if (ui->addSaveStatePushButton->isEnabled())
         on_addSaveStatePushButton_clicked();
 }
+
+void Savestate2snesw::on_actionSave_a_savestate_triggered()
+{
+    if (ui->saveSaveStatePushButton->isEnabled())
+        on_saveSaveStatePushButton_clicked();
+}
