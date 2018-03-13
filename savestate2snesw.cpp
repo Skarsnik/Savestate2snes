@@ -72,8 +72,9 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->savestateListView->setModel(saveStateModel);
     ui->categoryTreeView->setModel(repStateModel);
     newSaveInserted = NULL;
+    onModeChanged(ui->consoleSwitcher->mode());
     handleStuff = ui->consoleSwitcher->getHandle();
-    handleStuff->setSaveStateDir(gamesFolder);
+    //handleStuff->setSaveStateDir(gamesFolder);
     createMenus();
     turnSaveStateAction(false);
 
@@ -94,6 +95,7 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     addAction(ui->actionReload_last_savestate);
     addAction(ui->actionMake_a_savestate);
     ui->consoleSwitcher->start();
+    ui->statusBar->showMessage(ui->consoleSwitcher->unreadyString());
 }
 
 void Savestate2snesw::loadGames()

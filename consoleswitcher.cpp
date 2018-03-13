@@ -38,6 +38,8 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
         initUsb2snes();
         ui->tabWidget->setCurrentIndex(0);
         ui->usb2snesStackedWidget->setCurrentIndex(1);
+        connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
+        connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
     }
     if (mode == "SNESClassic")
     {
@@ -46,6 +48,10 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
         ui->tabWidget->setCurrentIndex(1);
         ui->snesclassicStackedWidget->setCurrentIndex(1);
         ui->usb2snesStackedWidget->setCurrentIndex(0);
+        connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
+        connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SLOT(on_snesClassicReadyForSaveState()));
+        connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
+        connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SLOT(on_snesClassicUnReadyForSaveState()));
     }
     snesClassicInputDecoder = new InputDecoder();
     snesClassicShortcutActivated = false;
@@ -260,10 +266,10 @@ void ConsoleSwitcher::on_snesClassicButton_clicked()
     ui->snesclassicStackedWidget->setCurrentIndex(1);
     ui->usb2snesStackedWidget->setCurrentIndex(0);
     disconnect(ui->usb2snesStatut, 0, this, 0);
-    connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
-    connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SLOT(on_snesClassicReadyForSaveState()));
-    connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
-    connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SLOT(on_snesClassicUnReadyForSaveState()));
+    connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()), Qt::UniqueConnection);
+    connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SLOT(on_snesClassicReadyForSaveState()), Qt::UniqueConnection);
+    connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()), Qt::UniqueConnection);
+    connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SLOT(on_snesClassicUnReadyForSaveState()), Qt::UniqueConnection);
     emit modeChanged(SNESClassic);
 }
 
@@ -278,8 +284,8 @@ void ConsoleSwitcher::on_usb2snesButton_clicked()
     ui->snesclassicStackedWidget->setCurrentIndex(0);
     ui->usb2snesStackedWidget->setCurrentIndex(1);
     disconnect(ui->snesclassicStatut, 0, this, 0);
-    connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
-    connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
+    connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()), Qt::UniqueConnection);
+    connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()), Qt::UniqueConnection);
 
     emit modeChanged(USB2Snes);
 }

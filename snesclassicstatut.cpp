@@ -122,6 +122,11 @@ void SNESClassicStatut::onCanoeStarted()
     QString result = ba.trimmed();
     QString canoeStr = result.mid(result.indexOf("canoe"));
     QStringList canoeArgs = canoeStr.split(" ");
+    if (canoeArgs.indexOf("-replay"))
+    {
+        ui->romNameLabel->setText(tr("Canoe is on replay mode"));
+        return ;
+    }
     ui->romNameLabel->setText(canoeArgs.at(canoeArgs.indexOf("-rom") + 1));
     timer.stop();
     ui->iniButton->setEnabled(true);
