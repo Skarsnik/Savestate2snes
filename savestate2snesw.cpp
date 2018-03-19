@@ -40,6 +40,9 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    invalidDirRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
+    invalidFileRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*]");
+
     m_settings = new QSettings("skarsnik.nyo.fr", "SaveState2SNES");
     if (m_settings->contains("windowGeometry"))
     {
@@ -223,7 +226,14 @@ void Savestate2snesw::on_actionAddCategory_triggered()
     QString text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
     if (ok)
     {
-        sDebug() << "Adding a category";
+        while (invalidDirRegex.indexIn(text) != -1)
+        {
+            QMessageBox::information(this, tr("Error with category name"), tr("You entered an invalid character for a category (< > : \" \/ \\ | ? *)"));
+            text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
+            if (!ok)
+                return ;
+        }
+        sDebug() << "Adding a category" << text;
         QStandardItem* parent = repStateModel->invisibleRootItem();
         if (indexCatUnderMenu.isValid())
         {
@@ -249,9 +259,16 @@ void Savestate2snesw::on_actionAddCategory_triggered()
 void Savestate2snesw::on_actionAddSubCategory_triggered()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
+    QString text = QInputDialog::getText(this, tr("Enter a name for the new sub category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
     if (ok)
     {
+        while (invalidDirRegex.indexIn(text) != -1)
+        {
+            QMessageBox::information(this, tr("Error with category name"), tr("You entered an invalid character for a category (< > : \" \/ \\ | ? *)"));
+            text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
+            if (!ok)
+                return ;
+        }
         sDebug() << "Adding a sub category";
         QStandardItem* curItem = repStateModel->itemFromIndex(indexCatUnderMenu);
         Category* newCat = handleStuff->addCategory(text, curItem->data(MyRolePath).toString());

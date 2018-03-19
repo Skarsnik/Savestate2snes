@@ -103,7 +103,9 @@ private:
     QStandardItem*      newSaveInserted;
     USB2snes*           usb2snes;
     QString             gamesFolder;
-    QSettings*           m_settings;
+    QSettings*          m_settings;
+    QRegExp             invalidDirRegex;
+    QRegExp             invalidFileRegex;
 
     void    createMenus();
     void    loadGames();

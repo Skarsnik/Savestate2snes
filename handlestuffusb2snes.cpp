@@ -1,5 +1,9 @@
 #include "handlestuffusb2snes.h"
 
+Q_LOGGING_CATEGORY(log_handleUSB2SNES, "HSUsb2snes")
+
+#define sDebug() qCDebug(log_handleUSB2SNES)
+
 HandleStuffUsb2snes::HandleStuffUsb2snes() : HandleStuff()
 {
 
@@ -59,6 +63,7 @@ void    HandleStuffUsb2snes::checkForSafeState()
 quint16 HandleStuffUsb2snes::shortcutSave()
 {
     QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
+    sDebug() << "Shortcut save from usb2snes" << saveButton;
     quint16 toret = (saveButton.at(1) << 8) + saveButton.at(0);
     return toret;
 }
@@ -66,6 +71,7 @@ quint16 HandleStuffUsb2snes::shortcutSave()
 quint16 HandleStuffUsb2snes::shortcutLoad()
 {
     QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
+    sDebug() << "Shortcut load from usb2snes" << loadButton;
     quint16 toret = (loadButton.at(1) << 8) + loadButton.at(0);
     return toret;
 }
