@@ -42,6 +42,7 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
 
     invalidDirRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
     invalidFileRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*]");
+    qDebug() << invalidFileRegex.indexIn("\\") << invalidFileRegex.indexIn("/");
 
     m_settings = new QSettings("skarsnik.nyo.fr", "SaveState2SNES");
     if (m_settings->contains("windowGeometry"))
