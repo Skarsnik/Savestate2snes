@@ -56,9 +56,6 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->downSavePushButton->setIcon(style()->standardPixmap(QStyle::SP_ArrowDown));
     ui->deleteSavePushButton->setIcon(style()->standardPixmap(QStyle::SP_TrashIcon));
 
-    /*QRegExp *fileValidator = new QRegExp("(^<>:\\/\\\\|\\*\\?\")");
-    ui->savestateListView->setV*/
-
     if (m_settings->contains("lastSaveStateDir"))
         gamesFolder = m_settings->value("lastSaveStateDir").toString();
     else
@@ -228,7 +225,7 @@ void Savestate2snesw::on_actionAddCategory_triggered()
     {
         while (invalidDirRegex.indexIn(text) != -1)
         {
-            QMessageBox::information(this, tr("Error with category name"), tr("You entered an invalid character for a category (< > : \" \/ \\ | ? *)"));
+            QMessageBox::information(this, tr("Error with category name"), tr("You entered an invalid character for a category name (< > : \" \/ \\ | ? * .)"));
             text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
             if (!ok)
                 return ;
@@ -264,7 +261,7 @@ void Savestate2snesw::on_actionAddSubCategory_triggered()
     {
         while (invalidDirRegex.indexIn(text) != -1)
         {
-            QMessageBox::information(this, tr("Error with category name"), tr("You entered an invalid character for a category (< > : \" \/ \\ | ? *)"));
+            QMessageBox::information(this, tr("Error with category name"), tr("You entered an invalid character for a sub category name (< > : \" \/ \\ | ? * .)"));
             text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
             if (!ok)
                 return ;
@@ -390,6 +387,18 @@ void Savestate2snesw::saveStateItemChanged(QStandardItem *item)
     static bool avoid_loop = false;
     sDebug() << item->text() << "renamed.";
     QString name = item->text();
+    int posInvalid = invalidFileRegex.indexIn(name);
+    if (posInvalid != -1)
+    {
+        QMessageBox::warning(this, tr("Invalid character"), tr("The savestate name contains an invalid character (< > : \" \/ \\ | ? *). <br/> It get replaced by _"));
+        while (posInvalid != -1)
+        {
+            name[posInvalid] = '_';
+            posInvalid = invalidFileRegex.indexIn(name);
+        }
+        item->setText(name);
+        name = item->text();
+    }
     bool b = false;
     while (saveStateModel->findItems(name).size() > 1)
     {

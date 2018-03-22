@@ -32,11 +32,13 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QTextStream*    log = &logfile;
     //cout << msg;
     QString logString = QString("%6 %5 - %7: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+#ifdef QT_DEBUG
     if (QString(context.category).left(8) == "LowLevel")
     {
         //cout << "log is lowlevel. Writing to lowlevelfile";
         log = &lowlogfile;
     }
+#endif
     switch (type)
     {
         case QtDebugMsg:
@@ -60,6 +62,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
     *log << "\n";
     log->flush();
+#ifdef QT_DEBUG
     if (QString(context.category) == "Telnet")
     {
         //cout << "Writing to lowlevelfile";
@@ -67,6 +70,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         lowlogfile << "\n";
         lowlogfile.flush();
     }
+#endif
     if (log != &lowlogfile)
     {
         cout << QString("%1 : %2").arg(context.category, 20).arg(msg) << "\n";
@@ -86,7 +90,9 @@ int main(int argc, char *argv[])
     lowlogfile.setDevice(&mlowlog);
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
     {
+#ifdef QT_DEBUG
         mlowlog.open(QIODevice::WriteOnly | QIODevice::Text);
+#endif
         qInstallMessageHandler(myMessageOutput);
     }
     QApplication::setApplicationName("Savestate2SNES");

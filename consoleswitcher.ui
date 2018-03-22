@@ -199,7 +199,7 @@
            <item>
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>To make Savestate2snes use the SNES Classic you need to press the button bellow. It will stop all the interaction with the USB2Snesc and use a different Savestate folder since both are not compatible</string>
+              <string>To make Savestate2snes use the SNES Classic you need to press the button bellow. It will stop all the interactions with the USB2Snes and use a different Savestate folder since both are not compatible</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>

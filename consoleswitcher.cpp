@@ -145,13 +145,13 @@ void ConsoleSwitcher::refreshShortcuts()
 void ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton but)
 {
     snesClassicButtonPressed.append(but);
-    sDebug() << snesClassicButtonPressed.size();
+    //sDebug() << snesClassicButtonPressed.size();
     int currentInput = 0;
     foreach(int button, snesClassicButtonPressed)
     {
         currentInput = currentInput | mapEnumToSNES[button];
     }
-    sDebug() << QString::number(currentInput, 16) << QString::number(handleSNESClassic->shortcutLoad(), 16) << QString::number(handleSNESClassic->shortcutSave(), 16);
+    //sDebug() << QString::number(currentInput, 16) << QString::number(handleSNESClassic->shortcutLoad(), 16) << QString::number(handleSNESClassic->shortcutSave(), 16);
     if (currentInput == handleSNESClassic->shortcutLoad())
         handleSNESClassic->controllerLoadState();
     if (currentInput == handleSNESClassic->shortcutSave())
