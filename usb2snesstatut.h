@@ -38,6 +38,7 @@ public:
     void    refreshShortcuts();
     QString readyString() const;
     QString unreadyString() const;
+    void    stop();
 
 signals:
     void    readyForSaveState();

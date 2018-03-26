@@ -22,6 +22,8 @@ public:
     void    setFtp(MiniFtp* ftp);
     QString readyString() const;
     QString unreadyString() const;
+    void    stop();
+    void    start();
 
 signals:
     void    readyForSaveState();

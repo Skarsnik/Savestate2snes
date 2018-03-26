@@ -116,6 +116,16 @@ QString SNESClassicStatut::unreadyString() const
     return tr("SNES classic not ready for savestate");
 }
 
+void SNESClassicStatut::stop()
+{
+    timer.stop();
+}
+
+void SNESClassicStatut::start()
+{
+    timer.start(2000);
+}
+
 void SNESClassicStatut::onCanoeStarted()
 {
     QByteArray ba = cmdCo->syncExecuteCommand("ps | grep canoe | grep -v grep");

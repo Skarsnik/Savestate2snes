@@ -243,6 +243,7 @@ void ConsoleSwitcher::initSnesClassic()
 void ConsoleSwitcher::cleanUpUSB2Snes()
 {
     usb2snes->close();
+    ui->usb2snesStatut->stop();
 }
 
 void ConsoleSwitcher::cleanUpSNESClassic()
@@ -253,6 +254,9 @@ void ConsoleSwitcher::cleanUpSNESClassic()
     telnetCanoeCo->close();
     telnetCommandCo->close();
     miniFTP->close();
+    if (telnetInputCo != NULL)
+        telnetInputCo->close();
+    ui->snesclassicStatut->stop();
 }
 
 void ConsoleSwitcher::on_snesClassicButton_clicked()
@@ -277,7 +281,7 @@ void ConsoleSwitcher::on_usb2snesButton_clicked()
 {
     emit unReadyForSaveState();
     cleanUpSNESClassic();
-    if (usb2snesInit)
+    if (!usb2snesInit)
         initUsb2snes();
     m_mode = USB2Snes;
     start();

@@ -102,6 +102,11 @@ QString USB2SnesStatut::unreadyString() const
     return tr("USB2Snes not ready for savestate");
 }
 
+void USB2SnesStatut::stop()
+{
+    timer.stop();
+}
+
 void USB2SnesStatut::onRomStarted()
 {
     sDebug() << "Rom started";
