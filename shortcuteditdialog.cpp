@@ -1,4 +1,9 @@
 #include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(log_ShortCutDialog, "ShortcutDialog")
+
+#define sDebug() qCDebug(log_ShortCutDialog)
 
 #include "shortcuteditdialog.h"
 #include "ui_shortcuteditdialog.h"
@@ -31,6 +36,7 @@ ShortcutEditDialog::ShortcutEditDialog(QWidget *parent, quint16 save, quint16 lo
     QDialog(parent),
     ui(new Ui::ShortcutEditDialog)
 {
+    sDebug() << "Shortcutedit created : s/l" << QString::number(save, 16) << QString::number(load, 16);
     m_saveShortcut = save;
     m_loadShortcut = load;
     maskToButton[B_START_BITMASK] = "start";
@@ -121,8 +127,8 @@ void ShortcutEditDialog::onControllerGroupToggled(int id, bool checked)
         ui->loadLineEdit->setText(inputs.join("+"));
     else
         ui->saveLineEdit->setText(inputs.join("+"));
-    qDebug() << "Load" << QString::number(m_loadShortcut, 16);
-    qDebug() << "Save" << QString::number(m_saveShortcut, 16);
+    sDebug() << "Load" << QString::number(m_loadShortcut, 16);
+    sDebug() << "Save" << QString::number(m_saveShortcut, 16);
 }
 
 void ShortcutEditDialog::onChooseGroupToggled(QAbstractButton *button, bool toggled)
