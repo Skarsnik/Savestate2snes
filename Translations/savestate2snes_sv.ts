@@ -6,37 +6,37 @@
     <message>
         <location filename="../consoleswitcher.ui" line="32"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../consoleswitcher.ui" line="66"/>
         <source>USB2Snes</source>
-        <translation type="unfinished"></translation>
+        <translation>USB2Snes</translation>
     </message>
     <message>
         <location filename="../consoleswitcher.ui" line="107"/>
         <source>To make Savestate2snes use USB2Snes you  need to press the button bellow. It will stop all the interaction with the SNES Classic and use a different Savestate folder since both are not compatible</source>
-        <translation type="unfinished"></translation>
+        <translation>För att använda Savestate2snes med USB2snes behöver du trycka på knappen nedan. Den kommer att stänga anslutningen med SNES Classic and använda en annan mapp för sparningar då båda inte är kompatibla</translation>
     </message>
     <message>
         <location filename="../consoleswitcher.ui" line="133"/>
         <source>Use USB2Snes</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd USB2snes</translation>
     </message>
     <message>
         <location filename="../consoleswitcher.ui" line="161"/>
         <source>SNES Classic</source>
-        <translation type="unfinished"></translation>
+        <translation>SNES Classic</translation>
     </message>
     <message>
         <location filename="../consoleswitcher.ui" line="202"/>
         <source>To make Savestate2snes use the SNES Classic you need to press the button bellow. It will stop all the interactions with the USB2Snes and use a different Savestate folder since both are not compatible</source>
-        <translation type="unfinished"></translation>
+        <translation>För att använda Savestate2snes med SNES Classic behöver du trycka på knappen nedan. Den kommer att stänga anslutningen med USB2Snes and använda en annan mapp för sparningar då båda inte är kompatibla</translation>
     </message>
     <message>
         <location filename="../consoleswitcher.ui" line="228"/>
         <source>Use the SNES Classic</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd SNES Classic</translation>
     </message>
 </context>
 <context>
@@ -82,96 +82,105 @@
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="841"/>
         <source>Not connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Inte ansluten</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="909"/>
         <source>Host %1 not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Värd %1 kunde inte hittas</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="913"/>
         <source>Connection refused to host %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Anslutningen förhindrad till värd %1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="917"/>
         <source>Connection timed out to host %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Anslutningen fick ett avbrott till värd %1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="1021"/>
         <source>Connected to host %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansluten till värd %1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="1240"/>
         <source>Connection refused for data connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Anslutningen förhindrad för data</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="1414"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Okänt fel</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2314"/>
         <source>Connecting to host failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Anslutning till värd misslyckades: 
+%1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2318"/>
         <source>Login failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Inloggning misslyckades:
+%1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2322"/>
         <source>Listing directory failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Visning av sökväg misslyckades:
+%1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2326"/>
         <source>Changing directory failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändring av sökväg misslyckades:
+%1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2330"/>
         <source>Downloading file failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nedhämtning av fil misslyckades:
+%1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2334"/>
         <source>Uploading file failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uppladdning av fil misslyckades:
+%1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2338"/>
         <source>Removing file failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Borttagning av fil misslyckades:
+%1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2342"/>
         <source>Creating directory failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapande av sökväg misslyckades:
+%1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2346"/>
         <source>Removing directory failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Borttagning av sökväg misslyckades:
+%1</translation>
     </message>
     <message>
         <location filename="../snesclassicstuff/qtftp/src/qftp/qftp.cpp" line="2374"/>
         <source>Connection closed</source>
-        <translation type="unfinished"></translation>
+        <translation>Anslutningen stängdes</translation>
     </message>
 </context>
 <context>
@@ -187,68 +196,68 @@
     <message>
         <location filename="../snesclassicstatut.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="32"/>
         <source>SNES Classic status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status för SNES Classic</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="40"/>
         <source>Activate Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivera Genväg</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="50"/>
         <source>Init</source>
-        <translation type="unfinished"></translation>
+        <translation>Påbörja</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="61"/>
         <source>ROM running :</source>
-        <translation type="unfinished"></translation>
+        <translation>ROM körs:</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="74"/>
         <source>None</source>
-        <translation type="unfinished">Ingen</translation>
+        <translation>Ingen</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="85"/>
         <source>FTP status :</source>
-        <translation type="unfinished"></translation>
+        <translation>FTP status:</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="116"/>
         <source>Telnet status :</source>
-        <translation type="unfinished"></translation>
+        <translation>Telnet status:</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.cpp" line="111"/>
         <source>SNES classic ready for savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>SNES Classic är redo för sparning</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.cpp" line="116"/>
         <source>SNES classic not ready for savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>SNES Classic är inte redo för sparning</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.cpp" line="127"/>
         <source>Canoe is on replay mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanoten är på reprisläge</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.cpp" line="138"/>
         <source>Canoe not running</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanoten körs inte</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.cpp" line="186"/>
         <source>Reset</source>
         <comment>Reset canoe run</comment>
-        <translation type="unfinished"></translation>
+        <translation>Återställ</translation>
     </message>
 </context>
 <context>
@@ -345,47 +354,47 @@
     <message>
         <location filename="../savestate2snesw.ui" line="448"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the selected savestate (F5)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ladda den markerade sparningen (F5)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="474"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Trigger the making of a savestate and save it to disk (F9)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skapa en sparning och spara den till disk (F9)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="500"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save the current savestate stored in snes memory to disk (F7)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Spara den nurvarande sparningen lagrad i SNES-minnet till disk(F7)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="569"/>
         <source>Reload last savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladda om senaste sparningen</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="572"/>
         <source>F5</source>
-        <translation type="unfinished"></translation>
+        <translation>F5</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="577"/>
         <source>Make a savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa sparning</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="580"/>
         <source>F9</source>
-        <translation type="unfinished"></translation>
+        <translation>F9</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="585"/>
         <source>Save a savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara sparning</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="588"/>
         <source>F7</source>
-        <translation type="unfinished"></translation>
+        <translation>F7</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the selected savestate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -481,12 +490,12 @@
         <location filename="../savestate2snesw.cpp" line="229"/>
         <location filename="../savestate2snesw.cpp" line="265"/>
         <source>Error with category name</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel pågrund av katogorinamn</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="229"/>
         <source>You entered an invalid character for a category name (&lt; &gt; : &quot; / \ | ? * .)</source>
-        <translation type="unfinished"></translation>
+        <translation>Du angav en felaktig symbol för kategorinamn (&lt; &gt; : &quot; / \ | ? * .)</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="252"/>
@@ -501,12 +510,12 @@
     <message>
         <location filename="../savestate2snesw.cpp" line="260"/>
         <source>Enter a name for the new sub category</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriv in ett namn för den nya subkategorin</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="265"/>
         <source>You entered an invalid character for a sub category name (&lt; &gt; : &quot; / \ | ? * .)</source>
-        <translation type="unfinished"></translation>
+        <translation>Du angav en felaktig symbol för subkategorinamn (&lt; &gt; : &quot; / \ | ? * .)</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="275"/>
@@ -551,12 +560,12 @@
     <message>
         <location filename="../savestate2snesw.cpp" line="394"/>
         <source>Invalid character</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogiltig karaktär</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="394"/>
         <source>The savestate name contains an invalid character (&lt; &gt; : &quot; / \ | ? *). &lt;br/&gt; It get replaced by _</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparningen innehåller en ogiltig symbol (&lt; &gt; : &quot; / \ | ? * .) Den ersattes med _</translation>
     </message>
     <message>
         <source>USB2Snes is ready for savestates.</source>
@@ -679,12 +688,12 @@
     <message>
         <location filename="../usb2snesstatut.cpp" line="97"/>
         <source>USB2Snes ready for savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>USB2SNES är redo för sparning</translation>
     </message>
     <message>
         <location filename="../usb2snesstatut.cpp" line="102"/>
         <source>USB2Snes not ready for savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>USB2SNES är inte redo för sparning</translation>
     </message>
     <message>
         <location filename="../usb2snesstatut.cpp" line="112"/>
