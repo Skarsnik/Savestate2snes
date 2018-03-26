@@ -40,9 +40,10 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    sDebug() << "Savestate2snes  " << qApp->applicationVersion();
     invalidDirRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
-    invalidFileRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*]");
-    qDebug() << invalidFileRegex.indexIn("\\") << invalidFileRegex.indexIn("/");
+    invalidFileRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
+    //qDebug() << invalidFileRegex.indexIn("\\") << invalidFileRegex.indexIn("/");
 
     m_settings = new QSettings("skarsnik.nyo.fr", "SaveState2SNES");
     if (m_settings->contains("windowGeometry"))

@@ -32,13 +32,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QTextStream*    log = &logfile;
     //cout << msg;
     QString logString = QString("%6 %5 - %7: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
-#ifdef QT_DEBUG
     if (QString(context.category).left(8) == "LowLevel")
     {
         //cout << "log is lowlevel. Writing to lowlevelfile";
         log = &lowlogfile;
     }
-#endif
     switch (type)
     {
         case QtDebugMsg:
@@ -100,7 +98,7 @@ int main(int argc, char *argv[])
     QTranslator translator;
     QString locale = QLocale::system().name().split('_').first();
     translator.load(a.applicationDirPath() + "/i18n/savestate2snes_" + locale + ".qm");
-    QApplication::setApplicationVersion("0.3");
+    QApplication::setApplicationVersion("0.3.3");
     a.installTranslator(&translator);
     if (!settings.contains("lastSaveStateDir"))
     {
