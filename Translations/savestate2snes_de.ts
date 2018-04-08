@@ -41,7 +41,7 @@ Er unterbricht die Verbindung mit dem SNES Classic und benutzt ein anderes Verze
     <message>
         <location filename="../consoleswitcher.ui" line="228"/>
         <source>Use the SNES Classic</source>
-        <translation>Savestate2SNES für denSNES Classic benutzen</translation>
+        <translation type="unfinished">Savestate2SNES für den SNES Classic benutzen</translation>
     </message>
 </context>
 <context>
