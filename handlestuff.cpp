@@ -16,6 +16,11 @@
 
 
 #include <QDebug>
+#include <QLoggingCategory>
+#include <QObject>
+#include <QSettings>
+#include <QCryptographicHash>
+#include <QDir>
 #include "handlestuff.h"
 
 Q_LOGGING_CATEGORY(log_handleStuff, "HandleStuff")
@@ -43,8 +48,11 @@ QStringList HandleStuff::loadGames()
     sDebug() << "Loading games" << listDir.size();
     foreach(QFileInfo fi, listDir)
     {
-        games << fi.baseName();
-        sDebug() << fi.baseName();
+        if (fi.baseName() != "SNESClassic" && fi.baseName() != "USB2Snes")
+        {
+            games << fi.baseName();
+            sDebug() << fi.baseName();
+        }
     }
     return games;
 }
@@ -66,6 +74,7 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
     m_gameInfo.loadShortcut = 0;
     m_gameInfo.saveShortcut = 0;
     m_gameInfo.name = game;
+    QDir gDir(saveDirectory.absolutePath() + "/" + game);
     if (QFileInfo::exists(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS))
     {
         sDebug() << "Game has file info";
@@ -79,43 +88,17 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
     return categories[game]->children;
 }
 
-void HandleStuff::setUsb2snes(USB2snes *usbsnes)
+QIcon HandleStuff::getGameIcon(QString game)
 {
-    usb2snes = usbsnes;
-}
-
-//$FC2000 db saveState  (Make sure both load and save are zero before setting this to nonzero)
-//$FC2001 db loadState  (Make sure both load and save are zero before setting this to nonzero)
-//$FC2002 dw saveButton (Set to $FFFF first and then set to correct value)
-//$FC2004 dw loadButton (Set to $FFFF first and then set to correct value)
-
-QByteArray HandleStuff::UsbSNESSaveState(bool trigger)
-{
-    QByteArray data;
-    if (trigger)
+    QDir gDir(saveDirectory.absolutePath() + "/" + game);
+    foreach(QFileInfo fi, gDir.entryInfoList())
     {
-        checkForSafeState();
-        data.resize(2);
-        data[0] = 0;
-        /*data[1] = 0;
-        usb2snes->setAddress(0xFC2000, data);*/
-        data[0] = 1;
-        usb2snes->setAddress(0xFC2000, data);
+        if (fi.baseName() == "icon")
+            return QIcon(fi.absoluteFilePath());
     }
-    checkForSafeState();
-    QByteArray saveData = usb2snes->getAddress(0xF00000, 320 * 1024);
-    return saveData;
+    return QIcon();
 }
 
-void    HandleStuff::checkForSafeState()
-{
-    QByteArray data = usb2snes->getAddress(0xFC2000, 2);
-    while (!(data.at(0) == 0 && data.at(1) == 0))
-    {
-            QThread::usleep(100);
-            data = usb2snes->getAddress(0xFC2000, 2);
-    }
-}
 
 bool    HandleStuff::loadSaveState(QString name)
 {
@@ -123,14 +106,7 @@ bool    HandleStuff::loadSaveState(QString name)
     if (saveFile.open(QIODevice::ReadOnly))
     {
         QByteArray data = saveFile.readAll();
-        checkForSafeState();
-        usb2snes->setAddress(0xF00000, data);
-        data.resize(2);
-        data[0] = 0;
-        /*data[1] = 0;
-        usb2snes->setAddress(0xFC2000, data);*/
-        data[1] = 1;
-        usb2snes->setAddress(0xFC2000, data);
+        loadState(data);
         saveFile.close();
         return true;
     }
@@ -140,9 +116,18 @@ bool    HandleStuff::loadSaveState(QString name)
 
 void    HandleStuff::findCategory(Category* parent, QDir dir)
 {
-    QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
     foreach(QFileInfo fi, listDir)
     {
+        if (fi.fileName() == "ScreenShots")
+            continue;
+        if (fi.baseName() == "icon")
+        {
+            sDebug() << parent->path << "Has icon" << fi.absoluteFilePath();
+            parent->icon = QIcon(fi.absoluteFilePath());
+        }
+        if (!fi.isDir())
+            continue;
         Category*   newCat = new Category();
         newCat->name = fi.baseName();
         newCat->path = fi.absoluteFilePath();
@@ -237,6 +222,11 @@ Category* HandleStuff::addCategory(QString newCategory, QString parentPath)
         newCat->parent = categories[gameLoaded];
     categoriesByPath[newCat->path] = newCat;
     newCat->parent->children.append(newCat);
+    if (hasScreenshots())
+    {
+        di.cd(newCategory);
+        di.mkdir("ScreenShots");
+    }
     return newCat;
 }
 
@@ -253,7 +243,7 @@ QStringList HandleStuff::loadSaveStates(QString categoryPath)
             QFileInfoList fil = dir.entryInfoList(QDir::Files);
             foreach(QFileInfo fi, fil)
             {
-                if (fi.fileName() == ORDERSAVEFILE)
+                if (fi.fileName() == ORDERSAVEFILE || fi.fileName() == "ScreenShots")
                     continue;
                 saveStates[categoryPath] << fi.baseName();
             }
@@ -274,7 +264,17 @@ bool HandleStuff::addSaveState(QString name, bool trigger)
     QFileInfo fi(catLoaded->path + "/" + name + ".svt");
     saveStates[catLoaded->path] << fi.baseName();
     //QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
-    QByteArray data = UsbSNESSaveState(trigger);
+    QByteArray data = saveState(trigger);
+    if (hasScreenshots())
+    {
+        QByteArray scData = getScreenshotData();
+        QFile scFile(catLoaded->path + "/ScreenShots/" + QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex() + ".png");
+        if (scFile.open(QIODevice::WriteOnly))
+        {
+            scFile.write(scData);
+            scFile.close();
+        }
+    }
     QFile saveFile(fi.absoluteFilePath());
     if (saveFile.open(QIODevice::WriteOnly))
     {
@@ -342,36 +342,28 @@ bool HandleStuff::deleteSaveState(int row)
     return true;
 }
 
-quint16 HandleStuff::shortcutSave()
+QPixmap HandleStuff::getScreenshot(QString name)
 {
-    QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
-    quint16 toret = (saveButton.at(1) << 8) + saveButton.at(0);
-    return toret;
+    QFile saveFile(catLoaded->path + "/" + name + ".svt");
+    if (saveFile.open(QIODevice::ReadOnly))
+    {
+        QByteArray data = saveFile.readAll();
+        QString screenShotFile = QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex() + ".png";
+        return QPixmap(catLoaded->path+ "/ScreenShots/" + screenShotFile);
+    }
+    return QPixmap();
 }
 
-quint16 HandleStuff::shortcutLoad()
+QString HandleStuff::getScreenshotPath(QString name)
 {
-    QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
-    quint16 toret = (loadButton.at(1) << 8) + loadButton.at(0);
-    return toret;
-}
-
-void HandleStuff::setShortcutLoad(quint16 shortcut)
-{
-    QByteArray data;
-    data.resize(2);
-    data[0] = shortcut & 0x00FF;
-    data[1] = shortcut >> 8;
-    usb2snes->setAddress(0xFC2004, data);
-}
-
-void HandleStuff::setShortcutSave(quint16 shortcut)
-{
-    QByteArray data;
-    data.resize(2);
-    data[0] = shortcut & 0x00FF;
-    data[1] = shortcut >> 8;
-    usb2snes->setAddress(0xFC2002, data);
+    QFile saveFile(catLoaded->path + "/" + name + ".svt");
+    if (saveFile.open(QIODevice::ReadOnly))
+    {
+        QByteArray data = saveFile.readAll();
+        QString screenShotFile = QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex() + ".png";
+        return catLoaded->path + "/ScreenShots/" + screenShotFile;
+    }
+    return QString();
 }
 
 GameInfos HandleStuff::gameInfos()

@@ -17,8 +17,6 @@
 #ifndef HANDLESTUFF_H
 #define HANDLESTUFF_H
 
-#include "usb2snes.h"
-
 #include <QString>
 #include <QStandardItem>
 #include <QDir>
@@ -30,6 +28,7 @@ struct Category {
     QVector<Category*>  children;
     QString             name;
     QString             path;
+    QIcon               icon;
 };
 
 struct  GameInfos
@@ -46,7 +45,7 @@ public:
 
     QStringList loadGames();
     QVector<Category*>  loadCategories(QString game);
-    void        setUsb2snes(USB2snes* usbsnes);
+    QIcon       getGameIcon(QString game);
     bool        addGame(QString newGame);
     void        setSaveStateDir(QString dir);
     Category*   addCategory(QString newCategory, QString parentPath);
@@ -57,12 +56,23 @@ public:
     void        changeStateOrder(int from, int to);
     bool        loadSaveState(QString name);
     bool        deleteSaveState(int row);
-    quint16     shortcutSave();
-    quint16     shortcutLoad();
-    void        setShortcutLoad(quint16 shortcut);
-    void        setShortcutSave(quint16 shortcut);
+
+    QPixmap     getScreenshot(QString name);
+    QString     getScreenshotPath(QString name);
     GameInfos   gameInfos();
     void        setGameShortCut(quint16 save, quint16 load);
+    virtual QByteArray  getScreenshotData() = 0;
+    virtual bool        hasShortcutsEdit() = 0;
+    virtual bool        hasScreenshots() = 0;
+    virtual void        setShortcutSave(quint16 shortcut) = 0;
+    virtual void        setShortcutLoad(quint16 shortcut) = 0;
+    virtual quint16     shortcutSave() = 0;
+    virtual quint16     shortcutLoad() = 0;
+
+
+protected:
+    virtual QByteArray  saveState(bool trigger) = 0;
+    virtual void        loadState(QByteArray data) = 0;
 
 private:
     QDir                                    saveDirectory;
@@ -72,15 +82,11 @@ private:
     QMap<QString, QStringList>              saveStates;
     QString                                 gameLoaded;
     Category*                               catLoaded;
-    USB2snes*                               usb2snes;
     GameInfos                               m_gameInfo;
 
     void findCategory(Category *parent, QDir dir);
     QStringList getCacheOrderList(QString file, QString dirPath);
     void        writeCacheOrderFile(QString file, QString dirPath);
-    void checkForSafeState();
-    QByteArray UsbSNESSaveState(bool trigger);
-    void    UsbSNESLoadState();
 };
 
 #endif // HANDLESTUFF_H

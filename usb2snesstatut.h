@@ -36,6 +36,9 @@ public:
     ~USB2SnesStatut();
     void    setUsb2snes(USB2snes* usnes);
     void    refreshShortcuts();
+    QString readyString() const;
+    QString unreadyString() const;
+    void    stop();
 
 signals:
     void    readyForSaveState();

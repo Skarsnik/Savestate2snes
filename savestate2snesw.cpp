@@ -25,6 +25,8 @@
 #include "savestate2snesw.h"
 #include "shortcuteditdialog.h"
 #include "ui_savestate2snesw.h"
+#include "handlestuffusb2snes.h"
+#include "handlestuffsnesclassic.h"
 
 Q_LOGGING_CATEGORY(log_MainUI, "MainUI")
 
@@ -37,6 +39,11 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui(new Ui::Savestate2snesw)
 {
     ui->setupUi(this);
+
+    sDebug() << "Savestate2snes  " << qApp->applicationVersion();
+    invalidDirRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
+    invalidFileRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
+    //qDebug() << invalidFileRegex.indexIn("\\") << invalidFileRegex.indexIn("/");
 
     m_settings = new QSettings("skarsnik.nyo.fr", "SaveState2SNES");
     if (m_settings->contains("windowGeometry"))
@@ -51,9 +58,6 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->downSavePushButton->setIcon(style()->standardPixmap(QStyle::SP_ArrowDown));
     ui->deleteSavePushButton->setIcon(style()->standardPixmap(QStyle::SP_TrashIcon));
 
-    /*QRegExp *fileValidator = new QRegExp("(^<>:\\/\\\\|\\*\\?\")");
-    ui->savestateListView->setV*/
-
     if (m_settings->contains("lastSaveStateDir"))
         gamesFolder = m_settings->value("lastSaveStateDir").toString();
     else
@@ -61,7 +65,6 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
         gamesFolder = QFileDialog::getExistingDirectory(this, tr("Choose Savestatedir"),
                                                         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QFileDialog::ShowDirsOnly);
     }
-    handleStuff.setSaveStateDir(gamesFolder);
     ui->pathLineEdit->setText(gamesFolder);
 
     ui->categoryTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -71,10 +74,9 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->savestateListView->setModel(saveStateModel);
     ui->categoryTreeView->setModel(repStateModel);
     newSaveInserted = NULL;
-    usb2snes = new USB2snes();
-    handleStuff.setUsb2snes(usb2snes);
-    ui->usb2snesStatut->setUsb2snes(usb2snes);
-
+    onModeChanged(ui->consoleSwitcher->mode());
+    handleStuff = ui->consoleSwitcher->getHandle();
+    //handleStuff->setSaveStateDir(gamesFolder);
     createMenus();
     turnSaveStateAction(false);
 
@@ -85,29 +87,45 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     connect(saveStateModel, SIGNAL(modelReset()), this, SLOT(saveStateModelReset()));
     //connect(saveStateModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(onSaveStateModelDataChanged(QModelIndex,QModelIndex,QVector<int>)));
     connect(ui->savestateListView->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(onSaveStateDelegateDataCommited(QWidget*)));
-    connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SLOT(onReadyForSaveState()));
-    connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SLOT(onUnReadyForSaveState()));
-    loadGames();
+    connect(ui->consoleSwitcher, SIGNAL(readyForSaveState()), this, SLOT(onReadyForSaveState()));
+    connect(ui->consoleSwitcher, SIGNAL(unReadyForSaveState()), this, SLOT(onUnReadyForSaveState()));
+    connect(ui->consoleSwitcher, SIGNAL(modeChanged(ConsoleSwitcher::Mode)), this, SLOT(onModeChanged(ConsoleSwitcher::Mode)));
+    //loadGames();
 
-    usb2snes->connect();
-    setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion());
+    //usb2snes->connect();
+    setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion() + " - Multi");
+    addAction(ui->actionReload_last_savestate);
+    addAction(ui->actionMake_a_savestate);
+    ui->consoleSwitcher->start();
+    ui->statusBar->showMessage(ui->consoleSwitcher->unreadyString());
 }
 
 void Savestate2snesw::loadGames()
 {
     sDebug() << "Loading games";
-    QStringList games = handleStuff.loadGames();
+    QStringList games = handleStuff->loadGames();
+    QString lastLoaded;
+    ui->gameComboBox->clear();
     if (games.size() != 0)
     {
-        ui->gameComboBox->clear();
-        foreach(QString game, games)
-        {
-            ui->gameComboBox->addItem(game);
-        }
-        ui->gameComboBox->model()->sort(0);
         if (m_settings->contains("lastGameLoaded"))
         {
-            int index = ui->gameComboBox->findText(m_settings->value("lastGameLoaded").toString());
+             sDebug() << "LastGameLoaded was : " << m_settings->value("lastGameLoaded").toString();
+            lastLoaded = m_settings->value("lastGameLoaded").toString();
+        }
+        foreach(QString game, games)
+        {
+            QIcon ico = handleStuff->getGameIcon(game);
+            if (ico.isNull())
+                ui->gameComboBox->addItem(game);
+            else
+                ui->gameComboBox->addItem(ico, game);
+        }
+        ui->gameComboBox->model()->sort(0);
+        if (!lastLoaded.isEmpty())
+        {
+
+            int index = ui->gameComboBox->findText(lastLoaded);
             if (index != -1)
             {
               ui->gameComboBox->setCurrentIndex(index);
@@ -133,6 +151,28 @@ void Savestate2snesw::turnSaveStateAction(bool on)
 Savestate2snesw::~Savestate2snesw()
 {
     delete ui;
+}
+
+void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
+{
+    sDebug() << "Mode changed" << mode;
+    handleStuff = ui->consoleSwitcher->getHandle();
+    if (mode == ConsoleSwitcher::SNESClassic)
+    {
+        QString snescdir = gamesFolder + "/SNESClassic";
+        if (!QFileInfo::exists(snescdir))
+        {
+            QDir newDir(gamesFolder);
+            newDir.mkdir("SNESClassic");
+        }
+        handleStuff->setSaveStateDir(snescdir);
+    }
+    if (mode == ConsoleSwitcher::USB2Snes)
+        handleStuff->setSaveStateDir(gamesFolder);
+    saveStateModel->clear();
+    repStateModel->clear();
+    loadGames();
+    ui->savestateListView->setHandleStuff(handleStuff);
 }
 
 void Savestate2snesw::saveListShowContextMenu(QPoint point)
@@ -179,7 +219,7 @@ void Savestate2snesw::on_actionRemoveCategory_triggered()
                                   QString(tr("You are about to remove the %1 category that include subcategories. Do you really want to proceed?")).arg(item->text())) != QMessageBox::Yes)
             return ;
     }
-    if (handleStuff.removeCategory(item->data(MyRolePath).toString()))
+    if (handleStuff->removeCategory(item->data(MyRolePath).toString()))
     {
         repStateModel->removeRow(indexCatUnderMenu.row(), indexCatUnderMenu.parent());
         if (indexCatUnderMenu == ui->categoryTreeView->currentIndex())
@@ -196,7 +236,14 @@ void Savestate2snesw::on_actionAddCategory_triggered()
     QString text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
     if (ok)
     {
-        sDebug() << "Adding a category";
+        while (invalidDirRegex.indexIn(text) != -1)
+        {
+            QMessageBox::information(this, tr("Error with category name"), tr("You entered an invalid character for a category name (< > : \" \/ \\ | ? * .)"));
+            text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
+            if (!ok)
+                return ;
+        }
+        sDebug() << "Adding a category" << text;
         QStandardItem* parent = repStateModel->invisibleRootItem();
         if (indexCatUnderMenu.isValid())
         {
@@ -207,7 +254,7 @@ void Savestate2snesw::on_actionAddCategory_triggered()
         QString parentPath;
         if (parent != repStateModel->invisibleRootItem())
             parentPath = parent->data(MyRolePath).toString();
-        Category* newCat = handleStuff.addCategory(text, parentPath);
+        Category* newCat = handleStuff->addCategory(text, parentPath);
         if (newCat != NULL)
         {
             QStandardItem*  newItem = new QStandardItem(newCat->name);
@@ -222,12 +269,19 @@ void Savestate2snesw::on_actionAddCategory_triggered()
 void Savestate2snesw::on_actionAddSubCategory_triggered()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
+    QString text = QInputDialog::getText(this, tr("Enter a name for the new sub category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
     if (ok)
     {
+        while (invalidDirRegex.indexIn(text) != -1)
+        {
+            QMessageBox::information(this, tr("Error with category name"), tr("You entered an invalid character for a sub category name (< > : \" \/ \\ | ? * .)"));
+            text = QInputDialog::getText(this, tr("Enter a name for the new category"), tr("Category name:"), QLineEdit::Normal, tr("New Category"), &ok);
+            if (!ok)
+                return ;
+        }
         sDebug() << "Adding a sub category";
         QStandardItem* curItem = repStateModel->itemFromIndex(indexCatUnderMenu);
-        Category* newCat = handleStuff.addCategory(text, curItem->data(MyRolePath).toString());
+        Category* newCat = handleStuff->addCategory(text, curItem->data(MyRolePath).toString());
         if (newCat == NULL)
         {
             QMessageBox::warning(this, tr("Error adding a sub category"), QString(tr("Something failed while trying to add the sub category : %1")).arg(text));
@@ -246,7 +300,7 @@ void Savestate2snesw::on_newGamePushButton_clicked()
     QString text = QInputDialog::getText(this, tr("Enter a new game"), tr("Game name:"), QLineEdit::Normal, tr("New game"), &ok);
     if (ok)
     {
-        if (handleStuff.addGame(text))
+        if (handleStuff->addGame(text))
         {
             ui->gameComboBox->addItem(text);
         } else {
@@ -260,6 +314,8 @@ void createChildItems(QVector<Category*> cats, QStandardItem *parent)
     foreach (Category* cat, cats)
     {
         QStandardItem *newItem = new QStandardItem(cat->name);
+        if (!cat->icon.isNull())
+            newItem->setIcon(cat->icon);
         newItem->setData(cat->path, MyRolePath);
         parent->appendRow(newItem);
         createChildItems(cat->children, newItem);
@@ -270,16 +326,19 @@ void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
 {
     if (arg1.isEmpty())
         return;
-    sDebug() << "Selected game changed";
+    sDebug() << "Selected game changed" << arg1;
     repStateModel->clear();
     saveStateModel->clear();
-    QVector<Category*> categories = handleStuff.loadCategories(arg1);
+    QVector<Category*> categories = handleStuff->loadCategories(arg1);
     if (categories.isEmpty())
         return;
     m_settings->setValue("lastGameLoaded", arg1);
+    sDebug() << "lastGameLoaded value is now : " << m_settings->value("lastGameLoaded").toString();
     foreach(Category* cat, categories)
     {
         QStandardItem *newItem = new QStandardItem(cat->name);
+        if (!cat->icon.isNull())
+            newItem->setIcon(cat->icon);
         newItem->setData(cat->path, MyRolePath);
         repStateModel->invisibleRootItem()->appendRow(newItem);
         createChildItems(cat->children, newItem);
@@ -295,7 +354,7 @@ void    Savestate2snesw::newSaveState(bool triggerSave)
     while (!saveStateModel->findItems(name).isEmpty())
         name += "_";
     newSaveItem->setText(name);
-    if (handleStuff.addSaveState(newSaveItem->text(), triggerSave))
+    if (handleStuff->addSaveState(newSaveItem->text(), triggerSave))
     {
         saveStateModel->invisibleRootItem()->appendRow(newSaveItem);
         ui->savestateListView->setCurrentIndex(newSaveItem->index());
@@ -311,7 +370,7 @@ void    Savestate2snesw::newSaveState(bool triggerSave)
 void Savestate2snesw::closeEvent(QCloseEvent *event)
 {
     Q_UNUSED(event)
-    usb2snes->close();
+    //usb2snes->close();
     m_settings->setValue("windowState", saveState());
     m_settings->setValue("windowGeometry", saveGeometry());
     m_settings->setValue("lastSaveStateDir", gamesFolder);
@@ -336,7 +395,7 @@ void Savestate2snesw::on_loadStatePushButton_clicked()
     if (cur.isValid())
     {
         sDebug() << "Loading savestate" << saveStateModel->itemFromIndex(cur)->text();
-        handleStuff.loadSaveState(saveStateModel->itemFromIndex(cur)->text());
+        handleStuff->loadSaveState(saveStateModel->itemFromIndex(cur)->text());
     }
 }
 
@@ -346,6 +405,18 @@ void Savestate2snesw::saveStateItemChanged(QStandardItem *item)
     static bool avoid_loop = false;
     sDebug() << item->text() << "renamed.";
     QString name = item->text();
+    int posInvalid = invalidFileRegex.indexIn(name);
+    if (posInvalid != -1)
+    {
+        QMessageBox::warning(this, tr("Invalid character"), tr("The savestate name contains an invalid character (< > : \" \/ \\ | ? *). <br/> It get replaced by _"));
+        while (posInvalid != -1)
+        {
+            name[posInvalid] = '_';
+            posInvalid = invalidFileRegex.indexIn(name);
+        }
+        item->setText(name);
+        name = item->text();
+    }
     bool b = false;
     while (saveStateModel->findItems(name).size() > 1)
     {
@@ -359,7 +430,7 @@ void Savestate2snesw::saveStateItemChanged(QStandardItem *item)
       item->setText(name);
     }
     avoid_loop = false;
-    handleStuff.renameSaveState(item->row(), item->text());
+    handleStuff->renameSaveState(item->row(), item->text());
 }
 
 void    Savestate2snesw::setStateTitle(QStandardItem* cat)
@@ -381,7 +452,7 @@ void Savestate2snesw::on_categoryTreeView_clicked(const QModelIndex &index)
     sDebug() << "Category " << cat->text() << " selected";
     setStateTitle(cat);
     saveStateModel->clear();
-    QStringList saveList = handleStuff.loadSaveStates(cat->data(MyRolePath).toString());
+    QStringList saveList = handleStuff->loadSaveStates(cat->data(MyRolePath).toString());
     foreach (QString save, saveList)
     {
         saveStateModel->invisibleRootItem()->appendRow(new QStandardItem(save));
@@ -418,27 +489,31 @@ void Savestate2snesw::saveStateModelReset()
 void Savestate2snesw::onReadyForSaveState()
 {
     sDebug() << "Ready for savestate";
-    ui->statusBar->showMessage(tr("USB2Snes is ready for savestates."));
+    ui->statusBar->showMessage(ui->consoleSwitcher->readyString());
     ui->addSaveStatePushButton->setEnabled(true);
     ui->loadStatePushButton->setEnabled(true);
     ui->saveSaveStatePushButton->setEnabled(true);
-    ui->editShortcutButton->setEnabled(true);
-    if (handleStuff.gameInfos().saveShortcut != 0)
+    if (handleStuff->hasShortcutsEdit())
     {
-        handleStuff.setShortcutSave(handleStuff.gameInfos().saveShortcut);
-        handleStuff.setShortcutLoad(handleStuff.gameInfos().loadShortcut);
-        ui->usb2snesStatut->refreshShortcuts();
+        ui->editShortcutButton->setEnabled(true);
+        if (handleStuff->gameInfos().saveShortcut != 0)
+        {
+            handleStuff->setShortcutSave(handleStuff->gameInfos().saveShortcut);
+            handleStuff->setShortcutLoad(handleStuff->gameInfos().loadShortcut);
+            ui->consoleSwitcher->refreshShortcuts();
+        }
     }
 }
 
 void Savestate2snesw::onUnReadyForSaveState()
 {
     sDebug() << "Unready for savestate";
-    ui->statusBar->showMessage(tr("USB2Snes is not ready for savestates."));
+    ui->statusBar->showMessage(ui->consoleSwitcher->unreadyString());
     ui->addSaveStatePushButton->setEnabled(false);
     ui->loadStatePushButton->setEnabled(false);
     ui->saveSaveStatePushButton->setEnabled(false);
-    ui->editShortcutButton->setEnabled(false);
+    if (handleStuff->hasShortcutsEdit())
+        ui->editShortcutButton->setEnabled(false);
 }
 
 
@@ -453,7 +528,7 @@ void Savestate2snesw::on_upSavePushButton_clicked()
     QList<QStandardItem*> lItem = saveStateModel->takeRow(row);
     saveStateModel->insertRow(row - 1, lItem.at(0));
     ui->savestateListView->setCurrentIndex(saveStateModel->indexFromItem(lItem.at(0)));
-    handleStuff.changeStateOrder(row, row - 1);
+    handleStuff->changeStateOrder(row, row - 1);
 }
 
 void Savestate2snesw::on_downSavePushButton_clicked()
@@ -467,7 +542,7 @@ void Savestate2snesw::on_downSavePushButton_clicked()
     QList<QStandardItem*> lItem = saveStateModel->takeRow(row);
     saveStateModel->insertRow(row + 1, lItem.at(0));
     ui->savestateListView->setCurrentIndex(saveStateModel->indexFromItem(lItem.at(0)));
-    handleStuff.changeStateOrder(row, row + 1);
+    handleStuff->changeStateOrder(row, row + 1);
 }
 
 
@@ -477,7 +552,7 @@ void Savestate2snesw::on_deleteSavePushButton_clicked()
         return;
     sDebug() << "deleting  " << ui->savestateListView->currentIndex();
     int row = ui->savestateListView->currentIndex().row();
-    if (handleStuff.deleteSaveState(row))
+    if (handleStuff->deleteSaveState(row))
     {
         QList<QStandardItem*> lItem = saveStateModel->takeRow(row);
         delete lItem.at(0);
@@ -505,22 +580,42 @@ void Savestate2snesw::on_pathPushButton_clicked()
 {
     gamesFolder = QFileDialog::getExistingDirectory(this, tr("Choose Games Directory"), gamesFolder, QFileDialog::ShowDirsOnly);
     sDebug() << "Choosen folder for savestates : " << gamesFolder;
-    handleStuff.setSaveStateDir(gamesFolder);
+    handleStuff->setSaveStateDir(gamesFolder);
     ui->pathLineEdit->setText(gamesFolder);
     loadGames();
 }
 
 void Savestate2snesw::on_editShortcutButton_clicked()
 {
-    ShortcutEditDialog  diag(this, handleStuff.shortcutSave(), handleStuff.shortcutLoad());
+    if (!handleStuff->hasShortcutsEdit())
+        return ;
+    ShortcutEditDialog  diag(this, handleStuff->shortcutSave(), handleStuff->shortcutLoad());
     if (diag.exec())
     {
         quint16 save = diag.saveShortcut();
         quint16 load = diag.loadShortcut();
         sDebug() << "Setting shortcuts s/l : " << QString::number(save, 16) << QString::number(load, 16);
-        handleStuff.setShortcutSave(save);
-        handleStuff.setShortcutLoad(load);
-        ui->usb2snesStatut->refreshShortcuts();
-        handleStuff.setGameShortCut(save, load);
+        handleStuff->setShortcutSave(save);
+        handleStuff->setShortcutLoad(load);
+        ui->consoleSwitcher->refreshShortcuts();
+        handleStuff->setGameShortCut(save, load);
     }
+}
+
+void Savestate2snesw::on_actionReload_last_savestate_triggered()
+{
+    if (ui->loadStatePushButton->isEnabled())
+        on_loadStatePushButton_clicked();
+}
+
+void Savestate2snesw::on_actionMake_a_savestate_triggered()
+{
+    if (ui->addSaveStatePushButton->isEnabled())
+        on_addSaveStatePushButton_clicked();
+}
+
+void Savestate2snesw::on_actionSave_a_savestate_triggered()
+{
+    if (ui->saveSaveStatePushButton->isEnabled())
+        on_saveSaveStatePushButton_clicked();
 }

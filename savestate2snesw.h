@@ -22,6 +22,7 @@
 #include <QStandardItemModel>
 #include "handlestuff.h"
 #include "usb2snes.h"
+#include "consoleswitcher.h"
 
 namespace Ui {
 class Savestate2snesw;
@@ -36,6 +37,8 @@ public:
     ~Savestate2snesw();
 
 private slots:
+    void    onModeChanged(ConsoleSwitcher::Mode mode);
+
     void    saveListShowContextMenu(QPoint point);
     void    categoryListShowContextMenu(QPoint point);
 
@@ -81,6 +84,12 @@ private slots:
 
     void on_editShortcutButton_clicked();
 
+    void on_actionReload_last_savestate_triggered();
+
+    void on_actionMake_a_savestate_triggered();
+
+    void on_actionSave_a_savestate_triggered();
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;
@@ -90,11 +99,13 @@ private:
     QMenu*              categoryMenu;
     QAction*            customAddCatAction;
     QModelIndex         indexCatUnderMenu;
-    HandleStuff         handleStuff;
+    HandleStuff*        handleStuff;
     QStandardItem*      newSaveInserted;
     USB2snes*           usb2snes;
     QString             gamesFolder;
-    QSettings*           m_settings;
+    QSettings*          m_settings;
+    QRegExp             invalidDirRegex;
+    QRegExp             invalidFileRegex;
 
     void    createMenus();
     void    loadGames();

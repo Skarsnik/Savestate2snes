@@ -44,7 +44,6 @@ USB2SnesStatut::USB2SnesStatut(QWidget *parent) :
      menuRunning = false;
      romRunning = false;
      ui->romPatchedLabel->hide();
-     ui->pushButton->hide();
 }
 
 void USB2SnesStatut::setUsb2snes(USB2snes *usnes)
@@ -91,6 +90,21 @@ void USB2SnesStatut::refreshShortcuts()
     sDebug() << "Refreshing shortcuts : " << saveButton.toHex() << loadButton.toHex() << snesjoy2string(saveButton) << snesjoy2string(loadButton);
     ui->shortcutLabel->setText(QString(tr("Shortcuts: - Save: %1 - Load: %2")).arg(snesjoy2string(saveButton)).arg(snesjoy2string(loadButton)));
     ui->shortcutLabel->setEnabled(true);
+}
+
+QString USB2SnesStatut::readyString() const
+{
+    return tr("USB2Snes ready for savestate");
+}
+
+QString USB2SnesStatut::unreadyString() const
+{
+    return tr("USB2Snes not ready for savestate");
+}
+
+void USB2SnesStatut::stop()
+{
+    timer.stop();
 }
 
 void USB2SnesStatut::onRomStarted()

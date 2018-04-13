@@ -126,13 +126,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>Rom is running</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>

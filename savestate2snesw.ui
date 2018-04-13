@@ -30,14 +30,39 @@
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item>
-       <widget class="USB2SnesStatut" name="usb2snesStatut" native="true">
+       <widget class="ConsoleSwitcher" name="consoleSwitcher" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>380</width>
+          <height>170</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>380</width>
+          <height>170</height>
+         </size>
+        </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_7">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -60,7 +85,11 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QLineEdit" name="pathLineEdit"/>
+           <widget class="QLineEdit" name="pathLineEdit">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pathPushButton">
@@ -379,9 +408,18 @@
        </layout>
       </item>
       <item row="2" column="1">
-       <widget class="QListView" name="savestateListView">
+       <widget class="SaveStateListView" name="savestateListView">
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="viewMode">
+         <enum>QListView::ListMode</enum>
         </property>
        </widget>
       </item>
@@ -416,7 +454,7 @@
            <bool>false</bool>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the selected savestate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the selected savestate (F5)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Load savestate</string>
@@ -442,7 +480,7 @@
            <bool>false</bool>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Trigger the making of a savestate and save it to disk&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Trigger the making of a savestate and save it to disk (F9)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Make savestate</string>
@@ -468,7 +506,7 @@
            <bool>false</bool>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save the current savestate stored in snes memory to disk&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save the current savestate stored in snes memory to disk (F7)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Save savestate</string>
@@ -494,6 +532,12 @@
        <widget class="QTreeView" name="categoryTreeView">
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
         </property>
         <property name="rootIsDecorated">
          <bool>true</bool>
@@ -535,14 +579,43 @@
     <string>Add category</string>
    </property>
   </action>
+  <action name="actionReload_last_savestate">
+   <property name="text">
+    <string>Reload last savestate</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionMake_a_savestate">
+   <property name="text">
+    <string>Make a savestate</string>
+   </property>
+   <property name="shortcut">
+    <string>F9</string>
+   </property>
+  </action>
+  <action name="actionSave_a_savestate">
+   <property name="text">
+    <string>Save a savestate</string>
+   </property>
+   <property name="shortcut">
+    <string>F7</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>USB2SnesStatut</class>
+   <class>ConsoleSwitcher</class>
    <extends>QWidget</extends>
-   <header>usb2snesstatut.h</header>
+   <header>consoleswitcher.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SaveStateListView</class>
+   <extends>QListView</extends>
+   <header location="global">savestatelistview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
