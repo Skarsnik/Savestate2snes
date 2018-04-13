@@ -20,6 +20,7 @@
 #include <QObject>
 #include <QSettings>
 #include <QCryptographicHash>
+#include <QDir>
 #include "handlestuff.h"
 
 Q_LOGGING_CATEGORY(log_handleStuff, "HandleStuff")
@@ -73,6 +74,7 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
     m_gameInfo.loadShortcut = 0;
     m_gameInfo.saveShortcut = 0;
     m_gameInfo.name = game;
+    QDir gDir(saveDirectory.absolutePath() + "/" + game);
     if (QFileInfo::exists(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS))
     {
         sDebug() << "Game has file info";
@@ -84,6 +86,17 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
 
     }
     return categories[game]->children;
+}
+
+QIcon HandleStuff::getGameIcon(QString game)
+{
+    QDir gDir(saveDirectory.absolutePath() + "/" + game);
+    foreach(QFileInfo fi, gDir.entryInfoList())
+    {
+        if (fi.baseName() == "icon")
+            return QIcon(fi.absoluteFilePath());
+    }
+    return QIcon();
 }
 
 
@@ -103,10 +116,17 @@ bool    HandleStuff::loadSaveState(QString name)
 
 void    HandleStuff::findCategory(Category* parent, QDir dir)
 {
-    QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
     foreach(QFileInfo fi, listDir)
     {
-        if (fi.baseName() == "ScreenShots")
+        if (fi.fileName() == "ScreenShots")
+            continue;
+        if (fi.baseName() == "icon")
+        {
+            sDebug() << parent->path << "Has icon" << fi.absoluteFilePath();
+            parent->icon = QIcon(fi.absoluteFilePath());
+        }
+        if (!fi.isDir())
             continue;
         Category*   newCat = new Category();
         newCat->name = fi.baseName();

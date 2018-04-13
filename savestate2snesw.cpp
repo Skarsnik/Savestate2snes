@@ -303,6 +303,8 @@ void createChildItems(QVector<Category*> cats, QStandardItem *parent)
     foreach (Category* cat, cats)
     {
         QStandardItem *newItem = new QStandardItem(cat->name);
+        if (!cat->icon.isNull())
+            newItem->setIcon(cat->icon);
         newItem->setData(cat->path, MyRolePath);
         parent->appendRow(newItem);
         createChildItems(cat->children, newItem);
@@ -313,16 +315,19 @@ void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
 {
     if (arg1.isEmpty())
         return;
-    sDebug() << "Selected game changed";
+    sDebug() << "Selected game changed" << arg1;
     repStateModel->clear();
     saveStateModel->clear();
     QVector<Category*> categories = handleStuff->loadCategories(arg1);
     if (categories.isEmpty())
         return;
     m_settings->setValue("lastGameLoaded", arg1);
+    sDebug() << "lastGameLoaded value is now : " << m_settings->value("lastGameLoaded").toString();
     foreach(Category* cat, categories)
     {
         QStandardItem *newItem = new QStandardItem(cat->name);
+        if (!cat->icon.isNull())
+            newItem->setIcon(cat->icon);
         newItem->setData(cat->path, MyRolePath);
         repStateModel->invisibleRootItem()->appendRow(newItem);
         createChildItems(cat->children, newItem);

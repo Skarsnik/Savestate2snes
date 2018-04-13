@@ -16,12 +16,12 @@
     <message>
         <location filename="../consoleswitcher.ui" line="107"/>
         <source>To make Savestate2snes use USB2Snes you  need to press the button bellow. It will stop all the interaction with the SNES Classic and use a different Savestate folder since both are not compatible</source>
-        <translation type="unfinished"></translation>
+        <translation>Pour utiliser USB2Snes avec Savestate2snes vous devez cliquer sur le bouton. Cela va stopper toutes les intéraction avec la SNES Classic et utiliser un dossier différent pour les Savestates car les deux ne sont pas compatible</translation>
     </message>
     <message>
         <location filename="../consoleswitcher.ui" line="133"/>
         <source>Use USB2Snes</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser USB2Snes</translation>
     </message>
     <message>
         <location filename="../consoleswitcher.ui" line="161"/>
@@ -31,12 +31,12 @@
     <message>
         <location filename="../consoleswitcher.ui" line="202"/>
         <source>To make Savestate2snes use the SNES Classic you need to press the button bellow. It will stop all the interactions with the USB2Snes and use a different Savestate folder since both are not compatible</source>
-        <translation type="unfinished"></translation>
+        <translation>Pour utiliser la SNES Classic avec Savestate2snes vous devez cliquer sur le bouton. Cela va stopper toutes les intéraction avec USB2Snes et utiliser un dossier différent pour les Savestates car les deux ne sont pas compatible</translation>
     </message>
     <message>
         <location filename="../consoleswitcher.ui" line="228"/>
         <source>Use the SNES Classic</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser la SNES Classic</translation>
     </message>
 </context>
 <context>
@@ -197,22 +197,22 @@
     <message>
         <location filename="../snesclassicstatut.ui" line="40"/>
         <source>Activate Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Activer les racourcis</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="50"/>
         <source>Init</source>
-        <translation type="unfinished"></translation>
+        <translation>Initialisation</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="61"/>
         <source>ROM running :</source>
-        <translation type="unfinished"></translation>
+        <translation>ROM en cours d&apos;execution :</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="74"/>
         <source>None</source>
-        <translation type="unfinished">Rien</translation>
+        <translation>Rien</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.ui" line="85"/>
@@ -227,28 +227,28 @@
     <message>
         <location filename="../snesclassicstatut.cpp" line="111"/>
         <source>SNES classic ready for savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>La SNES Classic est prêtre pour les savestates</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.cpp" line="116"/>
         <source>SNES classic not ready for savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>La SNES Classic n&apos;est pas prêtre pour les savestates</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.cpp" line="127"/>
         <source>Canoe is on replay mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Canoe est en mode replay</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.cpp" line="138"/>
         <source>Canoe not running</source>
-        <translation type="unfinished"></translation>
+        <translation>Canoe n&apos;est pas en cours d&apos;execution</translation>
     </message>
     <message>
         <location filename="../snesclassicstatut.cpp" line="186"/>
         <source>Reset</source>
         <comment>Reset canoe run</comment>
-        <translation type="unfinished"></translation>
+        <translation>Réinitialiser</translation>
     </message>
 </context>
 <context>
@@ -345,22 +345,22 @@
     <message>
         <location filename="../savestate2snesw.ui" line="448"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the selected savestate (F5)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Charge la savestate sélectionnée (F5)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="474"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Trigger the making of a savestate and save it to disk (F9)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Déclenche la création d&apos;une savestate et l&apos;enregistre sur le disque (F9)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="500"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save the current savestate stored in snes memory to disk (F7)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enregister la savestate actuellement en mémoire sur la snes sur le disque (F7)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="569"/>
         <source>Reload last savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>Recharge la dernière savestate</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="572"/>
@@ -370,7 +370,7 @@
     <message>
         <location filename="../savestate2snesw.ui" line="577"/>
         <source>Make a savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>Créer une savestate</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="580"/>
@@ -380,7 +380,7 @@
     <message>
         <location filename="../savestate2snesw.ui" line="585"/>
         <source>Save a savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarde une savestate</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.ui" line="588"/>
@@ -481,12 +481,12 @@
         <location filename="../savestate2snesw.cpp" line="229"/>
         <location filename="../savestate2snesw.cpp" line="265"/>
         <source>Error with category name</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur avec le nom de la catégorie</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="229"/>
         <source>You entered an invalid character for a category name (&lt; &gt; : &quot; / \ | ? * .)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vous avez entré un caractère invalide pour un nom de catégorie (&lt; &gt; : &quot; / \ | ? * .)</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="252"/>
@@ -501,12 +501,12 @@
     <message>
         <location filename="../savestate2snesw.cpp" line="260"/>
         <source>Enter a name for the new sub category</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrez un nom pour la nouvelle sous-catégorie</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="265"/>
         <source>You entered an invalid character for a sub category name (&lt; &gt; : &quot; / \ | ? * .)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vous avez entré un caractère invalide pour un nom de sous-catégorie (&lt; &gt; : &quot; / \ | ? * .)</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="275"/>
@@ -551,12 +551,12 @@
     <message>
         <location filename="../savestate2snesw.cpp" line="394"/>
         <source>Invalid character</source>
-        <translation type="unfinished"></translation>
+        <translation>Caractère invalide</translation>
     </message>
     <message>
         <location filename="../savestate2snesw.cpp" line="394"/>
         <source>The savestate name contains an invalid character (&lt; &gt; : &quot; / \ | ? *). &lt;br/&gt; It get replaced by _</source>
-        <translation type="unfinished"></translation>
+        <translation>Le nom de la savestate contenait un caractère invalide (&lt; &gt; : &quot; / \ | ? * .) &lt;br/&gt;Il a était remplacé par _</translation>
     </message>
     <message>
         <source>USB2Snes is ready for savestates.</source>
@@ -607,7 +607,7 @@
     <message>
         <location filename="../shortcuteditdialog.ui" line="122"/>
         <source>Editing shortcut for Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Edition du racourcis pour sauvegarder</translation>
     </message>
     <message>
         <location filename="../shortcuteditdialog.ui" line="577"/>
@@ -675,12 +675,12 @@
     <message>
         <location filename="../usb2snesstatut.cpp" line="97"/>
         <source>USB2Snes ready for savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>USB2Snes est prêt pour les savestates</translation>
     </message>
     <message>
         <location filename="../usb2snesstatut.cpp" line="102"/>
         <source>USB2Snes not ready for savestate</source>
-        <translation type="unfinished"></translation>
+        <translation>USB2Snes n&apos;est pas prêt pour les savestates</translation>
     </message>
     <message>
         <location filename="../usb2snesstatut.cpp" line="112"/>

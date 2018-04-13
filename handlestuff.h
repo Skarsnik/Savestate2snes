@@ -28,6 +28,7 @@ struct Category {
     QVector<Category*>  children;
     QString             name;
     QString             path;
+    QIcon               icon;
 };
 
 struct  GameInfos
@@ -44,6 +45,7 @@ public:
 
     QStringList loadGames();
     QVector<Category*>  loadCategories(QString game);
+    QIcon       getGameIcon(QString game);
     bool        addGame(QString newGame);
     void        setSaveStateDir(QString dir);
     Category*   addCategory(QString newCategory, QString parentPath);
