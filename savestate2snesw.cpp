@@ -90,7 +90,7 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     connect(ui->consoleSwitcher, SIGNAL(readyForSaveState()), this, SLOT(onReadyForSaveState()));
     connect(ui->consoleSwitcher, SIGNAL(unReadyForSaveState()), this, SLOT(onUnReadyForSaveState()));
     connect(ui->consoleSwitcher, SIGNAL(modeChanged(ConsoleSwitcher::Mode)), this, SLOT(onModeChanged(ConsoleSwitcher::Mode)));
-    loadGames();
+    //loadGames();
 
     //usb2snes->connect();
     setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion() + " - Multi");
@@ -104,17 +104,28 @@ void Savestate2snesw::loadGames()
 {
     sDebug() << "Loading games";
     QStringList games = handleStuff->loadGames();
+    QString lastLoaded;
     ui->gameComboBox->clear();
     if (games.size() != 0)
     {
-        foreach(QString game, games)
-        {
-            ui->gameComboBox->addItem(game);
-        }
-        ui->gameComboBox->model()->sort(0);
         if (m_settings->contains("lastGameLoaded"))
         {
-            int index = ui->gameComboBox->findText(m_settings->value("lastGameLoaded").toString());
+             sDebug() << "LastGameLoaded was : " << m_settings->value("lastGameLoaded").toString();
+            lastLoaded = m_settings->value("lastGameLoaded").toString();
+        }
+        foreach(QString game, games)
+        {
+            QIcon ico = handleStuff->getGameIcon(game);
+            if (ico.isNull())
+                ui->gameComboBox->addItem(game);
+            else
+                ui->gameComboBox->addItem(ico, game);
+        }
+        ui->gameComboBox->model()->sort(0);
+        if (!lastLoaded.isEmpty())
+        {
+
+            int index = ui->gameComboBox->findText(lastLoaded);
             if (index != -1)
             {
               ui->gameComboBox->setCurrentIndex(index);

@@ -91,6 +91,8 @@ void USB2snes::onWebSocketDisconnected()
     sDebug() << "Websocket disconnected";
     changeState(None);
     m_istate = INone;
+    lastBinaryMessage = "";
+    lastTextMessage = "";
     emit disconnected();
 }
 
@@ -230,6 +232,7 @@ QByteArray USB2snes::getAddress(unsigned int addr, unsigned int size, Space spac
     requestedBinaryReadSize = size;
     QEventLoop  loop;
     QObject::connect(this, SIGNAL(binaryMessageReceived()), &loop, SLOT(quit()));
+    QObject::connect(this, SIGNAL(disconnected()), &loop, SLOT(quit()));
     loop.exec();
     requestedBinaryReadSize = 0;
     sDebug() << "Getting data,  size : " << lastBinaryMessage.size() << "- MD5 : " << QCryptographicHash::hash(lastBinaryMessage, QCryptographicHash::Md5).toHex();
