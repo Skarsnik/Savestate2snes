@@ -59,6 +59,7 @@ public:
 
     QPixmap     getScreenshot(QString name);
     QString     getScreenshotPath(QString name);
+    QString     getSavestatePath(QString name);
     GameInfos   gameInfos();
     void        setGameShortCut(quint16 save, quint16 load);
     virtual QByteArray  getScreenshotData() = 0;

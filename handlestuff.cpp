@@ -366,6 +366,11 @@ QString HandleStuff::getScreenshotPath(QString name)
     return QString();
 }
 
+QString HandleStuff::getSavestatePath(QString name)
+{
+    return catLoaded->path + "/" + name + ".svt";
+}
+
 GameInfos HandleStuff::gameInfos()
 {
     return m_gameInfo;

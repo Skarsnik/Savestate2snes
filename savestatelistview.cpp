@@ -25,9 +25,11 @@ bool SaveStateListView::viewportEvent(QEvent *event)
         {
             QAbstractItemModel* md = model();
             QStandardItemModel* model = static_cast<QStandardItemModel*>(md);
-            QString scPath = m_handleStuff->getScreenshotPath(model->itemFromIndex(index)->text());
+            QStandardItem* item = model->itemFromIndex(index);
+            QString scPath = m_handleStuff->getScreenshotPath(item->text());
+            QString path = m_handleStuff->getSavestatePath(item->text());
             if (!scPath.isEmpty())
-                QToolTip::showText(helpEvent->globalPos(), QString("<img src='%1'>").arg(scPath), this, QRect());
+                QToolTip::showText(helpEvent->globalPos(), QString("%1<br/><img src='%2'>").arg(path).arg(scPath), this, QRect());
         } else {
             QToolTip::hideText();
             event->ignore();
