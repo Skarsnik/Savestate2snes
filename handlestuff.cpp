@@ -361,7 +361,9 @@ QString HandleStuff::getScreenshotPath(QString name)
     {
         QByteArray data = saveFile.readAll();
         QString screenShotFile = QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex() + ".png";
-        return catLoaded->path + "/ScreenShots/" + screenShotFile;
+        if (QFileInfo::exists(catLoaded->path + "/ScreenShots/" + screenShotFile))
+            return catLoaded->path + "/ScreenShots/" + screenShotFile;
+        return QString();
     }
     return QString();
 }

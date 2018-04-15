@@ -21,18 +21,25 @@ bool SaveStateListView::viewportEvent(QEvent *event)
     {
         QHelpEvent* helpEvent = static_cast<QHelpEvent*>(event);
         QModelIndex index = indexAt(helpEvent->pos());
-        if (index.isValid() && m_handleStuff->hasScreenshots())
+        if (index.isValid())
         {
             QAbstractItemModel* md = model();
             QStandardItemModel* model = static_cast<QStandardItemModel*>(md);
             QStandardItem* item = model->itemFromIndex(index);
-            QString scPath = m_handleStuff->getScreenshotPath(item->text());
             QString path = m_handleStuff->getSavestatePath(item->text());
-            if (!scPath.isEmpty())
-                QToolTip::showText(helpEvent->globalPos(), QString("%1<br/><img src='%2'>").arg(path).arg(scPath), this, QRect());
+            if (m_handleStuff->hasScreenshots())
+            {
+                QString scPath = m_handleStuff->getScreenshotPath(item->text());
+                if (!scPath.isEmpty())
+                    QToolTip::showText(helpEvent->globalPos(), QString("%1<br/><img src='%2'>").arg(path).arg(scPath), this, QRect());
+                else
+                    QToolTip::showText(helpEvent->globalPos(), QString("%1").arg(path), this, QRect());
+            } else {
+                QToolTip::showText(helpEvent->globalPos(), QString("%1").arg(path), this, QRect());
+            }
         } else {
-            QToolTip::hideText();
-            event->ignore();
+                QToolTip::hideText();
+                event->ignore();
         }
         return true;
     }
