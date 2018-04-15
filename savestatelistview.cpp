@@ -3,6 +3,7 @@
 #include <QEvent>
 #include <QToolTip>
 #include <QHelpEvent>
+#include <QDebug>
 
 SaveStateListView::SaveStateListView(QWidget *parent) : QListView(parent)
 {

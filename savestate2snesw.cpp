@@ -34,6 +34,8 @@ Q_LOGGING_CATEGORY(log_MainUI, "MainUI")
 
 // < > : " / \ | ? *
 
+QStandardItem*   findCatItemPath(QStandardItem* item, QString toFind);
+
 Savestate2snesw::Savestate2snesw(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Savestate2snesw)
@@ -98,7 +100,54 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     addAction(ui->actionMake_a_savestate);
     ui->consoleSwitcher->start();
     ui->statusBar->showMessage(ui->consoleSwitcher->unreadyString());
+    if (m_settings->contains("lastCategoryLoaded"))
+    {
+        sDebug() << "Attempting to load the last categoryloaded" << m_settings->value("lastCategoryLoaded").toString();
+        QStandardItem* repRoot = repStateModel->invisibleRootItem();
+        QStandardItem* catFound = NULL;
+
+        if (repRoot != NULL)
+        {
+            if (repRoot->hasChildren())
+            {
+                for (unsigned int i = 0; i < repRoot->rowCount(); i++)
+                {
+                    QStandardItem *child = repRoot->child(i);
+                    if (child->data(MyRolePath).toString() == m_settings->value("lastCategoryLoaded").toString())
+                    {
+                        catFound = child;
+                        break;
+                    }
+                    catFound = findCatItemPath(child, m_settings->value("lastCategoryLoaded").toString());
+                }
+            }
+        }
+        if (catFound != NULL)
+        {
+            ui->categoryTreeView->expand(repStateModel->indexFromItem(catFound));
+            loadCategory(catFound);
+        }
+
+    }
 }
+
+QStandardItem*   findCatItemPath(QStandardItem* item, QString toFind)
+{
+    if (item->hasChildren())
+    {
+        for (unsigned int i = 0; i < item->rowCount(); i++)
+        {
+            QStandardItem *child = item->child(i);
+            if (child->data(MyRolePath).toString() == toFind)
+            {
+                return child;
+            }
+            return  findCatItemPath(child, toFind);
+        }
+    }
+    return NULL;
+}
+
 
 void Savestate2snesw::loadGames()
 {
@@ -449,7 +498,13 @@ void    Savestate2snesw::setStateTitle(QStandardItem* cat)
 void Savestate2snesw::on_categoryTreeView_clicked(const QModelIndex &index)
 {
     QStandardItem* cat = repStateModel->itemFromIndex(index);
+    loadCategory(cat);
+}
+
+void    Savestate2snesw::loadCategory(QStandardItem* cat)
+{
     sDebug() << "Category " << cat->text() << " selected";
+    m_settings->setValue("lastCategoryLoaded", cat->data(MyRolePath).toString());
     setStateTitle(cat);
     saveStateModel->clear();
     QStringList saveList = handleStuff->loadSaveStates(cat->data(MyRolePath).toString());
@@ -458,7 +513,6 @@ void Savestate2snesw::on_categoryTreeView_clicked(const QModelIndex &index)
         saveStateModel->invisibleRootItem()->appendRow(new QStandardItem(save));
     }
 }
-
 
 void Savestate2snesw::onSaveStateDelegateDataCommited(QWidget *e)
 {

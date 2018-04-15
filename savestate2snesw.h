@@ -115,6 +115,8 @@ private:
     void    setStateTitle(QStandardItem *cat);
     void    newSaveState(bool triggerSave);
     void    closeEvent(QCloseEvent *event);
+    void    loadCategory(QStandardItem *cat);
+    void    expandCategory(QStandardItem *cat);
 };
 
 #endif // SAVESTATE2SNESW_H
