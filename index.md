@@ -5,7 +5,8 @@ title: Savestate2snes
 
 Welcome to Savestate2snes webpage.
 
-Savestate2snes is a tool that let you create and manage savestates on your SNES console with a SD2SNES.
+Savestate2snes is a tool that let you create and manage savestates on your SNES console with a SD2SNES. It also
+support 'hacked' SNES classic with `hakchi2`
 
 It based on the USB2Snes firmware and software that allow to talk to a SNES Console using an USB cable.
 
@@ -20,17 +21,20 @@ It based on the USB2Snes firmware and software that allow to talk to a SNES Cons
 # Features
 
 * Apply the usb2snes savestate patch.
-* Allow to classify your Savestate on categories and subcategories
-* Translated to some language
+* Allow to classify your Savestates on categories and subcategories.
+* Translated to some language.
 * Allow to edit the controller shortcut to load and save savestate.
+* SNES classic support.
 
 # Download
 
 You can download the latest release [here](https://github.com/Skarsnik/Savestate2snes/releases/latest) It's a Windows 64 bits version.
 
-You will need the latest USB2Snes firmware and software that can find [here](https://github.com/RedGuyyyy/sd2snes/releases)
+For the SD2SNES support You will need the latest USB2Snes firmware and software that can find [here](https://github.com/RedGuyyyy/sd2snes/releases)
 
 # Tutorial
+
+## Real SNES or SFC
 
 Until a proper video tutorial is made, here some quick steps to start using Savestate2snes.
 
@@ -38,6 +42,7 @@ Until a proper video tutorial is made, here some quick steps to start using Save
 * Download Savestate2snes and extract it
 * You can put Savestate2snes folder on `usb2snes/apps` folder
 * Power on your console
+* Be sure to have in game hook activated on sd2snes
 * Start the usb2snes application
 * Start Savestate2snes from the client menu on usb2snes
 * Create a new game with the `New game` button
@@ -45,6 +50,23 @@ Until a proper video tutorial is made, here some quick steps to start using Save
 * Run your game (You can do that when you want)
 * When the `patch rom` button became available click on it
 * Load/Save/Make Savestate buttons should be available: You are good to go!
+
+## SNES Classic
+
+* Patch your SNES Classic with hakchi2, you can find it [here](https://github.com/ClusterM/hakchi2)
+* Download Savestate2snes and extract it
+* Start hakchi2
+* In the `tool` menu activate the telnet and ftp servers
+* Power on your console
+* Start Savestate2snes and choose a Savestate directory
+* Select the SNES Classic mode
+* Create a new game with the `New game` button
+* Right-click on the category view to add a category and click on it (you can do sub categories!)
+* Run the game you want to use Savestate2snes with
+* When the init button became available click on it and wait until the game restart
+* Load/Save/Make Savestate buttons should be available: You are good to go!
+* You will need to power off/on the console and restart Savestate2snes if you want to change game
+
 
 ## Notes
 
@@ -61,7 +83,8 @@ You can move them around if you want to move/copy savestate across categories bu
 
 ## Knows issues
 
-If you power on/off your console, there is a chance USB2SNES get lost (very likly on Windows 7) and will refuse for Savestate2snes to reconnect to it. You will have to restart usb2snes and savestate2snes.
+If you power on/off your console, there is a chance USB2SNES get lost (very likly on Windows 7) and will refuse for Savestate2snes to reconnect to it. You will have to restart usb2snes and savestate2snes
+and maybe replug the usb cable.
 
 
 ## Reporting bugs
