@@ -73,8 +73,7 @@ QString snesjoy2string(QByteArray input)
     maskToButton[0x0200] = "left";
     maskToButton[0x0400] = "down";
     maskToButton[0x0800] = "up";
-    quint16 nInput = (input.at(1) << 8) + input.at(0);
-    //qDebug() << input << QString::number(nInput, 16);
+    quint16 nInput = ((quint16) (input.at(1) << 8)) | ((quint16) input.at(0) & 0x00FF);
     QStringList inputs;
     foreach(quint16 mask, maskToButton.keys())
     {
