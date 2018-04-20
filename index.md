@@ -36,7 +36,7 @@ For the SD2SNES support You will need the latest USB2Snes firmware and software 
 
 ## Real SNES or SFC
 
-Until a proper video tutorial is made, here some quick steps to start using Savestate2snes.
+You can find a video tutorial [here](https://youtu.be/Rgk-7xFAvms), or follows these quick steps to start using Savestate2snes.
 
 * Get USB2SNES version 6 or later.
 * Download Savestate2snes and extract it
