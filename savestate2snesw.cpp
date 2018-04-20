@@ -96,8 +96,15 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
 
     //usb2snes->connect();
     setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion() + " - Multi");
+
+    // Actions
+    ui->actionMake_a_savestate->setEnabled(false);
+    ui->actionReload_last_savestate->setEnabled(false);
+    ui->actionSave_a_savestate->setEnabled(false);
     addAction(ui->actionReload_last_savestate);
     addAction(ui->actionMake_a_savestate);
+    addAction(ui->actionSave_a_savestate);
+
     ui->consoleSwitcher->start();
     ui->statusBar->showMessage(ui->consoleSwitcher->unreadyString());
     if (m_settings->contains("lastCategoryLoaded"))
@@ -543,6 +550,9 @@ void Savestate2snesw::saveStateModelReset()
 void Savestate2snesw::onReadyForSaveState()
 {
     sDebug() << "Ready for savestate";
+    ui->actionMake_a_savestate->setEnabled(true);
+    ui->actionReload_last_savestate->setEnabled(true);
+    ui->actionSave_a_savestate->setEnabled(true);
     ui->statusBar->showMessage(ui->consoleSwitcher->readyString());
     ui->addSaveStatePushButton->setEnabled(true);
     ui->loadStatePushButton->setEnabled(true);
@@ -562,6 +572,9 @@ void Savestate2snesw::onReadyForSaveState()
 void Savestate2snesw::onUnReadyForSaveState()
 {
     sDebug() << "Unready for savestate";
+    ui->actionMake_a_savestate->setEnabled(false);
+    ui->actionReload_last_savestate->setEnabled(false);
+    ui->actionSave_a_savestate->setEnabled(false);
     ui->statusBar->showMessage(ui->consoleSwitcher->unreadyString());
     ui->addSaveStatePushButton->setEnabled(false);
     ui->loadStatePushButton->setEnabled(false);
