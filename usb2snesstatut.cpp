@@ -26,10 +26,12 @@ Q_LOGGING_CATEGORY(log_usb2snesstatus, "USB2SNES Status")
 
 #define sDebug() qCDebug(log_usb2snesstatus())
 
-#define CHECK_ROMRUNNING_TICK 500
+#define CHECK_ROMRUNNING_TICK 1000
 #define STATUS_PIX_RED ":/status button red.png"
 #define STATUS_PIX_ORANGE ":/status button yellow.png"
 #define STATUS_PIX_GREEN ":/status button green.png"
+
+extern bool dontLogNext;
 
 
 USB2SnesStatut::USB2SnesStatut(QWidget *parent) :
@@ -187,7 +189,11 @@ bool USB2SnesStatut::isPatchedRom()
 
 void USB2SnesStatut::onTimerTick()
 {
+    dontLogNext = true;
+    // This flood the log too much
     QStringList infos = usb2snes->infos();
+    dontLogNext = false;
+    sDebug() << "tick infos : " << infos;
     if (infos.isEmpty())
         return ;
     if (infos.at(2) != "/sd2snes/menu.bin" && romRunning == false)
@@ -195,6 +201,7 @@ void USB2SnesStatut::onTimerTick()
         romRunning = true;
         menuRunning = false;
         onRomStarted();
+        timer.setInterval(CHECK_ROMRUNNING_TICK * 2);
     }
     if (infos.at(2) == "/sd2snes/menu.bin" && menuRunning == false)
     {
@@ -202,6 +209,7 @@ void USB2SnesStatut::onTimerTick()
         romRunning = false;
         menuRunning = true;
         buildStatusInfo();
+        timer.setInterval(CHECK_ROMRUNNING_TICK);
         emit unReadyForSaveState();
     }
 }

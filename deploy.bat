@@ -1,5 +1,5 @@
 @ECHO ON
-set projectPath=D:\Project\copy\Savestate2snes
+set projectPath=D:\Project\Savestate2snes
 set compilePath=D:\Project\compile\savestate2snes
 set deployPath=D:\Project\deploy\savestate2snes
 set originalBinDir=%compilePath%

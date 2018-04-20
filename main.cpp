@@ -25,12 +25,15 @@
 static QTextStream logfile;
 static QTextStream lowlogfile;
 static QTextStream cout(stdout);
+bool    dontLogNext = false;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
     QTextStream*    log = &logfile;
     //cout << msg;
+    if (dontLogNext)
+        return ;
     QString logString = QString("%6 %5 - %7: %1 \t(%2:%3, %4)").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).arg(context.category, 20).arg(QDateTime::currentDateTime().toString(Qt::ISODate));
     if (QString(context.category).left(8) == "LowLevel")
     {
