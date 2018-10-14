@@ -20,6 +20,7 @@ Q_LOGGING_CATEGORY(log_consoleSwitcher, "ConsoleSwitcher")
 
 #define HEXDUMPSTR "hexdump -v -e '32/1 \"%02X\" \"\\n\"' /dev/input/by-path/platform-twi.1-event-joystick"
 
+#define SNES_CLASSIC_IP "169.254.13.37"
 
 ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     QWidget(parent),
@@ -223,11 +224,11 @@ void ConsoleSwitcher::initUsb2snes()
 void ConsoleSwitcher::initSnesClassic()
 {
     sDebug() << "Init SNES Classic";
-    telnetCommandCo = new TelnetConnection("127.0.0.1", 1023, "root", "clover");
+    telnetCommandCo = new TelnetConnection(SNES_CLASSIC_IP, 23, "root", "clover");
     telnetCommandCo->debugName = "Command";
-    telnetCanoeCo = new TelnetConnection("127.0.0.1", 1023, "root", "clover");
+    telnetCanoeCo = new TelnetConnection(SNES_CLASSIC_IP, 23, "root", "clover");
     telnetCanoeCo->debugName = "Canoe";
-    telnetInputCo = new TelnetConnection("127.0.0.1", 1023, "root", "clover");
+    telnetInputCo = new TelnetConnection(SNES_CLASSIC_IP, 23, "root", "clover");
     telnetInputCo->debugName = "Input";
     telnetInputCo->setOneCommandMode(true);
     miniFTP = new MiniFtp(this);

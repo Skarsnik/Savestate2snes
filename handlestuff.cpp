@@ -64,7 +64,7 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
     {
         Category* root = new Category();
         saveDirectory.cd(game);
-        root->parent = NULL;
+        root->parent = nullptr;
         categoriesByPath[saveDirectory.absolutePath()] = root;
         findCategory(root, saveDirectory);
         saveDirectory.cdUp();
@@ -79,8 +79,13 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
     {
         sDebug() << "Game has file info";
         QSettings file(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS, QSettings::IniFormat);
-        m_gameInfo.loadShortcut = file.value("_/loadShortcut").toString().toUInt(NULL, 16);
-        m_gameInfo.saveShortcut = file.value("_/saveShortcut").toString().toUInt(NULL, 16);
+        bool ok;
+        m_gameInfo.loadShortcut = file.value("_/loadShortcut").toString().toUInt(&ok, 16);
+        if (!ok)
+            m_gameInfo.loadShortcut = 0;
+        m_gameInfo.saveShortcut = file.value("_/saveShortcut").toString().toUInt(&ok, 16);
+        if (!ok)
+            m_gameInfo.saveShortcut = 0;
         m_gameInfo.name = file.value("_/game").toString();
         sDebug() << "Shortcuts are : (s/l)" << QString::number(m_gameInfo.saveShortcut, 16) << QString::number(m_gameInfo.loadShortcut, 16);
 

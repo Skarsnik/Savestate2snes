@@ -73,7 +73,7 @@ QString snesjoy2string(QByteArray input)
     maskToButton[0x0200] = "left";
     maskToButton[0x0400] = "down";
     maskToButton[0x0800] = "up";
-    quint16 nInput = ((quint16) (input.at(1) << 8)) | ((quint16) input.at(0) & 0x00FF);
+    quint16 nInput = ((quint16) ((static_cast<uchar>(input.at(1)) << 8)) | ((quint16) static_cast<uchar>(input.at(0)) & 0x00FF));
     QStringList inputs;
     foreach(quint16 mask, maskToButton.keys())
     {
@@ -136,7 +136,12 @@ void    USB2SnesStatut::romPatched()
 void USB2SnesStatut::on_patchROMpushButton_clicked()
 {
     timer.stop();
-    if (usb2snes->patchROM(qApp->applicationDirPath() + "/Patches/savestate.ips"))
+    QString patchFile;
+    if (usb2snes->firmwareVersion() < QVersionNumber(8))
+        patchFile = "savestatev7.ips";
+    else
+        patchFile = "savestatev8.ips";
+    if (usb2snes->patchROM(qApp->applicationDirPath() + "/Patches/" + patchFile))
         romPatched();
     timer.start(CHECK_ROMRUNNING_TICK);
 }

@@ -3,6 +3,7 @@
 
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QStyle>
 
 FirstTimeDialog::FirstTimeDialog(QWidget *parent) :
     QDialog(parent),

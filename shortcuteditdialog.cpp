@@ -29,7 +29,8 @@ ShortcutEditDialog::ShortcutEditDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ShortcutEditDialog)
 {
-
+    m_loadShortcut = 0;
+    m_saveShortcut = 0;
 }
 
 ShortcutEditDialog::ShortcutEditDialog(QWidget *parent, quint16 save, quint16 load) :
@@ -111,13 +112,14 @@ void    ShortcutEditDialog::setLabels()
 void ShortcutEditDialog::onControllerGroupToggled(int id, bool checked)
 {
     QStringList inputs;
+    quint16 uId = static_cast<quint16>(id);
 
-    qDebug() << maskToButton[(quint16)id] << checked;
+    qDebug() << maskToButton[static_cast<quint16>(id)] << checked;
     quint16&    shortcut = ui->loadRadioButton->isChecked() ? m_loadShortcut : m_saveShortcut;
     if (checked)
-        shortcut = shortcut | ((quint16) id);
+        shortcut = shortcut | uId;
     else
-        shortcut = (shortcut ^ (quint16) id) & shortcut;
+        shortcut = static_cast<quint16>(shortcut ^ uId) & shortcut;
     foreach(quint16 mask, maskToButton.keys())
     {
         if ((mask & shortcut) == mask)

@@ -64,7 +64,7 @@ quint16 HandleStuffUsb2snes::shortcutSave()
 {
     QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
     sDebug() << "Shortcut save from usb2snes" << saveButton;
-    quint16 toret = (saveButton.at(1) << 8) + saveButton.at(0);
+    quint16 toret = (static_cast<uchar>(saveButton.at(1)) << 8) + static_cast<uchar>(saveButton.at(0));
     return toret;
 }
 
@@ -72,7 +72,7 @@ quint16 HandleStuffUsb2snes::shortcutLoad()
 {
     QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
     sDebug() << "Shortcut load from usb2snes" << loadButton;
-    quint16 toret = (loadButton.at(1) << 8) + loadButton.at(0);
+    quint16 toret = (static_cast<uchar>(loadButton.at(1)) << 8) + static_cast<uchar>(loadButton.at(0));
     return toret;
 }
 
@@ -85,8 +85,8 @@ void HandleStuffUsb2snes::setShortcutLoad(quint16 shortcut)
 {
     QByteArray data;
     data.resize(2);
-    data[0] = shortcut & 0x00FF;
-    data[1] = shortcut >> 8;
+    data[0] = static_cast<char>(shortcut & 0x00FF);
+    data[1] = static_cast<char>(shortcut >> 8);
     usb2snes->setAddress(0xFC2004, data);
 }
 
@@ -94,8 +94,8 @@ void HandleStuffUsb2snes::setShortcutSave(quint16 shortcut)
 {
     QByteArray data;
     data.resize(2);
-    data[0] = shortcut & 0x00FF;
-    data[1] = shortcut >> 8;
+    data[0] = static_cast<char>(shortcut & 0x00FF);
+    data[1] = static_cast<char>(shortcut >> 8);
     usb2snes->setAddress(0xFC2002, data);
 }
 

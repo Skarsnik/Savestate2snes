@@ -1,9 +1,9 @@
 @ECHO ON
-set projectPath=D:\Project\Savestate2snes
-set compilePath=D:\Project\compile\savestate2snes
-set deployPath=D:\Project\deploy\savestate2snes
+set projectPath=F:\Project\Savestate2snes
+set compilePath=F:\Project\compile\savestate2snes
+set deployPath=F:\Project\deploy\savestate2snes
 set originalBinDir=%compilePath%
-set vscdll=D:\Visual Studio\VC\Redist\MSVC\14.12.25810\x64\Microsoft.VC141.CRT\msvcp140.dll
+set vscdll=F:\Visual Studio\VC\Redist\MSVC\14.12.25810\x64\Microsoft.VC141.CRT\msvcp140.dll
 
 rmdir /Q /S %compilePath%
 mkdir %compilePath%
