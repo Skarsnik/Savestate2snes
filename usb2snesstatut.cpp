@@ -113,6 +113,12 @@ void USB2SnesStatut::onRomStarted()
     sDebug() << "Rom started";
     QString text = usb2snes->infos().at(2);
     ui->romNameLabel->setText(text);
+    if (usb2snes->firmwareVersion().majorVersion() == 8)
+    {
+        ui->romPatchedLabel->setText(tr("Running USB2Snes V8, can't know if patched ROM"));
+        ui->patchROMpushButton->setEnabled(true);
+        return;
+    }
     if (!isPatchedRom())
     {
         ui->romPatchedLabel->setText(tr("ROM is not patched for savestate"));
@@ -185,6 +191,12 @@ bool USB2SnesStatut::validVersion()
 bool USB2SnesStatut::isPatchedRom()
 {
     sDebug() << "Checking for patched rom";
+    /*if (usb2snes->firmwareVersion() > QVersionNumber(7))
+    {
+        QByteArray data = usb2snes->getAddress(0xFC2000, 15, USB2snes::SNES);
+        QByteArray cmpv8 = QByteArray::fromHex("0101102020200000000000000000");
+        return data == cmpv8;
+    }*/
     QByteArray data = usb2snes->getAddress(0x2A90, 1, USB2snes::CMD);
     if (data[0] != (char) 0x60)
         return true;
@@ -270,5 +282,9 @@ void USB2SnesStatut::on_pushButton_clicked()
 
 void USB2SnesStatut::on_statusPushButton_clicked()
 {
+    if (usb2snes->state() == USB2snes::None)
+    {
+        usb2snes->connect();
+    }
     QToolTip::showText(ui->statusPushButton->mapToGlobal(QPoint(0,0)), ui->statusPushButton->toolTip(), ui->statusPushButton, QRect(), 5000);
 }
