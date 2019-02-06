@@ -1,7 +1,7 @@
 @ECHO ON
 set projectPath=F:\Project\Savestate2snes
 set compilePath=F:\Project\compile\savestate2snes
-set deployPath=F:\Project\deploy\savestate2snes
+set deployPath=F:\Project\deploy\Savestate2snes
 set originalBinDir=%compilePath%
 set vscdll=F:\Visual Studio\VC\Redist\MSVC\14.12.25810\x64\Microsoft.VC141.CRT\msvcp140.dll
 
@@ -11,7 +11,7 @@ rmdir /Q /S %deployPath%
 mkdir %deployPath%
 :: Compile
 
-::"D:\Visual Studio\VC\Auxiliary\Build\vcvarsall.bat" amd64
+::"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
 mkdir %compilePath%
 cd %compilePath%
@@ -31,6 +31,7 @@ rmdir /Q /S %deployPath%\imageformats
 del %deployPath%\opengl32sw.dll
 del %deployPath%\libEGL.dll
 del %deployPath%\libGLESV2.dll
+del %deployPath%\vc_redist.x64.exe
 
 xcopy /y "%vscdll%" %deployPath%
 
@@ -47,6 +48,7 @@ xcopy /y %projectPath%\Translations\savestate2snes_nl.qm %deployPath%\i18n
 
 xcopy /y %projectPath%\License-GPL3.txt %deployPath%
 xcopy /i /y %projectPath%\README.md %deployPath%\Readme.txt
+xcopy /y %projectPath%\icon64x64.png %deployPath%\icone.png
 
 
 cd %projectPath%
