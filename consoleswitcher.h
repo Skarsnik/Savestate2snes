@@ -2,11 +2,10 @@
 #define CONSOLESWITCHER_H
 
 #include "usb2snes.h"
-#include "snesclassicstuff/desktopclient/telnetconnection.h"
-#include "snesclassicstuff/desktopclient/miniftp.h"
 #include "handlestuff.h"
 #include "handlestuffsnesclassic.h"
 #include "handlestuffusb2snes.h"
+#include "stuffclient.h"
 
 
 #include <QWidget>
@@ -27,7 +26,7 @@ public:
         SNESClassic
     };
     Q_ENUMS(Mode)
-    explicit ConsoleSwitcher(QWidget *parent = 0);
+    explicit ConsoleSwitcher(QWidget *parent = nullptr);
     HandleStuff*    getHandle();
     void            start();
     Mode            mode();
@@ -46,7 +45,7 @@ signals:
 private slots:
     void    on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton);
     void    on_snesClassicInputDecoderButtonReleased(InputDecoder::SNESButton);
-    void    on_snesClassicInputCoReturnNewLine(QByteArray);
+    void    on_snesClassicInputNewData(QByteArray data);
     void    on_snesClassicInputConnected();
     void    on_snesClassicShortcutsToggled(bool toggled);
     void    on_snesClassicReadyForSaveState();
@@ -60,13 +59,11 @@ private:
 
     Mode                    m_mode;
     USB2snes*               usb2snes;
-    TelnetConnection*       telnetCommandCo;
-    TelnetConnection*       telnetCanoeCo;
-    TelnetConnection*       telnetInputCo;
+    StuffClient*            stuffControlCo;
+    StuffClient*            stuffInput;
     InputDecoder*           snesClassicInputDecoder;
     HandleStuffSnesClassic* handleSNESClassic;
     HandleStuffUsb2snes*    handleUSB2Snes;
-    MiniFtp*                miniFTP;
     QSettings*              m_settings;
     QList<int>              snesClassicButtonPressed;
     QMap<int, int>          mapEnumToSNES;

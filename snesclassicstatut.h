@@ -2,10 +2,11 @@
 #define SNESCLASSICSTATUT_H
 
 #include <QSettings>
+#include <QTcpSocket>
 #include <QTimer>
 #include <QWidget>
-#include "snesclassicstuff/desktopclient/telnetconnection.h"
-#include "snesclassicstuff/desktopclient/miniftp.h"
+
+#include "stuffclient.h"
 
 namespace Ui {
 class SNESClassicStatut;
@@ -16,10 +17,9 @@ class SNESClassicStatut : public QWidget
     Q_OBJECT
 
 public:
-    explicit SNESClassicStatut(QWidget *parent = 0);
+    explicit SNESClassicStatut(QWidget *parent = nullptr);
     ~SNESClassicStatut();
-    void    setCommandCo(TelnetConnection* telco, TelnetConnection *canoe);
-    void    setFtp(MiniFtp* ftp);
+    void    setStuff(StuffClient* co);
     QString readyString() const;
     QString unreadyString() const;
     void    stop();
@@ -35,27 +35,20 @@ signals:
 private slots:
     void    onCanoeStarted();
     void    onCanoeStopped();
-    void    onCommandCoConnected();
-    void    onCommandCoDisconnected();
-    void    onCommandCoError(TelnetConnection::ConnectionError);
+    void    onClientConnected();
+    void    onClientDisconnected();
     void    onTimerTick();
-    void    onMiniFTPConnected();
-    void    onMiniFTPDisconnected();
-
     void    on_iniButton_clicked();
 
     void    on_shortcutCheckBox_toggled(bool checked);
 
 private:
     Ui::SNESClassicStatut   *ui;
-    TelnetConnection        *cmdCo;
-    TelnetConnection        *canoeCo;
-    TelnetConnection        *inputCo;
-    MiniFtp                 *miniFtp;
+    StuffClient*            controlCo;
+    StuffClient*            inputCo;
     QString                 firstCanoeRun;
     QTimer                  timer;
     bool                    canoeRunning;
-    bool                    ftpReady;
     QSettings*              m_settings;
 
     bool checkForReady();

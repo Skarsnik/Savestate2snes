@@ -4,6 +4,8 @@
 #include <QLoggingCategory>
 #include <QThread>
 
+#define CLOVERSAVESTATEPATH "/tmp/savestate2snes.svt"
+
 Q_LOGGING_CATEGORY(log_SNESClassicstatut, "SNESClassicStatut")
 
 #define sDebug() qCDebug(log_SNESClassicstatut)
@@ -14,29 +16,23 @@ SNESClassicStatut::SNESClassicStatut(QWidget *parent) :
 {
     ui->setupUi(this);
     canoeRunning = false;
-    ftpReady = false;
     m_settings = new QSettings("skarsnik.nyo.fr", "SaveState2SNES");
     connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));
     connect(this, SIGNAL(canoeStarted()), this, SLOT(onCanoeStarted()));
     connect(this, SIGNAL(canoeStopped()), this, SLOT(onCanoeStopped()));
-    ui->ftpStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
-    ui->telnetStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
+    ui->coStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
     ui->shortcutCheckBox->setChecked(m_settings->value("SNESClassicShortcuts").toBool());
 }
 
 void SNESClassicStatut::onTimerTick()
 {
+    sDebug() << "Timer tick";
     //timer.stop();
     if (!checkForReady())
     {
         sDebug() << "Not ready";
-        if (miniFtp->state() != MiniFtp::Connected)
-            miniFtp->connect();
-        if (!(cmdCo->state() == TelnetConnection::Ready || cmdCo->state() == TelnetConnection::Connected))
-        {
-            sDebug() << "Command co not connected, trying to reconnect" << cmdCo->state();
-            cmdCo->conneect();
-        }
+        if (!controlCo->isConnected())
+            controlCo->connect();
         timer.start(1000);
     }
     else
@@ -44,27 +40,12 @@ void SNESClassicStatut::onTimerTick()
 
 }
 
-void SNESClassicStatut::onMiniFTPConnected()
-{
-    sDebug() << "MiniFTP connected";
-    ui->ftpStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
-    checkForReady();
-}
-
-void SNESClassicStatut::onMiniFTPDisconnected()
-{
-    sDebug() << "MiniFTP disconnected";
-    ui->ftpStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
-}
-
 bool SNESClassicStatut::checkForReady()
 {
-    if (miniFtp->state() != MiniFtp::Connected)
-        return false;
-    if (cmdCo->state() == TelnetConnection::Ready || cmdCo->state() == TelnetConnection::Connected)
+    if (controlCo->isConnected())
     {
         sDebug() << "Checking for canoe running";
-        QByteArray result = cmdCo->syncExecuteCommand("pidof canoe-shvc > /dev/null && echo 1 || echo 0");
+        QByteArray result = controlCo->waitForCommand("pidof canoe-shvc > /dev/null && echo 1 || echo 0");
         bool oldcr = canoeRunning;
         sDebug() << "Is canoerunning?" << canoeRunning;
         //sDebug() << result << result.trimmed();
@@ -89,22 +70,14 @@ SNESClassicStatut::~SNESClassicStatut()
     delete ui;
 }
 
-void    SNESClassicStatut::setCommandCo(TelnetConnection *telco, TelnetConnection *canoe)
+void SNESClassicStatut::setStuff(StuffClient *co)
 {
-    cmdCo = telco;
-    canoeCo = canoe;
-    connect(cmdCo, SIGNAL(connectionError(TelnetConnection::ConnectionError)), this, SLOT(onCommandCoError(TelnetConnection::ConnectionError)));
-    connect(cmdCo, SIGNAL(disconnected()), this, SLOT(onCommandCoDisconnected()));
-    connect(cmdCo, SIGNAL(connected()), this, SLOT(onCommandCoConnected()));
+    controlCo = co;
+    connect(controlCo, &StuffClient::connected, this, &SNESClassicStatut::onClientConnected);
+    connect(controlCo, &StuffClient::disconnected, this, &SNESClassicStatut::onClientDisconnected);
     timer.start(2000);
 }
 
-void SNESClassicStatut::setFtp(MiniFtp *ftp)
-{
-    miniFtp = ftp;
-    connect(miniFtp, SIGNAL(connected()), this, SLOT(onMiniFTPConnected()));
-    connect(miniFtp, SIGNAL(disconnected()), this, SLOT(onMiniFTPDisconnected()));
-}
 
 QString SNESClassicStatut::readyString() const
 {
@@ -128,7 +101,7 @@ void SNESClassicStatut::start()
 
 void SNESClassicStatut::onCanoeStarted()
 {
-    QByteArray ba = cmdCo->syncExecuteCommand("ps | grep canoe | grep -v grep");
+    QByteArray ba = controlCo->waitForCommand("ps | grep canoe | grep -v grep");
     QString result = ba.trimmed();
     QString canoeStr = result.mid(result.indexOf("canoe"));
     QStringList canoeArgs = canoeStr.split(" ");
@@ -140,7 +113,11 @@ void SNESClassicStatut::onCanoeStarted()
     ui->romNameLabel->setText(canoeArgs.at(canoeArgs.indexOf("-rom") + 1));
     timer.stop();
     ui->iniButton->setEnabled(true);
-        //emit readyForSaveState();
+    if (canoeArgs.indexOf(CLOVERSAVESTATEPATH))
+    {
+        emit readyForSaveState();
+        ui->coStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
+    }
 }
 
 void SNESClassicStatut::onCanoeStopped()
@@ -149,23 +126,16 @@ void SNESClassicStatut::onCanoeStopped()
     emit unReadyForSaveState();
 }
 
-void SNESClassicStatut::onCommandCoConnected()
+void SNESClassicStatut::onClientConnected()
 {
-    sDebug() << "Command co connected";
-    ui->telnetStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
-    //checkForReady();
+    sDebug() << "Control co connected";
+    checkForReady();
 }
 
-void SNESClassicStatut::onCommandCoDisconnected()
+void SNESClassicStatut::onClientDisconnected()
 {
-    sDebug() << "Command co disconnected";
-    ui->telnetStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
-    emit unReadyForSaveState();
-}
-
-void SNESClassicStatut::onCommandCoError(TelnetConnection::ConnectionError)
-{
-    emit unReadyForSaveState();
+    sDebug() << "Control co discconnected";
+    unReadyForSaveState();
 }
 
 
@@ -177,13 +147,13 @@ void SNESClassicStatut::on_iniButton_clicked()
 {
     if (!firstCanoeRun.isEmpty())
     {
-        cmdCo->syncExecuteCommand("kill -9 `pidof canoe-shvc`");
+        controlCo->waitForCommand("kill -9 `pidof canoe-shvc`");
         QThread::usleep(200);
-        canoeCo->executeCommand(firstCanoeRun);
+        controlCo->detachedCommand(firstCanoeRun.toLatin1());
         return ;
     }
 
-    QByteArray ba = cmdCo->syncExecuteCommand("ps | grep canoe | grep -v grep");
+    QByteArray ba = controlCo->waitForCommand("ps | grep canoe | grep -v grep");
     QString result = ba.trimmed();
     QString canoeStr = result.mid(result.indexOf("canoe-shvc"));
     sDebug() << "Init pressed - Canoe Str : " << canoeStr;
@@ -194,6 +164,7 @@ ready:
         firstCanoeRun = canoeRun.join(" ") + " 2>/dev/null";
         emit readyForSaveState();
         ui->iniButton->setText(tr("Reset", "Reset canoe run"));
+        ui->coStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
         return ;
     }
     QStringList optArgToremove;
@@ -212,10 +183,10 @@ ready:
     int i = canoeRun.indexOf("--enable-sram-file-hash");
     if (i != -1)
         canoeRun.removeAt(i);
-    QString canoePid = cmdCo->syncExecuteCommand("pidof canoe-shvc").trimmed();
-    cmdCo->syncExecuteCommand(QString("kill -%1 `pidof canoe-shvc`").arg(2));
-    cmdCo->syncExecuteCommand("test -e /tmp/plop || (sleep 1 && kill -2 `pidof ReedPlayer-Clover` && touch /tmp/plop)");
-    cmdCo->syncExecuteCommand("wait " + canoePid);
+    QString canoePid = controlCo->waitForCommand("pidof canoe-shvc").trimmed();
+    controlCo->waitForCommand(QString("kill -%1 `pidof canoe-shvc`").arg(2).toLatin1());
+    controlCo->waitForCommand("test -e /tmp/plop || (sleep 1 && kill -2 `pidof ReedPlayer-Clover` && touch /tmp/plop)");
+    controlCo->waitForCommand("wait " + canoePid.toLatin1());
     canoeRun.append("--save-on-quit");
     canoeRun.append(CLOVERSAVESTATEPATH);
     int sshot = canoeRun.indexOf("--save-screenshot-on-quit");
@@ -223,7 +194,7 @@ ready:
     canoeRun.removeAt(sshot);
     canoeRun << "--save-screenshot-on-quit" << SCREENSHOTPATH;
     QThread::sleep(2);
-    canoeCo->executeCommand(canoeRun.join(" ") + " 2>/dev/null");
+    controlCo->detachedCommand(QString(canoeRun.join(" ") + " 2>/dev/null").toLatin1());
     goto ready;
 }
 

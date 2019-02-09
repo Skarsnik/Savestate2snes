@@ -20,15 +20,12 @@ SOURCES = main.cpp\
     firsttimedialog.cpp \
     shortcuteditdialog.cpp \
     handlestuffusb2snes.cpp \
-    snesclassicstuff/desktopclient/miniftp.cpp \
-    snesclassicstuff/desktopclient/telnetconnection.cpp \
     snesclassicstuff/desktopclient/inputdecoder.cpp \
     snesclassicstatut.cpp \
     handlestuffsnesclassic.cpp \
-    snesclassicstuff/qtftp/src/qftp/qftp.cpp \
-    snesclassicstuff/qtftp/src/qftp/qurlinfo.cpp \
     consoleswitcher.cpp \
-    savestatelistview.cpp
+    savestatelistview.cpp \
+    stuffclient.cpp
 
 HEADERS  = savestate2snesw.h \
     handlestuff.h \
@@ -37,15 +34,12 @@ HEADERS  = savestate2snesw.h \
     firsttimedialog.h \
     shortcuteditdialog.h \
     handlestuffusb2snes.h \
-    snesclassicstuff/desktopclient/miniftp.h \
-    snesclassicstuff/desktopclient/telnetconnection.h \
     snesclassicstuff/desktopclient/inputdecoder.h \
     snesclassicstatut.h \
     handlestuffsnesclassic.h \
-    snesclassicstuff/qtftp/src/qftp/qftp.h \
-    snesclassicstuff/qtftp/src/qftp/qurlinfo.h \
     consoleswitcher.h \
-    savestatelistview.h
+    savestatelistview.h \
+    stuffclient.h
 
 FORMS    = savestate2snesw.ui \
     usb2snesstatut.ui \

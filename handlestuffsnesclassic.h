@@ -2,15 +2,13 @@
 #define HANDLESTUFFSNESCLASSIC_H
 
 #include "handlestuff.h"
-
-#include <snesclassicstuff/desktopclient/miniftp.h>
-#include <snesclassicstuff/desktopclient/telnetconnection.h>
+#include "stuffclient.h"
 
 class HandleStuffSnesClassic : public HandleStuff
 {
 public:
     HandleStuffSnesClassic();
-    void            setCommandCo(TelnetConnection* co, TelnetConnection *canoe);
+    void            setControlCo(StuffClient* client);
     void            setShortcutLoad(quint16 shortcut);
     void            setShortcutSave(quint16 shortcut);
     QByteArray      getScreenshotData();
@@ -27,9 +25,7 @@ protected:
 
 
 private:
-    TelnetConnection*       telCo;
-    TelnetConnection*       canoeCo;
-    MiniFtp*                ftpCo;
+    StuffClient*            controlCo;
     QByteArray              lastLoadMD5;
     quint16                 saveShortcut;
     quint16                 loadShortcut;
@@ -37,7 +33,7 @@ private:
     void        runCanoe(QStringList canoeArgs);
     QStringList getCanoeExecution();
     void        killCanoe(int signal);
-    void removeCanoeUnnecessaryArg(QStringList &canoeRun);
+    void        removeCanoeUnnecessaryArg(QStringList &canoeRun);
     QByteArray  mySaveState(bool trigger, bool noGet);
     void        myLoadState(QByteArray data, bool noPut);
 };

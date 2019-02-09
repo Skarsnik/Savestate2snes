@@ -1,3 +1,4 @@
+#include <QCryptographicHash>
 #include <QLoggingCategory>
 #include <QThread>
 #include "handlestuffsnesclassic.h"
@@ -14,14 +15,20 @@ Q_LOGGING_CATEGORY(log_handleSNESClassic, "HSSnesClassic")
 
 HandleStuffSnesClassic::HandleStuffSnesClassic()
 {
-    ftpCo = new MiniFtp();
     loadShortcut = 0;
     saveShortcut = 0;
 }
 
+void HandleStuffSnesClassic::setControlCo(StuffClient *client)
+{
+    controlCo = client;
+}
+
 QStringList HandleStuffSnesClassic::getCanoeExecution()
 {
-    QByteArray ba = telCo->syncExecuteCommand("ps | grep canoe | grep -v grep");
+    QByteArray ba = controlCo->waitForCommand("ps | grep canoe | grep -v grep");
+    sDebug() << ba;
+    ba.replace(static_cast<char>(0), "");
     QString result = ba.trimmed();
     QString canoeStr = result.mid(result.indexOf("canoe-shvc"));
     sDebug() << "Canoe Str : " << canoeStr;
@@ -31,16 +38,16 @@ QStringList HandleStuffSnesClassic::getCanoeExecution()
 
 void    HandleStuffSnesClassic::killCanoe(int signal = 2)
 {
-    QString canoePid = telCo->syncExecuteCommand("pidof canoe-shvc").trimmed();
-    telCo->syncExecuteCommand(QString("kill -%1 `pidof canoe-shvc`").arg(signal));
-    telCo->syncExecuteCommand("test -e /tmp/plop || (sleep 1 && kill -2 `pidof ReedPlayer-Clover` && touch /tmp/plop)");
-    telCo->syncExecuteCommand("wait " + canoePid);
+    QString canoePid = controlCo->waitForCommand("pidof canoe-shvc").trimmed();
+    controlCo->waitForCommand(QString("kill -%1 `pidof canoe-shvc`").arg(signal).toLatin1());
+    controlCo->waitForCommand("test -e /tmp/plop || (sleep 1 && kill -2 `pidof ReedPlayer-Clover` && touch /tmp/plop)");
+    controlCo->waitForCommand("wait " + canoePid.toLatin1());
 }
 
 void    HandleStuffSnesClassic::runCanoe(QStringList canoeArgs)
 {
     sDebug() << "Running canoe : " << canoeArgs;
-    canoeCo->executeCommand(canoeArgs.join(" ") + " 2>/dev/null");
+    controlCo->detachedCommand(canoeArgs.join(" ").toLatin1() + " 2>/dev/null");
 }
 
 void    HandleStuffSnesClassic::removeCanoeUnnecessaryArg(QStringList &canoeRun)
@@ -69,7 +76,7 @@ QByteArray HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
     QByteArray toret;
     if (trigger == false && noGet == false)
     {
-        toret = ftpCo->get(CLOVERSAVESTATEPATH);
+        toret = controlCo->getFile(CLOVERSAVESTATEPATH);
         return toret;
     }
     QStringList canoeRun = getCanoeExecution();
@@ -118,13 +125,13 @@ QByteArray HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
     }
     sDebug() << "Killing canoe to restart";
     killCanoe();
-    /*telCo->syncExecuteCommand(QString("cp %1 %2 && cd %2/../ && tar czf /tmp/rollback.tar.gz rollback/ && cd ~/").arg(fileSavePath).arg(rollbackDir));
+    /*controlCo->waitForCommand(QString("cp %1 %2 && cd %2/../ && tar czf /tmp/rollback.tar.gz rollback/ && cd ~/").arg(fileSavePath).arg(rollbackDir));
     if (rollbackDir != "/tmp/rollback/")
-        telCo->syncExecuteCommand("cp -r " + rollbackDir + "/* /tmp/rollback/");*/
+        controlCo->waitForCommand("cp -r " + rollbackDir + "/* /tmp/rollback/");*/
     QThread::msleep(200);
-    telCo->syncExecuteCommand("ls -l " + QString(CLOVERSAVESTATEPATH));
+    controlCo->waitForCommand("ls -l " + QByteArray(CLOVERSAVESTATEPATH));
     if (noGet == false)
-        toret = ftpCo->get(CLOVERSAVESTATEPATH);
+        toret = controlCo->getFile(CLOVERSAVESTATEPATH);
     if (canoeRun.indexOf("-resume") == -1)
     {
         canoeRun.append("-resume");
@@ -181,7 +188,7 @@ void HandleStuffSnesClassic::myLoadState(QByteArray data, bool noPut)
         canoeRun.append(CLOVERSAVESTATEPATH);
     }
     if (noPut == false && lastLoadMD5 != QCryptographicHash::hash(data, QCryptographicHash::Md5))
-        ftpCo->put(CLOVERSAVESTATEPATH, data);
+        controlCo->sendFile(CLOVERSAVESTATEPATH, data);
     lastLoadMD5 = QCryptographicHash::hash(data, QCryptographicHash::Md5);
     runCanoe(canoeRun);
 }
@@ -206,12 +213,6 @@ void HandleStuffSnesClassic::controllerLoadState()
     myLoadState(QByteArray(), true);
 }
 
-void HandleStuffSnesClassic::setCommandCo(TelnetConnection *co, TelnetConnection *canoe)
-{
-    telCo = co;
-    canoeCo = canoe;
-}
-
 void HandleStuffSnesClassic::setShortcutLoad(quint16 shortcut)
 {
     loadShortcut = shortcut;
@@ -224,7 +225,7 @@ void HandleStuffSnesClassic::setShortcutSave(quint16 shortcut)
 
 QByteArray HandleStuffSnesClassic::getScreenshotData()
 {
-    return ftpCo->get(SCREENSHOTPATH);
+    return controlCo->getFile(SCREENSHOTPATH);
 }
 
 quint16 HandleStuffSnesClassic::shortcutLoad()

@@ -31,7 +31,8 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     QString mode = m_settings->value("mode").toString();
     snesClassicInit = false;
     usb2snesInit = false;
-    telnetInputCo = NULL;
+    stuffControlCo = nullptr;
+    stuffInput = nullptr;
     sDebug() << "Mode is " << mode;
     if (mode == "USB2Snes" || mode.isEmpty())
     {
@@ -87,11 +88,9 @@ void ConsoleSwitcher::start()
         usb2snes->connect();
     if (m_mode == SNESClassic)
     {
-        telnetCommandCo->conneect();
-        telnetCanoeCo->conneect();
-        miniFTP->connect();
+        stuffControlCo->connect();
         if (m_settings->value("SNESClassicShortcuts").toBool())
-            telnetInputCo->conneect();
+            stuffInput->connect();
     }
 }
 
@@ -129,9 +128,6 @@ ConsoleSwitcher::~ConsoleSwitcher()
     {
         m_settings->setValue("mode", "SNESClassic");
         cleanUpSNESClassic();
-        /*delete telnetCommandCo;
-        delete telnetCanoeCo;
-        //delete miniFTP;*/
     }
     qDebug() << "DELETE UI";
     delete ui;
@@ -146,13 +142,13 @@ void ConsoleSwitcher::refreshShortcuts()
 void ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton but)
 {
     snesClassicButtonPressed.append(but);
-    //sDebug() << snesClassicButtonPressed.size();
+    sDebug() << snesClassicButtonPressed.size();
     int currentInput = 0;
     foreach(int button, snesClassicButtonPressed)
     {
         currentInput = currentInput | mapEnumToSNES[button];
     }
-    //sDebug() << QString::number(currentInput, 16) << QString::number(handleSNESClassic->shortcutLoad(), 16) << QString::number(handleSNESClassic->shortcutSave(), 16);
+    sDebug() << QString::number(currentInput, 16) << QString::number(handleSNESClassic->shortcutLoad(), 16) << QString::number(handleSNESClassic->shortcutSave(), 16);
     if (currentInput == handleSNESClassic->shortcutLoad())
         handleSNESClassic->controllerLoadState();
     if (currentInput == handleSNESClassic->shortcutSave())
@@ -164,15 +160,15 @@ void ConsoleSwitcher::on_snesClassicInputDecoderButtonReleased(InputDecoder::SNE
     snesClassicButtonPressed.removeAll(but);
 }
 
-void ConsoleSwitcher::on_snesClassicInputCoReturnNewLine(QByteArray data)
+void ConsoleSwitcher::on_snesClassicInputNewData(QByteArray data)
 {
-    snesClassicInputDecoder->decodeHexdump(data);
+    snesClassicInputDecoder->decodeBinary(data);
 }
 
 void ConsoleSwitcher::on_snesClassicInputConnected()
 {
     sDebug() << "Input co connected";
-    telnetInputCo->executeCommand(HEXDUMPSTR);
+    stuffInput->streamFile("/dev/input/by-path/platform-twi.1-event-joystick");
 }
 
 void ConsoleSwitcher::on_snesClassicShortcutsToggled(bool toggled)
@@ -181,17 +177,12 @@ void ConsoleSwitcher::on_snesClassicShortcutsToggled(bool toggled)
     snesClassicShortcutActivated = toggled;
     if (toggled)
     {
-        if (telnetInputCo->state() == TelnetConnection::Offline)
-            telnetInputCo->conneect();
-        else {
-            if (telnetInputCo->state() == TelnetConnection::Connected || telnetInputCo->state() == TelnetConnection::Ready)
-                telnetInputCo->executeCommand(HEXDUMPSTR);
-        }
+        if (!stuffInput->isConnected())
+            stuffInput->connect();
+
     } else {
-        if (telnetInputCo != NULL)
-        {
-            telnetCommandCo->syncExecuteCommand("killall hexdump");
-        }
+        if (stuffInput != nullptr)
+            stuffInput->close();
     }
     m_settings->setValue("SNESClassicShortcuts", toggled);
 }
@@ -199,17 +190,15 @@ void ConsoleSwitcher::on_snesClassicShortcutsToggled(bool toggled)
 void ConsoleSwitcher::on_snesClassicReadyForSaveState()
 {
     snesClassicReady = true;
-    if (snesClassicShortcutActivated && telnetInputCo != NULL && telnetInputCo->state() == TelnetConnection::Offline)
-    {
-        telnetInputCo->conneect();
-    }
+    if (snesClassicShortcutActivated && !stuffInput->isConnected())
+        stuffInput->connect();
 }
 
 void ConsoleSwitcher::on_snesClassicUnReadyForSaveState()
 {
     snesClassicReady = false;
     if (snesClassicShortcutActivated)
-        telnetInputCo->close();
+        stuffInput->close();
 }
 
 void ConsoleSwitcher::initUsb2snes()
@@ -224,20 +213,13 @@ void ConsoleSwitcher::initUsb2snes()
 void ConsoleSwitcher::initSnesClassic()
 {
     sDebug() << "Init SNES Classic";
-    telnetCommandCo = new TelnetConnection(SNES_CLASSIC_IP, 23, "root", "clover");
-    telnetCommandCo->debugName = "Command";
-    telnetCanoeCo = new TelnetConnection(SNES_CLASSIC_IP, 23, "root", "clover");
-    telnetCanoeCo->debugName = "Canoe";
-    telnetInputCo = new TelnetConnection(SNES_CLASSIC_IP, 23, "root", "clover");
-    telnetInputCo->debugName = "Input";
-    telnetInputCo->setOneCommandMode(true);
-    miniFTP = new MiniFtp(this);
-    ui->snesclassicStatut->setCommandCo(telnetCommandCo, telnetCanoeCo);
-    ui->snesclassicStatut->setFtp(miniFTP);
+    stuffControlCo = new StuffClient();
+    stuffInput = new StuffClient();
+    ui->snesclassicStatut->setStuff(stuffControlCo);
     handleSNESClassic = new HandleStuffSnesClassic();
-    handleSNESClassic->setCommandCo(telnetCommandCo, telnetCanoeCo);
-    connect(telnetInputCo, SIGNAL(commandReturnedNewLine(QByteArray)), this, SLOT(on_snesClassicInputCoReturnNewLine(QByteArray)));
-    connect(telnetInputCo, SIGNAL(connected()), this, SLOT(on_snesClassicInputConnected()));
+    handleSNESClassic->setControlCo(stuffControlCo);
+    connect(stuffInput, &StuffClient::newFileData, this, &ConsoleSwitcher::on_snesClassicInputNewData);
+    connect(stuffInput, &StuffClient::connected, this, &ConsoleSwitcher::on_snesClassicInputConnected);
     snesClassicInit = true;
 }
 
@@ -249,14 +231,7 @@ void ConsoleSwitcher::cleanUpUSB2Snes()
 
 void ConsoleSwitcher::cleanUpSNESClassic()
 {
-    if (telnetInputCo != NULL && telnetInputCo->state() != TelnetConnection::Offline)
-        telnetCommandCo->syncExecuteCommand("killall hexdump");
-    telnetCommandCo->executeCommand("killall canoe-shvc");
-    telnetCanoeCo->close();
-    telnetCommandCo->close();
-    miniFTP->close();
-    if (telnetInputCo != NULL)
-        telnetInputCo->close();
+    stuffControlCo->close();
     ui->snesclassicStatut->stop();
 }
 
