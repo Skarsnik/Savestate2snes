@@ -6,7 +6,7 @@ title: Savestate2snes
 Welcome to Savestate2snes webpage.
 
 Savestate2snes is a tool that let you create and manage savestates on your SNES console with a SD2SNES. It also
-support 'hacked' SNES classic with `hakchi2`
+support 'hacked' SNES classic with `hakchi2 CE`
 
 It based on the USB2Snes firmware and software that allow to talk to a SNES Console using an USB cable.
 
@@ -23,14 +23,14 @@ It based on the USB2Snes firmware and software that allow to talk to a SNES Cons
 * Apply the usb2snes savestate patch.
 * Allow to classify your Savestates on categories and subcategories.
 * Translated to some language.
-* Allow to edit the controller shortcut to load and save savestate.
+* Allow to edit the controller shortcuts to load and save savestate.
 * SNES classic support.
 
 # Download
 
 You can download the latest release [here](https://github.com/Skarsnik/Savestate2snes/releases/latest) It's a Windows 64 bits version.
 
-For the SD2SNES support You will need the latest USB2Snes firmware and software that can find [here](https://github.com/RedGuyyyy/sd2snes/releases)
+For the SD2SNES support You will need the latest USB2Snes firmware and software that can find [here](https://github.com/RedGuyyyy/sd2snes/releases) . I recommand to use `QUsb2Snes` software as it handle better power on/off of the console [here](https://github.com/Skarsnik/QUsb2snes/releases)
 
 # Tutorial
 
@@ -48,15 +48,17 @@ You can find a video tutorial [here](https://youtu.be/Rgk-7xFAvms), or follows t
 * Create a new game with the `New game` button
 * Right-click on the category view to add a category and click on it (you can do sub categories!)
 * Run your game (You can do that when you want)
-* When the `patch rom` button became available click on it
+* For firmware bellow 8
+* * When the `patch rom` button became available click on it
+* For firmware 8 or above
+* * Click the `patch rom` button after the game is started
 * Load/Save/Make Savestate buttons should be available: You are good to go!
 
 ## SNES Classic
 
-* Patch your SNES Classic with hakchi2, you can find it [here](https://github.com/ClusterM/hakchi2)
-* Download Savestate2snes and extract it
-* Start hakchi2
-* In the `tool` menu activate the telnet and ftp servers
+* Hack your SNES Classic with hakchi2 CE -I don't support regular hakchi2 anymore- you can find it [here](https://github.com/TeamShinkansen/hakchi2/releases)
+* Download Savestate2Snes and extract it
+* You need to install the `serverstuff` mode, you should find the `serverstuff.hmod` in Savestate2Snes folder, copy it to the `user_mods` folders on Hakchi2 CE, start Hakchi2 and go into the install mod menu
 * Power on your console
 * Start Savestate2snes and choose a Savestate directory
 * Select the SNES Classic mode
