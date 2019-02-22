@@ -5,7 +5,7 @@
 #include "handlestuff.h"
 #include "handlestuffsnesclassic.h"
 #include "handlestuffusb2snes.h"
-#include "stuffclient.h"
+#include "snesclassicstuff/stuffclient/stuffclient.h"
 
 
 #include <QWidget>

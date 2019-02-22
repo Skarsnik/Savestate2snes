@@ -2,7 +2,7 @@
 #define HANDLESTUFFSNESCLASSIC_H
 
 #include "handlestuff.h"
-#include "stuffclient.h"
+#include "snesclassicstuff/stuffclient/stuffclient.h"
 
 class HandleStuffSnesClassic : public HandleStuff
 {

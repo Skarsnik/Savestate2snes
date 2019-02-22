@@ -4,7 +4,6 @@
 #include <QLoggingCategory>
 #include <QThread>
 
-#define CLOVERSAVESTATEPATH "/tmp/savestate2snes.svt"
 
 Q_LOGGING_CATEGORY(log_SNESClassicstatut, "SNESClassicStatut")
 
@@ -99,6 +98,10 @@ void SNESClassicStatut::start()
     timer.start(2000);
 }
 
+#define CLOVERSAVESTATEPATH "/tmp/savestate2snes.svt"
+#define CLOVERROLLBACKPATH "/tmp/rollback/"
+#define SCREENSHOTPATH "/tmp/savestate2snes.png"
+
 void SNESClassicStatut::onCanoeStarted()
 {
     QByteArray ba = controlCo->waitForCommand("ps | grep canoe | grep -v grep");
@@ -113,7 +116,7 @@ void SNESClassicStatut::onCanoeStarted()
     ui->romNameLabel->setText(canoeArgs.at(canoeArgs.indexOf("-rom") + 1));
     timer.stop();
     ui->iniButton->setEnabled(true);
-    if (canoeArgs.indexOf(CLOVERSAVESTATEPATH))
+    if (canoeArgs.indexOf(CLOVERSAVESTATEPATH) != -1)
     {
         emit readyForSaveState();
         ui->coStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
@@ -138,10 +141,6 @@ void SNESClassicStatut::onClientDisconnected()
     unReadyForSaveState();
 }
 
-
-#define CLOVERSAVESTATEPATH "/tmp/savestate2snes.svt"
-#define CLOVERROLLBACKPATH "/tmp/rollback/"
-#define SCREENSHOTPATH "/tmp/savestate2snes.png"
 
 void SNESClassicStatut::on_iniButton_clicked()
 {

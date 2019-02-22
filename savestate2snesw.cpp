@@ -111,9 +111,9 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     {
         sDebug() << "Attempting to load the last categoryloaded" << m_settings->value("lastCategoryLoaded").toString();
         QStandardItem* repRoot = repStateModel->invisibleRootItem();
-        QStandardItem* catFound = NULL;
+        QStandardItem* catFound = nullptr;
 
-        if (repRoot != NULL)
+        if (repRoot != nullptr)
         {
             if (repRoot->hasChildren())
             {
@@ -129,9 +129,10 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
                 }
             }
         }
-        if (catFound != NULL)
+        if (catFound != nullptr)
         {
             ui->categoryTreeView->expand(repStateModel->indexFromItem(catFound));
+            ui->categoryTreeView->setCurrentIndex(catFound->index());
             loadCategory(catFound);
         }
 
@@ -261,6 +262,7 @@ void Savestate2snesw::createMenus()
     categoryMenu->addAction(ui->actionRemoveCategory);
     categoryMenu->addAction(ui->actionAddSubCategory);
     categoryMenu->addAction(ui->actionAddCategory);
+    categoryMenu->addAction(ui->actionCategorySetIcon);
 }
 
 
@@ -685,4 +687,19 @@ void Savestate2snesw::on_actionSave_a_savestate_triggered()
 {
     if (ui->saveSaveStatePushButton->isEnabled())
         on_saveSaveStatePushButton_clicked();
+}
+
+void Savestate2snesw::on_actionCategorySetIcon_triggered()
+{
+    const   QString& catName = repStateModel->itemFromIndex(ui->categoryTreeView->currentIndex())->text();
+    const   QString& catPath = repStateModel->itemFromIndex(ui->categoryTreeView->currentIndex())->data(MyRolePath).toString();
+    QString fileName = QFileDialog::getOpenFileName(this, QString(tr("Select an icon for %1")).arg(catName), QString(), tr("Image Files (*.png *.jpg *.bmp)"));
+    if (fileName.isEmpty())
+        return;
+    QFileInfo fi(fileName);
+    QString newName = catPath + "/icon." + fi.suffix();
+    sDebug() << "Setting icon for cat : " << newName;
+    QFile::copy(fileName, newName);
+    handleStuff->setCategoryIcon(catPath, newName);
+    repStateModel->itemFromIndex(ui->categoryTreeView->currentIndex())->setIcon(QIcon(newName));
 }

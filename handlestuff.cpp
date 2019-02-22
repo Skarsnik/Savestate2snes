@@ -121,19 +121,21 @@ bool    HandleStuff::loadSaveState(QString name)
 
 void    HandleStuff::findCategory(Category* parent, QDir dir)
 {
-    QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     foreach(QFileInfo fi, listDir)
     {
         if (fi.fileName() == "ScreenShots")
             continue;
-        if (fi.baseName() == "icon")
-        {
-            sDebug() << parent->path << "Has icon" << fi.absoluteFilePath();
-            parent->icon = QIcon(fi.absoluteFilePath());
-        }
-        if (!fi.isDir())
-            continue;
         Category*   newCat = new Category();
+        QDir catDir(fi.absoluteFilePath());
+        foreach (QFileInfo catFi, catDir.entryInfoList(QDir::Files))
+        {
+            if (catFi.baseName() == "icon")
+            {
+                sDebug() << "Category" << fi.baseName() << "Has icon";
+                newCat->icon = QIcon(catFi.absoluteFilePath());
+            }
+        }
         newCat->name = fi.baseName();
         newCat->path = fi.absoluteFilePath();
         newCat->parent = parent;
@@ -345,6 +347,11 @@ bool HandleStuff::deleteSaveState(int row)
     saveList.removeAt(row);
     writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
     return true;
+}
+
+void HandleStuff::setCategoryIcon(QString categoryPath, QString iconPath)
+{
+    categoriesByPath[categoryPath]->icon = QIcon(iconPath);
 }
 
 QPixmap HandleStuff::getScreenshot(QString name)

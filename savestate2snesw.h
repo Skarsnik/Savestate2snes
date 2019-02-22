@@ -90,6 +90,8 @@ private slots:
 
     void on_actionSave_a_savestate_triggered();
 
+    void on_actionCategorySetIcon_triggered();
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;

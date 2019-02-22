@@ -56,6 +56,7 @@ public:
     void        changeStateOrder(int from, int to);
     bool        loadSaveState(QString name);
     bool        deleteSaveState(int row);
+    void        setCategoryIcon(QString categoryPath, QString iconPath);
 
     QPixmap     getScreenshot(QString name);
     QString     getScreenshotPath(QString name);

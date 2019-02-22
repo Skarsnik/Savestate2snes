@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "stuffclient.h"
+#include "snesclassicstuff/stuffclient/stuffclient.h"
 
 namespace Ui {
 class SNESClassicStatut;

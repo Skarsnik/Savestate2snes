@@ -21,11 +21,12 @@ SOURCES = main.cpp\
     shortcuteditdialog.cpp \
     handlestuffusb2snes.cpp \
     snesclassicstuff/desktopclient/inputdecoder.cpp \
+    snesclassicstuff/stuffclient/stuffclient.cpp \
     snesclassicstatut.cpp \
     handlestuffsnesclassic.cpp \
     consoleswitcher.cpp \
     savestatelistview.cpp \
-    stuffclient.cpp
+
 
 HEADERS  = savestate2snesw.h \
     handlestuff.h \
@@ -35,11 +36,11 @@ HEADERS  = savestate2snesw.h \
     shortcuteditdialog.h \
     handlestuffusb2snes.h \
     snesclassicstuff/desktopclient/inputdecoder.h \
+    snesclassicstuff/stuffclient/stuffclient.h \
     snesclassicstatut.h \
     handlestuffsnesclassic.h \
     consoleswitcher.h \
     savestatelistview.h \
-    stuffclient.h
 
 FORMS    = savestate2snesw.ui \
     usb2snesstatut.ui \
