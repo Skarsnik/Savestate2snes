@@ -75,6 +75,7 @@ void SNESClassicStatut::setStuff(StuffClient *co)
     connect(controlCo, &StuffClient::connected, this, &SNESClassicStatut::onClientConnected);
     connect(controlCo, &StuffClient::disconnected, this, &SNESClassicStatut::onClientDisconnected);
     timer.start(2000);
+    ui->infoLabel->setText(tr("Trying to connect to SNES Classic"));
 }
 
 
@@ -113,12 +114,14 @@ void SNESClassicStatut::onCanoeStarted()
         ui->romNameLabel->setText(tr("Canoe is on replay mode"));
         return ;
     }
+    ui->infoLabel->setText(tr("Game started, waiting for init"));
     ui->romNameLabel->setText(canoeArgs.at(canoeArgs.indexOf("-rom") + 1));
     timer.stop();
     ui->iniButton->setEnabled(true);
     if (canoeArgs.indexOf(CLOVERSAVESTATEPATH) != -1)
     {
         emit readyForSaveState();
+        ui->infoLabel->setText(tr("Ready for savestate"));
         ui->coStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
     }
 }
@@ -132,6 +135,8 @@ void SNESClassicStatut::onCanoeStopped()
 void SNESClassicStatut::onClientConnected()
 {
     sDebug() << "Control co connected";
+    ui->coStatusLabel->setPixmap(QPixmap("://snesclassic status button orange.png"));
+    ui->infoLabel->setText(tr("Waiting for a game to start"));
     checkForReady();
 }
 
@@ -162,6 +167,7 @@ void SNESClassicStatut::on_iniButton_clicked()
 ready:
         firstCanoeRun = canoeRun.join(" ") + " 2>/dev/null";
         emit readyForSaveState();
+        ui->infoLabel->setText(tr("Ready for savestate"));
         ui->iniButton->setText(tr("Reset", "Reset canoe run"));
         ui->coStatusLabel->setPixmap(QPixmap(":/snesclassic status button green.png"));
         return ;

@@ -82,7 +82,14 @@
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>SNES Classic status</string>
+           <string>SNES Classic status:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="infoLabel">
+          <property name="text">
+           <string>None</string>
           </property>
          </widget>
         </item>

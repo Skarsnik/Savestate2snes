@@ -17,5 +17,6 @@
         <file>sfcbuttonleft.png</file>
         <file>snesclassic status button green.png</file>
         <file>snesclassic status button red.png</file>
+        <file>snesclassic status button orange.png</file>
     </qresource>
 </RCC>
