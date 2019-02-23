@@ -8,6 +8,9 @@ Learn more at https://skarsnik.github.io/Savestate2snes/
 You need USB2SNES firmware 6 or later installed on your sd2snes and the desktop application. 
 Find them at https://github.com/RedGuyyyy/sd2snes/releases and follow the instructions.
 
+For SNES Classic, you will need it to be patched with Hakchi2 CE
+and remove the Clovershell Deamon module.
+
 Some free space on your system.
 
 # Usage
@@ -50,6 +53,21 @@ The patch try to restore special registry of the console to have a clear reset w
 The patch has special code for some games (like super metroid) to restore sound and other special stuff.
 
 If it does not work properly with your game try to contact a romhacker of your game or Redguyyyy to come up with a fix.
+
+# SNES Classic
+
+Hack your SNES Classic with hakchi2 CE and remove the Clovershell Deamon module.
+You need to install the serverstuff mod, you should find the serverstuff.hmod in Savestate2Snes folder, copy it to the user_mods folders on Hakchi2 CE,
+start Hakchi2 and go into the install mod menu
+Power on your console
+Start Savestate2snes and choose a Savestate directory
+Select the SNES Classic mode
+Create a new game with the New game button
+Right-click on the category view to add a category and click on it (you can do sub categories!)
+Run the game you want to use Savestate2snes with
+When the init button became available click on it and wait until the game restart
+Load/Save/Make Savestate buttons should be available: You are good to go!
+You will need to power off/on the console and restart Savestate2snes if you want to change game
 
 # Issues
 

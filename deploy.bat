@@ -45,6 +45,8 @@ xcopy /y %projectPath%\Translations\savestate2snes_de.qm %deployPath%\i18n
 xcopy /y %projectPath%\Translations\savestate2snes_sv.qm %deployPath%\i18n
 xcopy /y %projectPath%\Translations\savestate2snes_nl.qm %deployPath%\i18n
 
+xcopy /y F:\Project\snesclassicstuff\serverstuff\hmod\serverstuff.hmod %deployPath%
+
 
 xcopy /y %projectPath%\License-GPL3.txt %deployPath%
 xcopy /i /y %projectPath%\README.md %deployPath%\Readme.txt
