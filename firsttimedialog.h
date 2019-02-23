@@ -23,6 +23,8 @@ private slots:
 
     void on_versionsCheckBox_toggled(bool checked);
 
+    void on_classicCheckBox_toggled(bool checked);
+
 private:
     Ui::FirstTimeDialog *ui;
     bool    pathChanged;

@@ -42,3 +42,8 @@ void FirstTimeDialog::on_versionsCheckBox_toggled(bool checked)
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(checked);
 }
+
+void FirstTimeDialog::on_classicCheckBox_toggled(bool checked)
+{
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(checked);
+}
