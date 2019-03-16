@@ -1,0 +1,7 @@
+{
+    "name" : "Savestate2Snes",
+    "description" : "A Savestates manager for Usb2snes and SNES Classic",
+    "executable" : "Savestate2snes",
+    "icon" : "icone.png",
+    "QtApp" : true
+}

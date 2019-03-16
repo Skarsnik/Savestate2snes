@@ -1,0 +1,54 @@
+image: Visual Studio 2017
+
+init:
+  - set QTDIR=C:\Qt\5.12.1\msvc2017_64
+  - set PATH=%PATH%;C:\Qt\5.12.1\msvc2017_64\bin;
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+build_script:
+  - qmake Savestate2snes.pro -spec win32-msvc "CONFIG+=release"
+  - nmake
+
+after_build:
+  - mkdir Savestate2Snes
+  - xcopy release\Savestate2snes.exe \Savestate2Snes
+  - cd Savestate2Snes
+  - windeployqt.exe --no-translations --no-system-d3d-compiler --no-opengl-sw --no-opengl --no-webkit --no-patchqt --no-webkit2 --release  QUsb2Snes.exe
+  - del opengl32sw.dll
+  - del libEGL.dll
+  - del libGLESV2.dll
+  - del vc_redist.x64.exe
+  - copy /y ..\LICENSE-GPL3.txt LICENCE-GPL3.txt
+  - copy /y ..\README.md Readme.txt
+  - xcopy /e ..\Patches Patches\ /r
+  - mkdir i18n
+  - lrelease ..\Savestate2snes.pro
+  - xcopy /y ..\Translations\savestate2snes_fr.qm i18n
+  - xcopy /y ..\Translations\savestate2snes_de.qm i18n
+  - xcopy /y ..\Translations\savestate2snes_sv.qm i18n
+  - xcopy /y ..\Translations\savestate2snes_nl.qm i18n
+  - copy /y ..\icon64x64.png icone.png
+  - copy ..\qusb2snesapp.json qusb2snesapp.json
+  - cd ..
+
+  - appveyor DownloadFile https://github.com/Skarsnik/snesclassicstuff/releases/download/serverstuffmod_v1/serverstuff.hmod -FileName serverstuff.hmod
+  - copy serverstuff.hmod Savestate2Snes\
+  - 7z a Savestate2Snes-%APPVEYOR_REPO_TAG_NAME%.7z Savestate2Snes
+
+
+artifacts:
+  - path: Savestate2Snes-$(APPVEYOR_REPO_TAG_NAME).7z
+    name: package
+  - path: release\Savestate2snes.exe
+    name: executable
+
+deploy:
+  description: 'Automated deployment'
+  provider: GitHub
+  auth_token:
+    secure: JF5Ki0Bz+mvMrqw5k0u7273c8GsUAqMwe/P7ts5PKLR+G7InkGqkvTqlAZb6GDGv
+  artifact: release\Savestate2snes, Savestate2Snes-$(APPVEYOR_REPO_TAG_NAME).7z
+  draft: true
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    APPVEYOR_REPO_TAG: true
