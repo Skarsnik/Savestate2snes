@@ -160,3 +160,17 @@ void ShortcutEditDialog::setControllerButtonStatus(quint16 shortcut)
     }
 }
 
+
+void ShortcutEditDialog::on_saveResetButton_clicked()
+{
+    m_saveShortcut = 0;
+    setControllerButtonStatus(0);
+    setLabels();
+}
+
+void ShortcutEditDialog::on_loadResetButton_clicked()
+{
+    m_loadShortcut = 0;
+    setControllerButtonStatus(0);
+    setLabels();
+}

@@ -143,6 +143,8 @@ void SNESClassicStatut::onClientConnected()
 void SNESClassicStatut::onClientDisconnected()
 {
     sDebug() << "Control co discconnected";
+    ui->coStatusLabel->setPixmap(QPixmap(":/snesclassic status button red.png"));
+    ui->infoLabel->setText(tr("Snes classic not running"));
     unReadyForSaveState();
 }
 

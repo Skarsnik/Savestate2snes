@@ -25,6 +25,10 @@ private slots:
     void    onControllerGroupToggled(int id, bool checked);
     void    onChooseGroupToggled(QAbstractButton*button, bool toggled);
 
+    void on_saveResetButton_clicked();
+
+    void on_loadResetButton_clicked();
+
 private:
     Ui::ShortcutEditDialog *ui;
 

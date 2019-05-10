@@ -80,12 +80,10 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
         sDebug() << "Game has file info";
         QSettings file(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS, QSettings::IniFormat);
         bool ok;
-        m_gameInfo.loadShortcut = file.value("_/loadShortcut").toString().toUInt(&ok, 16);
-        if (!ok)
-            m_gameInfo.loadShortcut = 0;
-        m_gameInfo.saveShortcut = file.value("_/saveShortcut").toString().toUInt(&ok, 16);
-        if (!ok)
-            m_gameInfo.saveShortcut = 0;
+        if (file.contains("_/loadShortcut"))
+            m_gameInfo.loadShortcut = file.value("_/loadShortcut").toString().toUInt(&ok, 16);
+        if (file.contains("_/saveShortcut"))
+            m_gameInfo.saveShortcut = file.value("_/saveShortcut").toString().toUInt(&ok, 16);
         m_gameInfo.name = file.value("_/game").toString();
         sDebug() << "Shortcuts are : (s/l)" << QString::number(m_gameInfo.saveShortcut, 16) << QString::number(m_gameInfo.loadShortcut, 16);
 
@@ -190,12 +188,12 @@ void HandleStuff::writeCacheOrderFile(QString file, QString dirPath)
 
 bool HandleStuff::addGame(QString newGame)
 {
-    sDebug() << "Add game " << newGame;
+    sDebug() << "Adding game " << newGame;
     if (saveDirectory.mkdir(newGame))
     {
         games.append(newGame);
         Category*   newCat = new Category;
-        newCat->parent = NULL;
+        newCat->parent = nullptr;
         categories[newGame] = newCat;
         return true;
     } else {
@@ -305,7 +303,7 @@ bool HandleStuff::removeCategory(QString categoryPath)
         Category* cat = categoriesByPath.take(categoryPath);
         cat->parent->children.remove(cat->parent->children.indexOf(cat));
         if (catLoaded == cat)
-            catLoaded = NULL;
+            catLoaded = nullptr;
         delete cat;
         return true;
     }

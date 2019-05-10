@@ -586,6 +586,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="saveResetButton">
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_12">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -626,6 +633,13 @@
       <widget class="QLineEdit" name="loadLineEdit">
        <property name="readOnly">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="loadResetButton">
+       <property name="text">
+        <string>Reset</string>
        </property>
       </widget>
      </item>
@@ -695,11 +709,11 @@
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="chooseButtonGroup"/>
   <buttongroup name="controllerButtonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="chooseButtonGroup"/>
  </buttongroups>
 </ui>

@@ -64,7 +64,7 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     mapEnumToSNES[InputDecoder::A] = B_A_BITMASK;
     mapEnumToSNES[InputDecoder::B] = B_B_BITMASK;
     mapEnumToSNES[InputDecoder::Y] = B_Y_BITMASK;
-    mapEnumToSNES[InputDecoder::X] = B_Y_BITMASK;
+    mapEnumToSNES[InputDecoder::X] = B_X_BITMASK;
     mapEnumToSNES[InputDecoder::Start] = B_START_BITMASK;
     mapEnumToSNES[InputDecoder::Select] = B_SELECT_BITMASK;
     mapEnumToSNES[InputDecoder::L] = B_L_BITMASK;
@@ -142,7 +142,6 @@ void ConsoleSwitcher::refreshShortcuts()
 void ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton but)
 {
     snesClassicButtonPressed.append(but);
-    sDebug() << snesClassicButtonPressed.size();
     int currentInput = 0;
     foreach(int button, snesClassicButtonPressed)
     {
@@ -245,7 +244,7 @@ void ConsoleSwitcher::on_snesClassicButton_clicked()
     start();
     ui->snesclassicStackedWidget->setCurrentIndex(1);
     ui->usb2snesStackedWidget->setCurrentIndex(0);
-    disconnect(ui->usb2snesStatut, 0, this, 0);
+    disconnect(ui->usb2snesStatut, nullptr, this, nullptr);
     connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()), Qt::UniqueConnection);
     connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SLOT(on_snesClassicReadyForSaveState()), Qt::UniqueConnection);
     connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()), Qt::UniqueConnection);
@@ -263,7 +262,7 @@ void ConsoleSwitcher::on_usb2snesButton_clicked()
     start();
     ui->snesclassicStackedWidget->setCurrentIndex(0);
     ui->usb2snesStackedWidget->setCurrentIndex(1);
-    disconnect(ui->snesclassicStatut, 0, this, 0);
+    disconnect(ui->snesclassicStatut, nullptr, this, nullptr);
     connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()), Qt::UniqueConnection);
     connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()), Qt::UniqueConnection);
 
