@@ -142,7 +142,12 @@ void USB2snes::onWebSocketTextReceived(QString message)
             if (m_firmwareString.right(3) == "gsu")
                 m_firmwareVersion = QVersionNumber(7);
             else
-                m_firmwareVersion = QVersionNumber(m_firmwareString.right(1).toInt());
+            {
+                int npos = m_firmwareString.indexOf("usb-v");
+                npos += 5;
+                sDebug() << "Firmware is : " << m_firmwareString << "Version" << m_firmwareString.mid(npos);
+                m_firmwareVersion = QVersionNumber(m_firmwareString.mid(npos).toInt());
+            }
             m_istate = ServerVersionRequested;
             sendRequest("AppVersion");
         }
