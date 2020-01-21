@@ -143,8 +143,8 @@ void USB2snes::onWebSocketTextReceived(QString message)
                 m_firmwareVersion = QVersionNumber(7);
             else
             {
-                int npos = m_firmwareString.indexOf("usb-v");
-                npos += 5;
+                int npos = m_firmwareString.indexOf("-v");
+                npos += 2;
                 sDebug() << "Firmware is : " << m_firmwareString << "Version" << m_firmwareString.mid(npos);
                 m_firmwareVersion = QVersionNumber(m_firmwareString.mid(npos).toInt());
             }
