@@ -51,6 +51,13 @@ FORMS    = savestate2snesw.ui \
 
 RC_FILE = savestate2snes.rc
 
+macx: {
+        QMAKE_INFO_PLIST = Info.plist
+        ICON = Icon126x126.icns
+}
+
+
+
 RESOURCES += \
     images.qrc
 
