@@ -25,7 +25,7 @@ script:
 
 before_deploy:
 - cp icon64x64.png Savestate2snes.app/Contents/MacOs/icone.png
-- cp qusb2snesappo.json Savestate2snes.app/Contents/MacOs/
+- cp qusb2snesapp.json Savestate2snes.app/Contents/MacOs/
 - macdeployqt Savestate2snes.app -dmg
 
 deploy:
