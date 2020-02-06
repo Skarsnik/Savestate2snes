@@ -5,7 +5,10 @@ Learn more at https://skarsnik.github.io/Savestate2snes/
 
 # Prerequis
 
-You need USB2SNES firmware 6 or later installed on your sd2snes and the desktop application. 
+You need USB2SNES firmware 6 or later installed on your sd2snes and the desktop application.
+
+NEW SD2SNES Firmware will contains the usb2snes feature, be sure to use it instead of USB2SNES firmware when available 
+
 Find them at https://github.com/RedGuyyyy/sd2snes/releases and follow the instructions.
 
 For SNES Classic, you will need it to be patched with Hakchi2 CE
@@ -21,9 +24,9 @@ Run the game and apply the patch then you are set to start using the savestates 
 
 # Quick start
 
-1. Put the savestate2snes folder in usb2snes/apps/
-2. Turn on the console and launch usb2snes.
-3. Right-click the usb2snes tray icon and click clients -> savestate2snes
+1. Put the savestate2snes folder in QUsb2Snes/apps/
+2. Turn on the console and launch QUsb2Snes.
+3. Right-click the QUsb2Snes tray icon and click Application -> Savestate2snes
 4. Make sure you have the correct version of usb2snes and then check the first launch checkbox. 
 Also set your savestate directory (default will be My doc\Savestates). Please note that the directory needs to already exist.
 5. Click 'New Game' and then launch the game of your choice on the console.
