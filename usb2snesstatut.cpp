@@ -211,14 +211,15 @@ void USB2SnesStatut::onTimerTick()
     sDebug() << "tick infos : " << infos;
     if (infos.isEmpty())
         return ;
-    if (infos.at(2) != "/sd2snes/menu.bin" && romRunning == false)
+    bool isMenuRom = infos.at(2) == "/sd2snes/menu.bin" || infos.at(2) == "/sd2snes/m3nu.bin";
+    if (isMenuRom == false && romRunning == false)
     {
         romRunning = true;
         menuRunning = false;
         onRomStarted();
         timer.setInterval(CHECK_ROMRUNNING_TICK * 2);
     }
-    if (infos.at(2) == "/sd2snes/menu.bin" && menuRunning == false)
+    if (isMenuRom == true && menuRunning == false)
     {
         ui->romPatchedLabel->setText(tr("SD2SNES on Menu"));
         romRunning = false;
