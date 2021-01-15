@@ -23,7 +23,8 @@
 #include <QtWebSockets/QtWebSockets>
 
 
-#define USB2SNESURL "ws://localhost:8080/"
+#define USB2SNESLEGACYURL "ws://localhost:8080/"
+#define USB2SNESURL "ws://localhost:23074"
 
 
 class USB2snes : public QObject
@@ -70,8 +71,10 @@ public:
     void                    setAddress(unsigned int addr, QByteArray data, Space space = SNES);
     State                   state();
     QStringList             infos();
+    bool                    legacyConnection();
     QString                 firmwareString();
     QVersionNumber          firmwareVersion();
+    QString                 serverVersionString();
     QStringList             deviceList();
     QVersionNumber          serverVersion();
     bool                    patchROM(QString patch);
@@ -92,6 +95,7 @@ private slots:
     void    onWebSocketBinaryReceived(QByteArray message);
     void    onWebSocketError(QAbstractSocket::SocketError err);
     void    onTimerTick();
+    void    onWebSocketStateChanged(QAbstractSocket::SocketState socketState);
 
 
 private:
@@ -102,8 +106,10 @@ private:
     QVersionNumber  m_firmwareVersion;
     QString         m_firmwareString;
     QVersionNumber  m_serverVersion;
+    QString         m_serverVersionString;
     InternalState   m_istate;
     QStringList     m_deviceList;
+    bool            m_legacyConnection;
     QByteArray      lastBinaryMessage;
     QString         lastTextMessage;
     unsigned int    requestedBinaryReadSize;

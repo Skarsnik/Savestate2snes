@@ -32,6 +32,7 @@ USB2snes::USB2snes() : QObject()
     QObject::connect(&m_webSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onWebSocketError(QAbstractSocket::SocketError)));
     QObject::connect(&m_webSocket, SIGNAL(disconnected()), this, SLOT(onWebSocketDisconnected()));
     QObject::connect(&m_webSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(onWebSocketBinaryReceived(QByteArray)));
+    QObject::connect(&m_webSocket, &QWebSocket::stateChanged, this, &USB2snes::onWebSocketStateChanged);
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(onTimerTick()));
     requestedBinaryReadSize = 0;
 }
@@ -63,7 +64,17 @@ QString USB2snes::getRomName()
 void USB2snes::connect()
 {
     if (m_state == None)
-        m_webSocket.open(QUrl(USB2SNESURL));
+    {
+        m_legacyConnection = false;
+        QTcpSocket socket;
+        socket.connectToHost("localhost", 23074);
+        if (socket.waitForConnected(50)) {
+            m_webSocket.open(QUrl(USB2SNESURL));
+        } else {
+            m_legacyConnection = true;
+            m_webSocket.open(QUrl(USB2SNESLEGACYURL));
+        }
+    }
 }
 
 void USB2snes::close()
@@ -143,10 +154,16 @@ void USB2snes::onWebSocketTextReceived(QString message)
                 m_firmwareVersion = QVersionNumber(7);
             else
             {
-                int npos = m_firmwareString.indexOf("-v");
-                npos += 2;
-                sDebug() << "Firmware is : " << m_firmwareString << "Version" << m_firmwareString.mid(npos);
-                m_firmwareVersion = QVersionNumber(m_firmwareString.mid(npos).toInt());
+                // usb2snes firmware
+                if (m_firmwareString.contains("usb"))
+                {
+                    int npos = m_firmwareString.indexOf("-v");
+                    npos += 2;
+                    sDebug() << "Firmware is : " << m_firmwareString << "Version" << m_firmwareString.mid(npos);
+                    m_firmwareVersion = QVersionNumber(m_firmwareString.mid(npos).toInt());
+                } else { // oficial sd2snes
+                    m_firmwareVersion = QVersionNumber(QVersionNumber::fromString(m_firmwareString).minorVersion());
+                }
             }
             m_istate = ServerVersionRequested;
             sendRequest("AppVersion");
@@ -158,7 +175,9 @@ void USB2snes::onWebSocketTextReceived(QString message)
         QStringList results = getJsonResults(message);
         if (!results.isEmpty())
         {
-            m_serverVersion = QVersionNumber::fromString(results.at(0));
+            m_serverVersionString = results.at(0);
+            if (m_legacyConnection)
+                m_serverVersion = QVersionNumber::fromString(results.at(0));
             m_istate = IReady;
             changeState(Ready);
         }
@@ -204,6 +223,11 @@ void USB2snes::onTimerTick()
     {
         sendRequest("DeviceList");
     }
+}
+
+void USB2snes::onWebSocketStateChanged(QAbstractSocket::SocketState socketState)
+{
+    sDebug() << socketState;
 }
 
 
@@ -300,6 +324,11 @@ QStringList USB2snes::infos()
     return getJsonResults(lastTextMessage);
 }
 
+bool USB2snes::legacyConnection()
+{
+    return m_legacyConnection;
+}
+
 QString USB2snes::firmwareString()
 {
     return m_firmwareString;
@@ -308,6 +337,11 @@ QString USB2snes::firmwareString()
 QVersionNumber USB2snes::firmwareVersion()
 {
     return m_firmwareVersion;
+}
+
+QString USB2snes::serverVersionString()
+{
+    return m_serverVersionString;
 }
 
 
