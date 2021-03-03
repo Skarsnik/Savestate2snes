@@ -8,6 +8,9 @@ QT       += core gui websockets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+GIT_TAG_VERSION=$$system(git describe --always --tags)
+DEFINES += GIT_TAG_VERSION=\\\"$$GIT_TAG_VERSION\\\"
+
 TARGET = Savestate2snes
 TEMPLATE = app
 

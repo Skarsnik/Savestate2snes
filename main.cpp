@@ -101,7 +101,14 @@ int main(int argc, char *argv[])
     QTranslator translator;
     QString locale = QLocale::system().name().split('_').first();
     translator.load(a.applicationDirPath() + "/i18n/savestate2snes_" + locale + ".qm");
-    QApplication::setApplicationVersion("0.6");
+// This is only defined in the PRO file
+#ifdef GIT_TAG_VERSION
+    QString plop(GIT_TAG_VERSION);
+    plop.remove(0, 1); // Remove the v
+    QApplication::setApplicationVersion(QVersionNumber::fromString(plop).toString());
+#else
+    QApplication::setApplicationVersion("0.99");
+#endif
     a.installTranslator(&translator);
     if (!settings.contains("lastSaveStateDir"))
     {
