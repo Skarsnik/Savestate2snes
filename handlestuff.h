@@ -72,10 +72,23 @@ public:
     virtual quint16     shortcutSave() = 0;
     virtual quint16     shortcutLoad() = 0;
 
+// This is only for the subclass
+signals:
+    void                loadStateFinished(bool);
+    void                saveStateFinished(bool);
+
+// The real public signals
+signals:
+    void                addSaveStateFinished(bool);
+    void                loadSaveStateFinished(bool);
 
 protected:
-    virtual QByteArray  saveState(bool trigger) = 0;
+    virtual bool        saveState(bool trigger) = 0;
+    virtual bool        saveState(QString path) = 0;
+    virtual bool        loadState(QString path) = 0;
     virtual void        loadState(QByteArray data) = 0;
+    virtual bool        needByteData() = 0;
+    QByteArray          saveStateData;
 
 private:
     QDir                                    saveDirectory;
@@ -86,10 +99,12 @@ private:
     QString                                 gameLoaded;
     Category*                               catLoaded;
     GameInfos                               m_gameInfo;
+    QFileInfo                               saveStateFileInfo;
 
     void findCategory(Category *parent, QDir dir);
     QStringList getCacheOrderList(QString file, QString dirPath);
     void        writeCacheOrderFile(QString file, QString dirPath);
+    void        onSaveStateFinished(bool success);
 };
 
 #endif // HANDLESTUFF_H

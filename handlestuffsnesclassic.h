@@ -1,6 +1,7 @@
 #ifndef HANDLESTUFFSNESCLASSIC_H
 #define HANDLESTUFFSNESCLASSIC_H
 
+#include <QSignalSpy>
 #include "handlestuff.h"
 #include "snesclassicstuff/stuffclient/stuffclient.h"
 
@@ -20,8 +21,11 @@ public:
     void            controllerLoadState();
 
 protected:
-    QByteArray      saveState(bool trigger);
+    bool            saveState(bool trigger);
     void            loadState(QByteArray data);
+    bool            needByteData();
+    bool            saveState(QString path);
+    bool            loadState(QString path);
 
 
 private:
@@ -29,13 +33,18 @@ private:
     QByteArray              lastLoadMD5;
     quint16                 saveShortcut;
     quint16                 loadShortcut;
+    uint                    fileReceivedSize;
 
+    QSignalSpy*              commandSpy;
     void        runCanoe(QStringList canoeArgs);
     QStringList getCanoeExecution();
     void        killCanoe(int signal);
     void        removeCanoeUnnecessaryArg(QStringList &canoeRun);
-    QByteArray  mySaveState(bool trigger, bool noGet);
+    bool        mySaveState(bool trigger, bool noGet);
     void        myLoadState(QByteArray data, bool noPut);
+
+
+    bool fakeWaitForCommand(QByteArray cmd, unsigned int timeout = 200);
 };
 
 #endif // HANDLESTUFFSNESCLASSIC_H

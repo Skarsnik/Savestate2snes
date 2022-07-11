@@ -20,7 +20,8 @@ Q_LOGGING_CATEGORY(log_consoleSwitcher, "ConsoleSwitcher")
 
 #define HEXDUMPSTR "hexdump -v -e '32/1 \"%02X\" \"\\n\"' /dev/input/by-path/platform-twi.1-event-joystick"
 
-#define SNES_CLASSIC_IP "169.254.13.37"
+//#define SNES_CLASSIC_IP "169.254.13.37"
+#define SNES_CLASSIC_IP "192.168.0.204"
 
 ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     QWidget(parent),

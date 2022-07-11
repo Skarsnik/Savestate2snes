@@ -103,21 +103,6 @@ QIcon HandleStuff::getGameIcon(QString game)
     return QIcon();
 }
 
-
-bool    HandleStuff::loadSaveState(QString name)
-{
-    QFile saveFile(catLoaded->path + "/" + name + ".svt");
-    if (saveFile.open(QIODevice::ReadOnly))
-    {
-        QByteArray data = saveFile.readAll();
-        loadState(data);
-        saveFile.close();
-        return true;
-    }
-    qCWarning(log_handleStuff()) << "Can't open savestate file : " << saveFile.errorString();
-    return false;
-}
-
 void    HandleStuff::findCategory(Category* parent, QDir dir)
 {
     QFileInfoList listDir = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -265,34 +250,82 @@ QStringList HandleStuff::loadSaveStates(QString categoryPath)
     return saveStates[categoryPath];
 }
 
+
+// Load & save
+bool    HandleStuff::loadSaveState(QString name)
+{
+    if (!needByteData())
+    {
+        bool result = loadState(catLoaded->path + "/" + name + ".svt");
+        if (result)
+            return true;
+        qCWarning(log_handleStuff()) << "Can't open savestate, refused by emulator";
+        return false;
+    }
+    QFile saveFile(catLoaded->path + "/" + name + ".svt");
+    if (saveFile.open(QIODevice::ReadOnly))
+    {
+        QByteArray data = saveFile.readAll();
+        loadState(data);
+        saveFile.close();
+        return true;
+    }
+    qCWarning(log_handleStuff()) << "Can't open savestate file : " << saveFile.errorString();
+    return false;
+}
+
+
 bool HandleStuff::addSaveState(QString name, bool trigger)
 {
     QFileInfo fi(catLoaded->path + "/" + name + ".svt");
+    saveStateFileInfo = fi;
     saveStates[catLoaded->path] << fi.baseName();
     //QFile f(fi.absoluteFilePath()); f.open(QIODevice::WriteOnly); f.write("Hello"); f.close();
-    QByteArray data = saveState(trigger);
+    if (!needByteData())
+    {
+        bool result = saveState(fi.absoluteFilePath());
+        if (result)
+            return true;
+        qCCritical(log_handleStuff()) << "Can't create file for savestate, refused by emulator";
+        return false;
+    }
+    return saveState(trigger);
+}
+
+void    HandleStuff::onSaveStateFinished(bool success)
+{
+    if (!success)
+    {
+        emit saveStateFinished(success);
+        return;
+    }
     if (hasScreenshots())
     {
         QByteArray scData = getScreenshotData();
-        QFile scFile(catLoaded->path + "/ScreenShots/" + QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex() + ".png");
+        QFile scFile(catLoaded->path + "/ScreenShots/" + QCryptographicHash::hash(saveStateData, QCryptographicHash::Md5).toHex() + ".png");
         if (scFile.open(QIODevice::WriteOnly))
         {
             scFile.write(scData);
             scFile.close();
         }
     }
-    QFile saveFile(fi.absoluteFilePath());
+    QFile saveFile(saveStateFileInfo.absoluteFilePath());
     if (saveFile.open(QIODevice::WriteOnly))
     {
-        saveFile.write(data);
+        saveFile.write(saveStateData);
         saveFile.close();
         writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
-        return true;
+        emit saveStateFinished(true);
+        return ;
     } else {
+        emit saveStateFinished(false);
         qCCritical(log_handleStuff()) << "Can't create file for savestate : " << saveFile.errorString();
     }
-    return false;
+    return ;
 }
+
+
+
 
 bool HandleStuff::removeCategory(QString categoryPath)
 {

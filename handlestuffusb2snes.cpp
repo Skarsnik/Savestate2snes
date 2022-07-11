@@ -20,7 +20,7 @@ void HandleStuffUsb2snes::setUsb2snes(USB2snes *usbsnes)
 //$FC2002 dw saveButton (Set to $FFFF first and then set to correct value)
 //$FC2004 dw loadButton (Set to $FFFF first and then set to correct value)
 
-QByteArray HandleStuffUsb2snes::saveState(bool trigger)
+bool HandleStuffUsb2snes::saveState(bool trigger)
 {
     QByteArray data;
     if (trigger)
@@ -34,8 +34,9 @@ QByteArray HandleStuffUsb2snes::saveState(bool trigger)
         usb2snes->setAddress(0xFC2000, data);
     }
     checkForSafeState();
-    QByteArray saveData = usb2snes->getAddress(0xF00000, 320 * 1024);
-    return saveData;
+    saveStateData = usb2snes->getAddress(0xF00000, 320 * 1024);
+    QTimer::singleShot(10, this, SIGNAL(saveStateFinished(true)));
+    return true;
 }
 
 void HandleStuffUsb2snes::loadState(QByteArray data)
@@ -48,6 +49,12 @@ void HandleStuffUsb2snes::loadState(QByteArray data)
     usb2snes->setAddress(0xFC2000, data);*/
     data[1] = 1;
     usb2snes->setAddress(0xFC2000, data);
+    QTimer::singleShot(10, this, SIGNAL(loadStateFinished(true)));
+}
+
+bool HandleStuffUsb2snes::needByteData()
+{
+    return true;
 }
 
 void    HandleStuffUsb2snes::checkForSafeState()
@@ -55,8 +62,8 @@ void    HandleStuffUsb2snes::checkForSafeState()
     QByteArray data = usb2snes->getAddress(0xFC2000, 2);
     while (!(data.at(0) == 0 && data.at(1) == 0))
     {
-            QThread::usleep(100);
-            data = usb2snes->getAddress(0xFC2000, 2);
+        QThread::usleep(100);
+        data = usb2snes->getAddress(0xFC2000, 2);
     }
 }
 
@@ -109,3 +116,16 @@ bool HandleStuffUsb2snes::hasShortcutsEdit()
     return true;
 }
 
+
+
+bool HandleStuffUsb2snes::saveState(QString path)
+{
+    Q_UNUSED(path)
+    return false;
+}
+
+bool HandleStuffUsb2snes::loadState(QString path)
+{
+    Q_UNUSED(path)
+    return false;
+}

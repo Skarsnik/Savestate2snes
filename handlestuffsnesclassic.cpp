@@ -14,20 +14,40 @@ Q_LOGGING_CATEGORY(log_handleSNESClassic, "HSSnesClassic")
 #define sDebug() qCDebug(log_handleSNESClassic)
 
 
-HandleStuffSnesClassic::HandleStuffSnesClassic()
+HandleStuffSnesClassic::HandleStuffSnesClassic() : HandleStuff ()
 {
     loadShortcut = 0;
     saveShortcut = 0;
+    commandSpy = nullptr;
 }
 
 void HandleStuffSnesClassic::setControlCo(StuffClient *client)
 {
     controlCo = client;
+    commandSpy = new QSignalSpy(controlCo, &StuffClient::commandFinished);
+    connect(client, &StuffClient::receivedFileSize, this, [=](unsigned int size)
+    {
+        fileReceivedSize = size;
+    });
+    connect(client, &StuffClient::newFileData, this, [=](QByteArray data) {
+        saveStateData.append(data);
+        if (saveStateData.size() == fileReceivedSize)
+            emit saveStateFinished(true);
+    });
 }
+
+bool        HandleStuffSnesClassic::fakeWaitForCommand(QByteArray cmd, unsigned int timeout)
+{
+    controlCo->executeCommand(cmd);
+    return commandSpy->wait(timeout);
+}
+
 
 QStringList HandleStuffSnesClassic::getCanoeExecution()
 {
-    QByteArray ba = controlCo->waitForCommand("ps | grep canoe | grep -v grep");
+    if (!fakeWaitForCommand("ps | grep canoe | grep -v grep"))
+        return QStringList();
+    QByteArray ba = controlCo->commandDatas();
     sDebug() << ba;
     ba.replace(static_cast<char>(0), "");
     QString result = ba.trimmed();
@@ -39,10 +59,11 @@ QStringList HandleStuffSnesClassic::getCanoeExecution()
 
 void    HandleStuffSnesClassic::killCanoe(int signal = 2)
 {
-    QString canoePid = controlCo->waitForCommand("pidof canoe-shvc").trimmed();
-    controlCo->waitForCommand(QString("kill -%1 `pidof canoe-shvc`").arg(signal).toLatin1());
-    controlCo->waitForCommand("test -e /tmp/plop || (sleep 1 && kill -2 `pidof ReedPlayer-Clover` && touch /tmp/plop)");
-    controlCo->waitForCommand("wait " + canoePid.toLatin1());
+    fakeWaitForCommand("pidof canoe-shvc");
+    QString canoePid = controlCo->commandDatas().trimmed();
+    fakeWaitForCommand(QString("kill -%1 `pidof canoe-shvc`").arg(signal).toLatin1());
+    fakeWaitForCommand("test -e /tmp/plop || (sleep 1 && kill -2 `pidof ReedPlayer-Clover` && touch /tmp/plop)");
+    fakeWaitForCommand("wait " + canoePid.toLatin1());
 }
 
 void    HandleStuffSnesClassic::runCanoe(QStringList canoeArgs)
@@ -71,18 +92,19 @@ void    HandleStuffSnesClassic::removeCanoeUnnecessaryArg(QStringList &canoeRun)
         canoeRun.removeAt(i);
 }
 
-QByteArray HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
+bool HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
 {
     sDebug() << "Savestate : trigger " << trigger << " No get : " << noGet;
     QByteArray toret;
     if (trigger == false && noGet == false)
     {
-        toret = controlCo->getFile(CLOVERSAVESTATEPATH);
-        return toret;
+        saveStateData.clear();
+        controlCo->getFile(CLOVERSAVESTATEPATH);
+        return true;
     }
     QStringList canoeRun = getCanoeExecution();
     if (canoeRun.at(0) != "canoe-shvc")
-        return QByteArray();
+        return false;
     /*QString fileSavePath = canoeRun.at(canoeRun.indexOf("--save-time-path") + 1);
     QString rollbackDir = canoeRun.at(canoeRun.indexOf("-rollback-output-dir") + 1);*/
     int soq = canoeRun.indexOf("--save-on-quit");
@@ -130,9 +152,9 @@ QByteArray HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
     if (rollbackDir != "/tmp/rollback/")
         controlCo->waitForCommand("cp -r " + rollbackDir + "/* /tmp/rollback/");*/
     QThread::msleep(200);
-    controlCo->waitForCommand("ls -l " + QByteArray(CLOVERSAVESTATEPATH));
+    fakeWaitForCommand("ls -l " + QByteArray(CLOVERSAVESTATEPATH));
     if (noGet == false)
-        toret = controlCo->getFile(CLOVERSAVESTATEPATH);
+        controlCo->getFile(CLOVERSAVESTATEPATH);
     if (canoeRun.indexOf("-resume") == -1)
     {
         canoeRun.append("-resume");
@@ -146,11 +168,11 @@ QByteArray HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
     }
     sDebug() << "Restarting Canoe";
     runCanoe(canoeRun);
-    return toret;
+    return true;
 }
 
 
-QByteArray HandleStuffSnesClassic::saveState(bool trigger)
+bool HandleStuffSnesClassic::saveState(bool trigger)
 {
     return mySaveState(trigger, false);
 
@@ -159,6 +181,11 @@ QByteArray HandleStuffSnesClassic::saveState(bool trigger)
 void HandleStuffSnesClassic::loadState(QByteArray data)
 {
     myLoadState(data, false);
+}
+
+bool HandleStuffSnesClassic::needByteData()
+{
+    return true;
 }
 
 void HandleStuffSnesClassic::myLoadState(QByteArray data, bool noPut)
@@ -192,11 +219,14 @@ void HandleStuffSnesClassic::myLoadState(QByteArray data, bool noPut)
         controlCo->sendFile(CLOVERSAVESTATEPATH, data);
     lastLoadMD5 = QCryptographicHash::hash(data, QCryptographicHash::Md5);
     runCanoe(canoeRun);
+    QTimer::singleShot(10, this, [=](){
+        emit loadSaveStateFinished(true);
+    });
 }
 
 bool HandleStuffSnesClassic::hasScreenshots()
 {
-    return true;
+    return false; // FIXME
 }
 
 bool HandleStuffSnesClassic::hasShortcutsEdit()
@@ -226,7 +256,8 @@ void HandleStuffSnesClassic::setShortcutSave(quint16 shortcut)
 
 QByteArray HandleStuffSnesClassic::getScreenshotData()
 {
-    return controlCo->getFile(SCREENSHOTPATH);
+    //return controlCo->getFile(SCREENSHOTPATH);
+    return QByteArray();
 }
 
 quint16 HandleStuffSnesClassic::shortcutLoad()
@@ -237,4 +268,17 @@ quint16 HandleStuffSnesClassic::shortcutLoad()
 quint16 HandleStuffSnesClassic::shortcutSave()
 {
     return saveShortcut;
+}
+
+
+bool HandleStuffSnesClassic::saveState(QString path)
+{
+    Q_UNUSED(path);
+    return false;
+}
+
+bool HandleStuffSnesClassic::loadState(QString path)
+{
+    Q_UNUSED(path);
+    return false;
 }

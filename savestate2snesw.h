@@ -92,6 +92,10 @@ private slots:
 
     void on_actionCategorySetIcon_triggered();
 
+    void    onSaveStateFinished(bool success);
+    void    onLoadStateFinished(bool success);
+
+
 private:
     Ui::Savestate2snesw *ui;
     QStandardItemModel* saveStateModel;
@@ -108,6 +112,7 @@ private:
     QSettings*          m_settings;
     QRegExp             invalidDirRegex;
     QRegExp             invalidFileRegex;
+    QString             newSaveStateNameRequested;
 
     void    createMenus();
     void    loadGames();

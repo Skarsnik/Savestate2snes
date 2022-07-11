@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui websockets
+QT       += core gui websockets testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,7 +13,6 @@ DEFINES += GIT_TAG_VERSION=\\\"$$GIT_TAG_VERSION\\\"
 
 TARGET = Savestate2snes
 TEMPLATE = app
-
 
 SOURCES = main.cpp\
         savestate2snesw.cpp \

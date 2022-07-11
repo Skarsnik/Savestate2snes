@@ -226,9 +226,21 @@ void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
     }
     if (mode == ConsoleSwitcher::USB2Snes)
         handleStuff->setSaveStateDir(gamesFolder);
+    if (mode == ConsoleSwitcher::NWAccess)
+    {
+        QString nwadir = gamesFolder + "/NWAccess";
+        if (!QFileInfo::exists(nwadir))
+        {
+            QDir newDir(gamesFolder);
+            newDir.mkdir("NWAccess");
+        }
+        handleStuff->setSaveStateDir(nwadir);
+    }
     saveStateModel->clear();
     repStateModel->clear();
     loadGames();
+    connect(handleStuff, &HandleStuff::saveStateFinished, this, &Savestate2snesw::onSaveStateFinished, Qt::UniqueConnection);
+    connect(handleStuff, &HandleStuff::loadStateFinished, this, &Savestate2snesw::onLoadStateFinished, Qt::UniqueConnection);
     ui->savestateListView->setHandleStuff(handleStuff);
 }
 
@@ -408,22 +420,32 @@ void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
 void    Savestate2snesw::newSaveState(bool triggerSave)
 {
     sDebug() << "New Savestate, trigger : " << triggerSave;
-    QStandardItem*  newSaveItem = new QStandardItem(tr("New Savestate"));
-    QString name = newSaveItem->text();
-    while (!saveStateModel->findItems(name).isEmpty())
-        name += "_";
-    newSaveItem->setText(name);
-    if (handleStuff->addSaveState(newSaveItem->text(), triggerSave))
+    newSaveStateNameRequested = tr("New Savestate");
+    while (!saveStateModel->findItems(newSaveStateNameRequested).isEmpty())
+        newSaveStateNameRequested += "_";
+    handleStuff->addSaveState(newSaveStateNameRequested, triggerSave);
+}
+
+void Savestate2snesw::onSaveStateFinished(bool success)
+{
+    if (success)
     {
+        QStandardItem*  newSaveItem = new QStandardItem(newSaveStateNameRequested);
+        QString name = newSaveItem->text();
         saveStateModel->invisibleRootItem()->appendRow(newSaveItem);
         ui->savestateListView->setCurrentIndex(newSaveItem->index());
         qDebug() << newSaveItem->isEditable();
         ui->savestateListView->edit(newSaveItem->index());
         newSaveInserted = newSaveItem;
     } else {
-        delete newSaveItem;
-        QMessageBox::warning(this, tr("New savestate error"), QString(tr("Something failed when trying to save the new savestate : %1")).arg(newSaveItem->text()));
+        QMessageBox::warning(this, tr("New savestate error"), QString(tr("Something failed when trying to save the new savestate : %1")).arg(newSaveStateNameRequested));
     }
+
+}
+
+void Savestate2snesw::onLoadStateFinished(bool success)
+{
+
 }
 
 void Savestate2snesw::closeEvent(QCloseEvent *event)

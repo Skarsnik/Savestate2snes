@@ -261,6 +261,7 @@ void USB2SnesStatut::onUsb2snesStateChanged()
 void USB2SnesStatut::onUsb2snesDisconnected()
 {
     ui->statusPushButton->setIcon(QIcon(STATUS_PIX_RED));
+
     timer.stop();
     emit unReadyForSaveState();
 }

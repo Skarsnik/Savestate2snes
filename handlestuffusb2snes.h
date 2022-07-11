@@ -18,12 +18,16 @@ public:
     bool        hasShortcutsEdit();
 
 protected:
-    QByteArray  saveState(bool trigger);
+    bool        saveState(bool trigger);
     void        loadState(QByteArray data);
+    bool        needByteData();
+    bool        saveState(QString path);
+    bool        loadState(QString path);
 
 private:
     USB2snes*   usb2snes;
     void checkForSafeState();
+
 };
 
 #endif // HANDLESTUFFUSB2SNES_H
