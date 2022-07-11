@@ -59,7 +59,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="usb2snesTab">
       <attribute name="title">
@@ -251,6 +251,86 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="nwaccessTab">
+      <attribute name="title">
+       <string>Emu NWAccess</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <widget class="QStackedWidget" name="nwaccessStackedWidget">
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <widget class="QWidget" name="page_2">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <spacer name="verticalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>To make Savestate2snes use Emu NWAccess you  need to press the button bellow. It will stop all the interaction with the other and use a different Savestate folder since both are not compatible</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_8">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="emunwaccessButton">
+             <property name="text">
+              <string>Use Emu NWAccess</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_9">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+         <widget class="NWAccessStatut" name="nwaccessStatut">
+          <layout class="QHBoxLayout" name="horizontalLayout_6"/>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -266,6 +346,12 @@
    <class>SNESClassicStatut</class>
    <extends>QWidget</extends>
    <header>snesclassicstatut.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>NWAccessStatut</class>
+   <extends>QWidget</extends>
+   <header>nwaccessstatut.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

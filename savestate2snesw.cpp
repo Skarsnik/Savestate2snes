@@ -75,7 +75,7 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     repStateModel = new QStandardItemModel();
     ui->savestateListView->setModel(saveStateModel);
     ui->categoryTreeView->setModel(repStateModel);
-    newSaveInserted = NULL;
+    newSaveInserted = nullptr;
     onModeChanged(ui->consoleSwitcher->mode());
     handleStuff = ui->consoleSwitcher->getHandle();
     //handleStuff->setSaveStateDir(gamesFolder);
@@ -467,7 +467,7 @@ void Savestate2snesw::saveStateItemChanged(QStandardItem *item)
     int posInvalid = invalidFileRegex.indexIn(name);
     if (posInvalid != -1)
     {
-        QMessageBox::warning(this, tr("Invalid character"), tr("The savestate name contains an invalid character (< > : \" \/ \\ | ? *). <br/> It get replaced by _"));
+        QMessageBox::warning(this, tr("Invalid character"), tr("The savestate name contains an invalid character (< > : \" / \\ | ? *). <br/> It get replaced by _"));
         while (posInvalid != -1)
         {
             name[posInvalid] = '_';

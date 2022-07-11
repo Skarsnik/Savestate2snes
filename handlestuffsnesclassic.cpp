@@ -1,6 +1,7 @@
 #include <QCryptographicHash>
 #include <QLoggingCategory>
 #include <QThread>
+#include <QTimer>
 #include "handlestuffsnesclassic.h"
 
 #define CLOVERSAVESTATEPATH "/tmp/savestate2snes.svt"

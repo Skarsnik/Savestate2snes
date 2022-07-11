@@ -31,6 +31,9 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     QString mode = m_settings->value("mode").toString();
     snesClassicInit = false;
     usb2snesInit = false;
+    nwaccessInit = false;
+    nwaclient = nullptr;
+    usb2snes = nullptr;
     stuffControlCo = nullptr;
     stuffInput = nullptr;
     sDebug() << "Mode is " << mode;
@@ -40,6 +43,7 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
         initUsb2snes();
         ui->tabWidget->setCurrentIndex(0);
         ui->usb2snesStackedWidget->setCurrentIndex(1);
+        ui->nwaccessStackedWidget->setCurrentIndex(0);
         connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
         connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
     }
@@ -50,16 +54,30 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
         ui->tabWidget->setCurrentIndex(1);
         ui->snesclassicStackedWidget->setCurrentIndex(1);
         ui->usb2snesStackedWidget->setCurrentIndex(0);
+        ui->nwaccessStackedWidget->setCurrentIndex(0);
         connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
         connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SLOT(on_snesClassicReadyForSaveState()));
         connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
         connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SLOT(on_snesClassicUnReadyForSaveState()));
     }
+    if (mode == "NWAccess")
+    {
+        m_mode = NWAccess;
+        initNWAccess();
+        ui->tabWidget->setCurrentIndex(2);
+        ui->snesclassicStackedWidget->setCurrentIndex(0);
+        ui->usb2snesStackedWidget->setCurrentIndex(0);
+        ui->nwaccessStackedWidget->setCurrentIndex(1);
+        connect(ui->nwaccessStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()));
+        connect(ui->nwaccessStatut, SIGNAL(readyForSaveState()), this, SLOT(on_nwaReadyForSaveState()));
+        connect(ui->nwaccessStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
+        connect(ui->nwaccessStatut, SIGNAL(unReadyForSaveState()), this, SLOT(on_nwaUnReadyForSaveState()));
+    }
     snesClassicInputDecoder = new InputDecoder();
     snesClassicShortcutActivated = false;
     snesClassicReady = false;
-    connect(snesClassicInputDecoder, SIGNAL(buttonPressed(InputDecoder::SNESButton)), this, SLOT(on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton)));
-    connect(snesClassicInputDecoder, SIGNAL(buttonReleased(InputDecoder::SNESButton)), this, SLOT(on_snesClassicInputDecoderButtonReleased(InputDecoder::SNESButton)));
+    connect(snesClassicInputDecoder, &InputDecoder::buttonPressed, this, &ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed);
+    connect(snesClassicInputDecoder, &InputDecoder::buttonReleased, this, &ConsoleSwitcher::on_snesClassicInputDecoderButtonReleased);
     connect(ui->snesclassicStatut, SIGNAL(shortcutsToggled(bool)), this, SLOT(on_snesClassicShortcutsToggled(bool)));
     mapEnumToSNES[InputDecoder::A] = B_A_BITMASK;
     mapEnumToSNES[InputDecoder::B] = B_B_BITMASK;
@@ -77,9 +95,12 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
 
 HandleStuff *ConsoleSwitcher::getHandle()
 {
+
     if (m_mode == USB2Snes)
         return handleUSB2Snes;
-    return handleSNESClassic;
+    if (m_mode == SNESClassic)
+        return handleSNESClassic;
+    return handleNWAccess;
 }
 
 void ConsoleSwitcher::start()
@@ -91,6 +112,11 @@ void ConsoleSwitcher::start()
         stuffControlCo->connect();
         if (m_settings->value("SNESClassicShortcuts").toBool())
             stuffInput->connect();
+    }
+    if (m_mode == NWAccess)
+    {
+        nwaclient->connectToHost("127.0.0.1", 65400);
+        ui->nwaccessStatut->start();
     }
 }
 
@@ -105,6 +131,8 @@ QString ConsoleSwitcher::readyString() const
         return ui->usb2snesStatut->readyString();
     if (m_mode == SNESClassic)
         return ui->snesclassicStatut->readyString();
+    if (m_mode == NWAccess)
+        return ui->nwaccessStatut->readyString();
 }
 
 QString ConsoleSwitcher::unreadyString() const
@@ -113,6 +141,8 @@ QString ConsoleSwitcher::unreadyString() const
         return ui->usb2snesStatut->unreadyString();
     if (m_mode == SNESClassic)
         return ui->snesclassicStatut->unreadyString();
+    if (m_mode == NWAccess)
+        return ui->nwaccessStatut->unreadyString();
 }
 
 ConsoleSwitcher::~ConsoleSwitcher()
@@ -128,6 +158,11 @@ ConsoleSwitcher::~ConsoleSwitcher()
     {
         m_settings->setValue("mode", "SNESClassic");
         cleanUpSNESClassic();
+    }
+    if (m_mode == NWAccess)
+    {
+        m_settings->setValue("mode", "NWAccess");
+        cleanUpNWAccess();
     }
     qDebug() << "DELETE UI";
     delete ui;
@@ -222,29 +257,50 @@ void ConsoleSwitcher::initSnesClassic()
     snesClassicInit = true;
 }
 
+void ConsoleSwitcher::initNWAccess()
+{
+    sDebug() << "Init Emu NWAccess";
+    nwaclient = new EmuNWAccessClient();
+    handleNWAccess = new HandleStuffNWAccess();
+    handleNWAccess->setNWAClient(nwaclient);
+    nwaccessInit = true;
+}
+
 void ConsoleSwitcher::cleanUpUSB2Snes()
 {
-    usb2snes->close();
-    ui->usb2snesStatut->stop();
+    if (usb2snes != nullptr)
+    {
+        usb2snes->close();
+        ui->usb2snesStatut->stop();
+    }
 }
 
 void ConsoleSwitcher::cleanUpSNESClassic()
 {
-    stuffControlCo->close();
+    if (stuffControlCo != nullptr)
+        stuffControlCo->close();
     ui->snesclassicStatut->stop();
+}
+
+void ConsoleSwitcher::cleanUpNWAccess()
+{
+    nwaclient->disconnectFromHost();
 }
 
 void ConsoleSwitcher::on_snesClassicButton_clicked()
 {
     emit unReadyForSaveState();
     cleanUpUSB2Snes();
+    cleanUpNWAccess();
     if (!snesClassicInit)
         initSnesClassic();
     m_mode = SNESClassic;
     start();
     ui->snesclassicStackedWidget->setCurrentIndex(1);
     ui->usb2snesStackedWidget->setCurrentIndex(0);
+    ui->nwaccessStackedWidget->setCurrentIndex(0);
     disconnect(ui->usb2snesStatut, nullptr, this, nullptr);
+    disconnect(ui->nwaccessStatut, nullptr, this, nullptr);
     connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()), Qt::UniqueConnection);
     connect(ui->snesclassicStatut, SIGNAL(readyForSaveState()), this, SLOT(on_snesClassicReadyForSaveState()), Qt::UniqueConnection);
     connect(ui->snesclassicStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()), Qt::UniqueConnection);
@@ -252,19 +308,54 @@ void ConsoleSwitcher::on_snesClassicButton_clicked()
     emit modeChanged(SNESClassic);
 }
 
+void ConsoleSwitcher::on_nwaReadyForSaveState()
+{
+    if (!nwaclient->isConnected())
+        nwaclient->connectToHost("127.0.0.1", 65400);
+}
+
+void ConsoleSwitcher::on_nwaUnReadyForSaveState()
+{
+    nwaclient->disconnectFromHost();
+}
+
 void ConsoleSwitcher::on_usb2snesButton_clicked()
 {
     emit unReadyForSaveState();
     cleanUpSNESClassic();
+    cleanUpNWAccess();
     if (!usb2snesInit)
         initUsb2snes();
     m_mode = USB2Snes;
     start();
     ui->snesclassicStackedWidget->setCurrentIndex(0);
     ui->usb2snesStackedWidget->setCurrentIndex(1);
+    ui->nwaccessStackedWidget->setCurrentIndex(0);
     disconnect(ui->snesclassicStatut, nullptr, this, nullptr);
+    disconnect(ui->nwaccessStatut, nullptr, this, nullptr);
     connect(ui->usb2snesStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()), Qt::UniqueConnection);
     connect(ui->usb2snesStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()), Qt::UniqueConnection);
 
     emit modeChanged(USB2Snes);
+}
+
+void ConsoleSwitcher::on_emunwaccessButton_clicked()
+{
+    emit unReadyForSaveState();
+    cleanUpUSB2Snes();
+    cleanUpSNESClassic();
+    if (!nwaccessInit)
+        initNWAccess();
+    m_mode = NWAccess;
+    ui->nwaccessStackedWidget->setCurrentIndex(1);
+    ui->snesclassicStackedWidget->setCurrentIndex(0);
+    ui->usb2snesStackedWidget->setCurrentIndex(0);
+    start();
+    disconnect(ui->snesclassicStatut, nullptr, this, nullptr);
+    disconnect(ui->usb2snesStatut, nullptr, this, nullptr);
+    connect(ui->nwaccessStatut, SIGNAL(readyForSaveState()), this, SIGNAL(readyForSaveState()), Qt::UniqueConnection);
+    connect(ui->nwaccessStatut, SIGNAL(readyForSaveState()), this, SLOT(on_nwaReadyForSaveState()), Qt::UniqueConnection);
+    connect(ui->nwaccessStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()), Qt::UniqueConnection);
+    connect(ui->nwaccessStatut, SIGNAL(unReadyForSaveState()), this, SLOT(on_nwaUnReadyForSaveState()), Qt::UniqueConnection);
+    emit modeChanged(NWAccess);
 }

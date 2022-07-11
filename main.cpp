@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
 #else
     QApplication::setApplicationVersion("0.99");
 #endif
+    QLoggingCategory::setFilterRules("EmuNWAccessClient.debug=true\n");
     a.installTranslator(&translator);
     if (!settings.contains("lastSaveStateDir"))
     {

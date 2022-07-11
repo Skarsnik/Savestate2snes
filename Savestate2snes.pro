@@ -24,11 +24,14 @@ SOURCES = main.cpp\
     shortcuteditdialog.cpp \
     handlestuffusb2snes.cpp \
     snesclassicstuff/desktopclient/inputdecoder.cpp \
+    snesclassicstuff/desktopclient/InputDisplay/inputprovider.cpp \
     snesclassicstuff/stuffclient/stuffclient.cpp \
     snesclassicstatut.cpp \
     handlestuffsnesclassic.cpp \
     consoleswitcher.cpp \
     savestatelistview.cpp \
+    handlestuffnwaccess.cpp \
+    nwaccessstatut.cpp
 
 
 HEADERS  = savestate2snesw.h \
@@ -39,18 +42,25 @@ HEADERS  = savestate2snesw.h \
     shortcuteditdialog.h \
     handlestuffusb2snes.h \
     snesclassicstuff/desktopclient/inputdecoder.h \
+    snesclassicstuff/desktopclient/InputDisplay/inputprovider.h \
     snesclassicstuff/stuffclient/stuffclient.h \
     snesclassicstatut.h \
     handlestuffsnesclassic.h \
     consoleswitcher.h \
     savestatelistview.h \
+    handlestuffnwaccess.h \
+    nwaccessstatut.h
 
 FORMS    = savestate2snesw.ui \
     usb2snesstatut.ui \
     firsttimedialog.ui \
     shortcuteditdialog.ui \
     snesclassicstatut.ui \
-    consoleswitcher.ui
+    consoleswitcher.ui \
+    nwaccessstatut.ui
+
+include($$PWD/EmuNWAccess-qt/EmuNWAccess-qt.pri)
+INCLUDEPATH += snesclassicstuff/desktopclient/InputDisplay/
 
 RC_FILE = savestate2snes.rc
 

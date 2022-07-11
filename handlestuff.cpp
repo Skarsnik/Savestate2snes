@@ -31,9 +31,10 @@ Q_LOGGING_CATEGORY(log_handleStuff, "HandleStuff")
 #define ORDERSAVEFILE "svt2snesordersave.txt"
 #define GAMEINFOS     "gameinfos.txt"
 
-HandleStuff::HandleStuff()
+HandleStuff::HandleStuff() : QObject()
 {
-
+    connect(this, &HandleStuff::saveStateFinished, this, &HandleStuff::onSaveStateFinished);
+    connect(this, &HandleStuff::loadStateFinished, this, &HandleStuff::loadSaveStateFinished);
 }
 
 QStringList HandleStuff::loadGames()

@@ -38,8 +38,9 @@ struct  GameInfos
     QString name;
 };
 
-class HandleStuff
+class HandleStuff : public QObject
 {
+    Q_OBJECT
 public:
     HandleStuff();
 
