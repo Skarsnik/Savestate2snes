@@ -3,12 +3,12 @@
 HandleStuffNWAccess::HandleStuffNWAccess() : HandleStuff ()
 {
     load = false;
-    connect(emuclient, &EmuNWAccessClient::readyRead, this, &HandleStuffNWAccess::onReplyRead);
 }
 
 void HandleStuffNWAccess::setNWAClient(EmuNWAccessClient *client)
 {
     emuclient = client;
+    connect(emuclient, &EmuNWAccessClient::readyRead, this, &HandleStuffNWAccess::onReplyRead);
 }
 
 
@@ -63,9 +63,7 @@ bool HandleStuffNWAccess::saveState(QString path)
 {
     load = false;
     emuclient->cmdSaveState(path);
-    emuclient->waitForReadyRead();
-    auto reply = emuclient->readReply();
-    return !reply.isError;
+    return true;
 }
 
 bool HandleStuffNWAccess::loadState(QString path)
@@ -86,4 +84,15 @@ void HandleStuffNWAccess::onReplyRead()
         emit loadStateFinished(!emuclient->readReply().isError);
     else
         emit saveStateFinished(!emuclient->readReply().isError);
+}
+
+
+bool HandleStuffNWAccess::hasPostSaveScreenshot()
+{
+    return false;
+}
+
+bool HandleStuffNWAccess::doScreenshot()
+{
+    return false;
 }

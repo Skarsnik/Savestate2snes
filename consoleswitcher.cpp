@@ -117,6 +117,14 @@ void ConsoleSwitcher::start()
     if (m_mode == NWAccess)
     {
         nwaclient->connectToHost("127.0.0.1", 65400);
+        connect(nwaclient, &EmuNWAccessClient::connected, this, [=] {
+            nwaclient->cmdMyNameIs("Savestate2Snes control connection");
+            connect(nwaclient, &EmuNWAccessClient::readyRead, this, [=]
+            {
+                handleNWAccess->setNWAClient(nwaclient);
+                disconnect(nwaclient, &EmuNWAccessClient::readyRead, this, nullptr);
+            });
+        });
         ui->nwaccessStatut->start();
     }
 }
@@ -263,7 +271,7 @@ void ConsoleSwitcher::initNWAccess()
     sDebug() << "Init Emu NWAccess";
     nwaclient = new EmuNWAccessClient();
     handleNWAccess = new HandleStuffNWAccess();
-    handleNWAccess->setNWAClient(nwaclient);
+    //handleNWAccess->setNWAClient(nwaclient);
     nwaccessInit = true;
 }
 

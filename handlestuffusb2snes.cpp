@@ -129,3 +129,14 @@ bool HandleStuffUsb2snes::loadState(QString path)
     Q_UNUSED(path)
     return false;
 }
+
+
+bool HandleStuffUsb2snes::hasPostSaveScreenshot()
+{
+    return false;
+}
+
+bool HandleStuffUsb2snes::doScreenshot()
+{
+    return false;
+}

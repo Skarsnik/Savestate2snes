@@ -18,6 +18,7 @@ HandleStuffSnesClassic::HandleStuffSnesClassic() : HandleStuff ()
 {
     loadShortcut = 0;
     saveShortcut = 0;
+    expectingSaveFile = false;
     commandSpy = nullptr;
 }
 
@@ -30,9 +31,20 @@ void HandleStuffSnesClassic::setControlCo(StuffClient *client)
         fileReceivedSize = size;
     });
     connect(client, &StuffClient::newFileData, this, [=](QByteArray data) {
-        saveStateData.append(data);
-        if (saveStateData.size() == fileReceivedSize)
-            emit saveStateFinished(true);
+        if (expectingSaveFile)
+        {
+            saveStateData.append(data);
+            if (saveStateData.size() == fileReceivedSize)
+            {
+                emit saveStateFinished(true);
+            }
+        } else {
+            screenshotData.append(data);
+            if (screenshotData.size() == fileReceivedSize)
+            {
+                emit screenshotDone();
+            }
+        }
     });
 }
 
@@ -226,7 +238,19 @@ void HandleStuffSnesClassic::myLoadState(QByteArray data, bool noPut)
 
 bool HandleStuffSnesClassic::hasScreenshots()
 {
-    return false; // FIXME
+    return true; // FIXME
+}
+
+bool HandleStuffSnesClassic::hasPostSaveScreenshot()
+{
+    return true;
+}
+
+bool HandleStuffSnesClassic::doScreenshot()
+{
+    screenshotData.clear();
+    controlCo->getFile(SCREENSHOTPATH);
+    return true;
 }
 
 bool HandleStuffSnesClassic::hasShortcutsEdit()
@@ -256,8 +280,7 @@ void HandleStuffSnesClassic::setShortcutSave(quint16 shortcut)
 
 QByteArray HandleStuffSnesClassic::getScreenshotData()
 {
-    //return controlCo->getFile(SCREENSHOTPATH);
-    return QByteArray();
+    return screenshotData;
 }
 
 quint16 HandleStuffSnesClassic::shortcutLoad()

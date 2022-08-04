@@ -26,6 +26,8 @@ protected:
     bool saveState(QString path);
     bool loadState(QString path);
     bool needByteData();
+    bool hasPostSaveScreenshot();
+    bool doScreenshot();
 
 private:
     EmuNWAccessClient*  emuclient;

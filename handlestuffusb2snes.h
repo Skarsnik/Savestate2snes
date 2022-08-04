@@ -23,10 +23,15 @@ protected:
     bool        needByteData();
     bool        saveState(QString path);
     bool        loadState(QString path);
+    bool        hasPostSaveScreenshot();
+    bool        doScreenshot();
+
 
 private:
     USB2snes*   usb2snes;
     void checkForSafeState();
+
+
 
 };
 

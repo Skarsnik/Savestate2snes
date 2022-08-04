@@ -35,6 +35,7 @@ HandleStuff::HandleStuff() : QObject()
 {
     connect(this, &HandleStuff::saveStateFinished, this, &HandleStuff::onSaveStateFinished);
     connect(this, &HandleStuff::loadStateFinished, this, &HandleStuff::loadSaveStateFinished);
+    connect(this, &HandleStuff::screenshotDone, this, &HandleStuff::onScreenshotDone);
 }
 
 QStringList HandleStuff::loadGames()
@@ -296,36 +297,47 @@ void    HandleStuff::onSaveStateFinished(bool success)
 {
     if (!success)
     {
-        emit saveStateFinished(success);
+        emit addSaveStateFinished(success);
         return;
     }
-    if (hasScreenshots())
+    if (hasScreenshots() && hasPostSaveScreenshot())
     {
-        QByteArray scData = getScreenshotData();
-        QFile scFile(catLoaded->path + "/ScreenShots/" + QCryptographicHash::hash(saveStateData, QCryptographicHash::Md5).toHex() + ".png");
-        if (scFile.open(QIODevice::WriteOnly))
+        doScreenshot();
+    }
+    /* TODO, preSaveScreenshot */
+    if (needByteData())
+    {
+        QFile saveFile(saveStateFileInfo.absoluteFilePath());
+        if (saveFile.open(QIODevice::WriteOnly))
         {
-            scFile.write(scData);
-            scFile.close();
+            saveFile.write(saveStateData);
+            saveFile.close();
+        } else {
+            emit addSaveStateFinished(false);
+            qCCritical(log_handleStuff()) << "Can't create file for savestate : " << saveFile.errorString();
         }
     }
-    QFile saveFile(saveStateFileInfo.absoluteFilePath());
-    if (saveFile.open(QIODevice::WriteOnly))
-    {
-        saveFile.write(saveStateData);
-        saveFile.close();
-        writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
-        emit saveStateFinished(true);
-        return ;
-    } else {
-        emit saveStateFinished(false);
-        qCCritical(log_handleStuff()) << "Can't create file for savestate : " << saveFile.errorString();
-    }
+    writeCacheOrderFile(ORDERSAVEFILE, catLoaded->path);
+    emit addSaveStateFinished(true);
     return ;
 }
 
+void    HandleStuff::onScreenshotDone()
+{
+    if (hasPostSaveScreenshot())
+        saveScreenshot();
+}
 
-
+void    HandleStuff::saveScreenshot()
+{
+    QByteArray scData = getScreenshotData();
+    QFile scFile(catLoaded->path + "/ScreenShots/" + QCryptographicHash::hash(saveStateData, QCryptographicHash::Md5).toHex() + ".png");
+    if (scFile.open(QIODevice::WriteOnly))
+    {
+        scFile.write(scData);
+        scFile.close();
+    }
+}
 
 bool HandleStuff::removeCategory(QString categoryPath)
 {

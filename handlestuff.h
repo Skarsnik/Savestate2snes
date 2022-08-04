@@ -76,6 +76,7 @@ public:
 signals:
     void                loadStateFinished(bool);
     void                saveStateFinished(bool);
+    void                screenshotDone();
 
 // The real public signals
 signals:
@@ -87,6 +88,8 @@ protected:
     virtual bool        saveState(QString path) = 0;
     virtual bool        loadState(QString path) = 0;
     virtual void        loadState(QByteArray data) = 0;
+    virtual bool        hasPostSaveScreenshot() = 0;
+    virtual bool        doScreenshot() = 0;
     virtual bool        needByteData() = 0;
     QByteArray          saveStateData;
 
@@ -105,6 +108,8 @@ private:
     QStringList getCacheOrderList(QString file, QString dirPath);
     void        writeCacheOrderFile(QString file, QString dirPath);
     void        onSaveStateFinished(bool success);
+    void        saveScreenshot();
+    void        onScreenshotDone();
 };
 
 #endif // HANDLESTUFF_H

@@ -26,14 +26,18 @@ protected:
     bool            needByteData();
     bool            saveState(QString path);
     bool            loadState(QString path);
+    bool            hasPostSaveScreenshot();
+    bool            doScreenshot();
 
 
 private:
     StuffClient*            controlCo;
     QByteArray              lastLoadMD5;
+    QByteArray              screenshotData;
     quint16                 saveShortcut;
     quint16                 loadShortcut;
     uint                    fileReceivedSize;
+    bool                    expectingSaveFile;
 
     QSignalSpy*              commandSpy;
     void        runCanoe(QStringList canoeArgs);

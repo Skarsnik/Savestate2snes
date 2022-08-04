@@ -45,9 +45,13 @@ NWAccessStatut::NWAccessStatut(QWidget *parent) :
 
     connect(client, &EmuNWAccessClient::connected, this, [=] {
         sDebug() << "Connected";
+        client->cmdMyNameIs("Savestate2Snes status check");
     });
-    connect(client, &EmuNWAccessClient::disconnectFromHost, this, [=] {
+    connect(client, &EmuNWAccessClient::disconnected, this, [=] {
         sDebug() << "Disconnected";
+        ui->gameLabel->setText(QString("No emulator running"));
+        ui->emulatorLabel->setText(QString("No emulator running"));
+        checkStatusTimer.start();
         emit unReadyForSaveState();
     });
 }
@@ -65,7 +69,7 @@ QString NWAccessStatut::readyString()
 
 QString NWAccessStatut::unreadyString()
 {
-    return tr("Emulator unready for Savestate");
+    return tr("Emulator not ready for Savestate");
 }
 
 void NWAccessStatut::onTimerTimeout()
