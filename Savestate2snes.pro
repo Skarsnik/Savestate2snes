@@ -30,7 +30,8 @@ SOURCES = main.cpp\
     consoleswitcher.cpp \
     savestatelistview.cpp \
     handlestuffnwaccess.cpp \
-    nwaccessstatut.cpp
+    nwaccessstatut.cpp \
+    trainingtimer.cpp
 
 
 HEADERS  = savestate2snesw.h \
@@ -48,7 +49,8 @@ HEADERS  = savestate2snesw.h \
     consoleswitcher.h \
     savestatelistview.h \
     handlestuffnwaccess.h \
-    nwaccessstatut.h
+    nwaccessstatut.h \
+    trainingtimer.h
 
 FORMS    = savestate2snesw.ui \
     usb2snesstatut.ui \
@@ -56,7 +58,8 @@ FORMS    = savestate2snesw.ui \
     shortcuteditdialog.ui \
     snesclassicstatut.ui \
     consoleswitcher.ui \
-    nwaccessstatut.ui
+    nwaccessstatut.ui \
+    trainingtimer.ui
 
 include($$PWD/EmuNWAccess-qt/EmuNWAccess-qt.pri)
 INCLUDEPATH += snesclassicstuff/desktopclient/InputDisplay/
