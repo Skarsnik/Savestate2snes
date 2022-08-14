@@ -12,7 +12,7 @@
 
 #include <QWidget>
 
-#include <snesclassicstuff/desktopclient/inputdecoder.h>
+#include <Button-Mash/inputdecoder.h>
 
 namespace Ui {
 class ConsoleSwitcher;
@@ -46,8 +46,8 @@ signals:
     void    unReadyForSaveState();
 
 private slots:
-    void    on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton);
-    void    on_snesClassicInputDecoderButtonReleased(InputDecoder::SNESButton);
+    void    on_snesClassicInputDecoderButtonPressed(InputProvider::SNESButton);
+    void    on_snesClassicInputDecoderButtonReleased(InputProvider::SNESButton);
     void    on_snesClassicInputNewData(QByteArray data);
     void    on_snesClassicInputConnected();
     void    on_snesClassicShortcutsToggled(bool toggled);

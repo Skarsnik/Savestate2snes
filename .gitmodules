@@ -4,3 +4,6 @@
 [submodule "EmuNWAccess-qt"]
 	path = EmuNWAccess-qt
 	url = https://github.com/black-sliver/EmuNWAccess-qt.git
+[submodule "Button-Mash"]
+	path = Button-Mash
+	url = https://github.com/Skarsnik/Button-Mash.git

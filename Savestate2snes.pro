@@ -22,8 +22,8 @@ SOURCES = main.cpp\
     firsttimedialog.cpp \
     shortcuteditdialog.cpp \
     handlestuffusb2snes.cpp \
-    snesclassicstuff/desktopclient/inputdecoder.cpp \
-    snesclassicstuff/desktopclient/InputDisplay/inputprovider.cpp \
+    Button-Mash/inputdecoder.cpp \
+    Button-Mash/inputprovider.cpp \
     snesclassicstuff/stuffclient/stuffclient.cpp \
     snesclassicstatut.cpp \
     handlestuffsnesclassic.cpp \
@@ -41,9 +41,9 @@ HEADERS  = savestate2snesw.h \
     firsttimedialog.h \
     shortcuteditdialog.h \
     handlestuffusb2snes.h \
-    snesclassicstuff/desktopclient/inputdecoder.h \
-    snesclassicstuff/desktopclient/InputDisplay/inputprovider.h \
     snesclassicstuff/stuffclient/stuffclient.h \
+    Button-Mash/inputdecoder.h \
+    Button-Mash/inputprovider.h \
     snesclassicstatut.h \
     handlestuffsnesclassic.h \
     consoleswitcher.h \

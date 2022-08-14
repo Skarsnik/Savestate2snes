@@ -80,18 +80,18 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     connect(snesClassicInputDecoder, &InputDecoder::buttonPressed, this, &ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed);
     connect(snesClassicInputDecoder, &InputDecoder::buttonReleased, this, &ConsoleSwitcher::on_snesClassicInputDecoderButtonReleased);
     connect(ui->snesclassicStatut, SIGNAL(shortcutsToggled(bool)), this, SLOT(on_snesClassicShortcutsToggled(bool)));
-    mapEnumToSNES[InputDecoder::A] = B_A_BITMASK;
-    mapEnumToSNES[InputDecoder::B] = B_B_BITMASK;
-    mapEnumToSNES[InputDecoder::Y] = B_Y_BITMASK;
-    mapEnumToSNES[InputDecoder::X] = B_X_BITMASK;
-    mapEnumToSNES[InputDecoder::Start] = B_START_BITMASK;
-    mapEnumToSNES[InputDecoder::Select] = B_SELECT_BITMASK;
-    mapEnumToSNES[InputDecoder::L] = B_L_BITMASK;
-    mapEnumToSNES[InputDecoder::R] = B_R_BITMASK;
-    mapEnumToSNES[InputDecoder::Left] = B_LEFT_BITMASK;
-    mapEnumToSNES[InputDecoder::Right] = B_RIGHT_BITMASK;
-    mapEnumToSNES[InputDecoder::Up] = B_UP_BITMASK;
-    mapEnumToSNES[InputDecoder::Down] = B_DOWN_BITMASK;
+    mapEnumToSNES[InputProvider::A] = B_A_BITMASK;
+    mapEnumToSNES[InputProvider::B] = B_B_BITMASK;
+    mapEnumToSNES[InputProvider::Y] = B_Y_BITMASK;
+    mapEnumToSNES[InputProvider::X] = B_X_BITMASK;
+    mapEnumToSNES[InputProvider::Start] = B_START_BITMASK;
+    mapEnumToSNES[InputProvider::Select] = B_SELECT_BITMASK;
+    mapEnumToSNES[InputProvider::L] = B_L_BITMASK;
+    mapEnumToSNES[InputProvider::R] = B_R_BITMASK;
+    mapEnumToSNES[InputProvider::Left] = B_LEFT_BITMASK;
+    mapEnumToSNES[InputProvider::Right] = B_RIGHT_BITMASK;
+    mapEnumToSNES[InputProvider::Up] = B_UP_BITMASK;
+    mapEnumToSNES[InputProvider::Down] = B_DOWN_BITMASK;
 }
 
 HandleStuff *ConsoleSwitcher::getHandle()
@@ -183,7 +183,7 @@ void ConsoleSwitcher::refreshShortcuts()
         ui->usb2snesStatut->refreshShortcuts();
 }
 
-void ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed(InputDecoder::SNESButton but)
+void ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed(InputProvider::SNESButton but)
 {
     snesClassicButtonPressed.append(but);
     int currentInput = 0;
@@ -198,7 +198,7 @@ void ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed(InputDecoder::SNES
         handleSNESClassic->controllerSaveState();
 }
 
-void ConsoleSwitcher::on_snesClassicInputDecoderButtonReleased(InputDecoder::SNESButton but)
+void ConsoleSwitcher::on_snesClassicInputDecoderButtonReleased(InputProvider::SNESButton but)
 {
     snesClassicButtonPressed.removeAll(but);
 }
