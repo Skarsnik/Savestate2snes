@@ -17,6 +17,7 @@
 
 
 #include "savestate2snesw.h"
+#include "trainingtimer.h"
 #include <QApplication>
 #include <QMessageBox>
 #include "firsttimedialog.h"
@@ -120,6 +121,8 @@ int main(int argc, char *argv[])
     }
     Savestate2snesw w;
     w.show();
+    /*TrainingTimer pt;
+    pt.show();*/
 
     return a.exec();
 }

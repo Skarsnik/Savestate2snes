@@ -4,6 +4,8 @@
 #include "handlestuff.h"
 #include "emunwaccessclient.h"
 
+#include <QTimer>
+
 class HandleStuffNWAccess : public HandleStuff
 {
 public:
@@ -13,12 +15,15 @@ public:
 public:
     void    setNWAClient(EmuNWAccessClient* client);
     QByteArray getScreenshotData();
-    bool hasShortcutsEdit();
-    bool hasScreenshots();
-    void setShortcutSave(quint16 shortcut);
-    void setShortcutLoad(quint16 shortcut);
+    bool    hasShortcutsEdit();
+    bool    hasScreenshots();
+    void    setShortcutSave(quint16 shortcut);
+    void    setShortcutLoad(quint16 shortcut);
     quint16 shortcutSave();
     quint16 shortcutLoad();
+    bool    hasMemoryWatch();
+    void    startMemoryWatch();
+    void    stopMemoryWatch();
 
 protected:
     bool saveState(bool trigger);
@@ -32,6 +37,9 @@ protected:
 private:
     EmuNWAccessClient*  emuclient;
     bool                load;
+    bool                doingState;
+    bool                memoryAccess;
+    QTimer              memoryTimer;
 
     void    onReplyRead();
 

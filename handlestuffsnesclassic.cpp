@@ -305,3 +305,19 @@ bool HandleStuffSnesClassic::loadState(QString path)
     Q_UNUSED(path);
     return false;
 }
+
+
+bool HandleStuffSnesClassic::hasMemoryWatch()
+{
+    return false;
+}
+
+void HandleStuffSnesClassic::startMemoryWatch()
+{
+    return;
+}
+
+void HandleStuffSnesClassic::stopMemoryWatch()
+{
+    return;
+}

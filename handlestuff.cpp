@@ -75,6 +75,8 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
     gameLoaded = game;
     m_gameInfo.loadShortcut = 0;
     m_gameInfo.saveShortcut = 0;
+    m_gameInfo.memorySize = 0;
+    m_gameInfo.memoryAddress = 0;
     m_gameInfo.name = game;
     QDir gDir(saveDirectory.absolutePath() + "/" + game);
     if (QFileInfo::exists(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS))
@@ -88,7 +90,14 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
             m_gameInfo.saveShortcut = file.value("_/saveShortcut").toString().toUInt(&ok, 16);
         m_gameInfo.name = file.value("_/game").toString();
         sDebug() << "Shortcuts are : (s/l)" << QString::number(m_gameInfo.saveShortcut, 16) << QString::number(m_gameInfo.loadShortcut, 16);
-
+        if (file.contains("_/memoryAddress"))
+            m_gameInfo.memoryAddress = file.value("_/memoryAddress").toString().toULong(&ok, 16);
+        if (file.contains("_/memorySize"))
+        {
+            m_gameInfo.memorySize = file.value("_/memorySize").toString().toUInt(&ok);
+            memorySize = m_gameInfo.memorySize;
+            memoryToWatch = m_gameInfo.memoryAddress;
+        }
     }
     return categories[game]->children;
 }
@@ -203,7 +212,7 @@ Category* HandleStuff::addCategory(QString newCategory, QString parentPath)
     if (!di.mkdir(newCategory))
     {
         qCCritical(log_handleStuff()) << "Can't create a new category directory " << newCategory;
-        return NULL;
+        return nullptr;
     }
     Category* newCat = new Category();
     newCat->name = newCategory;
@@ -439,6 +448,19 @@ void HandleStuff::setGameShortCut(quint16 save, quint16 load)
     QSettings file(saveDirectory.absolutePath() + "/" + gameLoaded + "/" + GAMEINFOS, QSettings::IniFormat);
     file.setValue("_/saveShortcut", QString::number(save, 16));
     file.setValue("_/loadShortcut", QString::number(load, 16));
+}
+
+void HandleStuff::saveMemoryInfos(quint64 address, quint8 size)
+{
+    QSettings file(saveDirectory.absolutePath() + "/" + gameLoaded + "/" + GAMEINFOS, QSettings::IniFormat);
+    file.setValue("_/memoryAddress", QString::number(address, 16));
+    file.setValue("_/memorySize", QString::number(size));
+}
+
+void HandleStuff::setMemoryToWatch(const quint64 address, const quint8 size)
+{
+    memorySize = size;
+    memoryToWatch = address;
 }
 
 

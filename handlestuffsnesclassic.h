@@ -17,6 +17,9 @@ public:
     quint16         shortcutSave();
     bool            hasScreenshots();
     bool            hasShortcutsEdit();
+    bool            hasMemoryWatch();
+    void            startMemoryWatch();
+    void            stopMemoryWatch();
     void            controllerSaveState();
     void            controllerLoadState();
 
@@ -49,6 +52,7 @@ private:
 
 
     bool fakeWaitForCommand(QByteArray cmd, unsigned int timeout = 200);
+
 };
 
 #endif // HANDLESTUFFSNESCLASSIC_H

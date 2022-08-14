@@ -16,6 +16,9 @@ public:
     void        setShortcutSave(quint16 shortcut);
     bool        hasScreenshots();
     bool        hasShortcutsEdit();
+    bool        hasMemoryWatch();
+    void        startMemoryWatch();
+    void        stopMemoryWatch();
 
 protected:
     bool        saveState(bool trigger);

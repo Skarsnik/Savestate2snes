@@ -21,6 +21,7 @@
 #include <QStandardItem>
 #include <QDir>
 
+
 #define MyRolePath Qt::UserRole + 1
 
 struct Category {
@@ -35,6 +36,8 @@ struct  GameInfos
 {
     quint16 saveShortcut;
     quint16 loadShortcut;
+    quint64 memoryAddress;
+    quint8  memorySize;
     QString name;
 };
 
@@ -64,6 +67,9 @@ public:
     QString     getSavestatePath(QString name);
     GameInfos   gameInfos();
     void        setGameShortCut(quint16 save, quint16 load);
+    void        saveMemoryInfos(quint64 address, quint8 size);
+    void        setMemoryToWatch(const quint64 address, const quint8 size);
+
     virtual QByteArray  getScreenshotData() = 0;
     virtual bool        hasShortcutsEdit() = 0;
     virtual bool        hasScreenshots() = 0;
@@ -71,6 +77,10 @@ public:
     virtual void        setShortcutLoad(quint16 shortcut) = 0;
     virtual quint16     shortcutSave() = 0;
     virtual quint16     shortcutLoad() = 0;
+    virtual bool        hasMemoryWatch() = 0;
+    virtual void        startMemoryWatch() = 0;
+    virtual void        stopMemoryWatch() = 0;
+
 
 // This is only for the subclass
 signals:
@@ -82,6 +92,7 @@ signals:
 signals:
     void                addSaveStateFinished(bool);
     void                loadSaveStateFinished(bool);
+    void                gotMemoryValue(quint64 value);
 
 protected:
     virtual bool        saveState(bool trigger) = 0;
@@ -92,6 +103,9 @@ protected:
     virtual bool        doScreenshot() = 0;
     virtual bool        needByteData() = 0;
     QByteArray          saveStateData;
+    quint64             memoryToWatch;
+    quint8              memorySize;
+
 
 private:
     QDir                                    saveDirectory;

@@ -23,6 +23,7 @@
 #include "handlestuff.h"
 #include "usb2snes.h"
 #include "consoleswitcher.h"
+#include "trainingtimer.h"
 
 namespace Ui {
 class Savestate2snesw;
@@ -113,6 +114,8 @@ private:
     QRegExp             invalidDirRegex;
     QRegExp             invalidFileRegex;
     QString             newSaveStateNameRequested;
+
+    TrainingTimer*      trainingTimer;
 
     void    createMenus();
     void    loadGames();

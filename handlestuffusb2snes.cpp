@@ -116,6 +116,21 @@ bool HandleStuffUsb2snes::hasShortcutsEdit()
     return true;
 }
 
+bool HandleStuffUsb2snes::hasMemoryWatch()
+{
+    return false;
+}
+
+void HandleStuffUsb2snes::startMemoryWatch()
+{
+    return ;
+}
+
+void HandleStuffUsb2snes::stopMemoryWatch()
+{
+    return ;
+}
+
 
 
 bool HandleStuffUsb2snes::saveState(QString path)

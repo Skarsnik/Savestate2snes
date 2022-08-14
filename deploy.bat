@@ -11,13 +11,13 @@ rmdir /Q /S %deployPath%
 mkdir %deployPath%
 :: Compile
 
-::"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+::"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
 mkdir %compilePath%
 cd %compilePath%
 cd
 set QMAKE_MSC_VER=1910
-qmake %projectPath%\savestate2snes.pro  -spec win32-msvc "CONFIG+=release"
+qmake %projectPath%\savestate2snes.pro  -spec win32-msvc "CONFIG+=release no_batch"
 nmake
 
 xcopy /y %originalBinDir%\release\savestate2snes.exe %deployPath%

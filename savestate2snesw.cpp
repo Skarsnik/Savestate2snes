@@ -25,8 +25,7 @@
 #include "savestate2snesw.h"
 #include "shortcuteditdialog.h"
 #include "ui_savestate2snesw.h"
-#include "handlestuffusb2snes.h"
-#include "handlestuffsnesclassic.h"
+
 
 Q_LOGGING_CATEGORY(log_MainUI, "MainUI")
 
@@ -41,7 +40,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui(new Ui::Savestate2snesw)
 {
     ui->setupUi(this);
-
+    trainingTimer = new TrainingTimer();
+    trainingTimer->show();
     sDebug() << "Savestate2snes  " << qApp->applicationVersion();
     invalidDirRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
     invalidFileRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
@@ -153,7 +153,7 @@ QStandardItem*   findCatItemPath(QStandardItem* item, QString toFind)
             return  findCatItemPath(child, toFind);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -242,6 +242,7 @@ void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
     connect(handleStuff, &HandleStuff::saveStateFinished, this, &Savestate2snesw::onSaveStateFinished, Qt::UniqueConnection);
     connect(handleStuff, &HandleStuff::loadStateFinished, this, &Savestate2snesw::onLoadStateFinished, Qt::UniqueConnection);
     ui->savestateListView->setHandleStuff(handleStuff);
+    trainingTimer->setHandler(handleStuff);
 }
 
 void Savestate2snesw::saveListShowContextMenu(QPoint point)
@@ -413,6 +414,10 @@ void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
         newItem->setData(cat->path, MyRolePath);
         repStateModel->invisibleRootItem()->appendRow(newItem);
         createChildItems(cat->children, newItem);
+    }
+    if (handleStuff->gameInfos().memorySize != 0)
+    {
+        trainingTimer->setMemoryInfo(handleStuff->gameInfos().memoryAddress, handleStuff->gameInfos().memorySize);
     }
     ui->categoryTreeView->expandAll();
 }
