@@ -1,5 +1,6 @@
 #include <QtEndian>
 #include <QLoggingCategory>
+#include <QTemporaryFile>
 Q_LOGGING_CATEGORY(log_handleStuffNWA, "HandleStuffNWA")
 
 #define sDebug() qCDebug(log_handleStuffNWA)
@@ -13,9 +14,13 @@ HandleStuffNWAccess::HandleStuffNWAccess() : HandleStuff ()
     load = false;
     doingState = false;
     memoryAccess = false;
+    controllerStateRequest = false;
+    QTemporaryFile f("SaveStateSnesNWA");
+    f.open();
+    tempFilePath = f.fileName();
     memoryTimer.setInterval(20);
     connect(&memoryTimer, &QTimer::timeout, this, [=]{
-        emuclient->cmdCoreReadMemory("WRAM", memoryToWatch, memorySize);
+        emuclient->cmdCoreReadMemory(gameInfos().memoryPreset.domain, gameInfos().memoryPreset.address , gameInfos().memoryPreset.size);
     });
 }
 
@@ -34,7 +39,7 @@ QByteArray HandleStuffNWAccess::getScreenshotData()
 
 bool HandleStuffNWAccess::hasShortcutsEdit()
 {
-    return false;
+    return true;
 }
 
 bool HandleStuffNWAccess::hasScreenshots()
@@ -44,22 +49,22 @@ bool HandleStuffNWAccess::hasScreenshots()
 
 void HandleStuffNWAccess::setShortcutSave(quint16 shortcut)
 {
-    Q_UNUSED(shortcut)
+    saveShortcut = shortcut;
 }
 
 void HandleStuffNWAccess::setShortcutLoad(quint16 shortcut)
 {
-    Q_UNUSED(shortcut)
+    loadShortcut = shortcut;
 }
 
 quint16 HandleStuffNWAccess::shortcutSave()
 {
-    return 1;
+    return saveShortcut;
 }
 
 quint16 HandleStuffNWAccess::shortcutLoad()
 {
-    return 1;
+    return loadShortcut;
 }
 
 bool HandleStuffNWAccess::hasMemoryWatch()
@@ -75,6 +80,18 @@ void HandleStuffNWAccess::startMemoryWatch()
 void HandleStuffNWAccess::stopMemoryWatch()
 {
     memoryTimer.stop();
+}
+
+void HandleStuffNWAccess::controllerLoadState()
+{
+    controllerStateRequest = true;
+    loadState(lastLoadedSave);
+}
+
+void HandleStuffNWAccess::controllerSaveState()
+{
+    controllerStateRequest = true;
+    saveState(tempFilePath);
 }
 
 bool HandleStuffNWAccess::saveState(bool trigger)
@@ -93,6 +110,7 @@ bool HandleStuffNWAccess::saveState(QString path)
 {
     load = false;
     doingState = true;
+    lastLoadedSave = path;
     emuclient->cmdSaveState(path);
     return true;
 }
@@ -101,6 +119,7 @@ bool HandleStuffNWAccess::loadState(QString path)
 {
     load = true;
     doingState = true;
+    lastLoadedSave = path;
     emuclient->cmdLoadState(path);
     return true;
 }
@@ -113,6 +132,7 @@ bool HandleStuffNWAccess::needByteData()
 void HandleStuffNWAccess::onReplyRead()
 {
     auto reply = emuclient->readReply();
+    sDebug() << "Replied for " << reply.cmd;
     if (reply.cmd == "EMULATOR_INFO")
     {
         if (reply["commands"].indexOf("CORE_READ"))
@@ -132,10 +152,15 @@ void HandleStuffNWAccess::onReplyRead()
     }
     if (doingState == false)
         return;
-    if (load)
-        emit loadStateFinished(!reply.isError);
-    else
-        emit saveStateFinished(!reply.isError);
+    if (!controllerStateRequest)
+    {
+        if (load)
+            emit loadStateFinished(!reply.isError);
+        else
+            emit saveStateFinished(!reply.isError);
+    } else {
+        controllerStateRequest = false;
+    }
 }
 
 

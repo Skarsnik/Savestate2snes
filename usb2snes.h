@@ -68,6 +68,8 @@ public:
     void                    close();
     void                    setAppName(QString name);
     QByteArray              getAddress(unsigned int addr, unsigned int size, Space space = SNES);
+    void                    getAsyncAddress(unsigned int addr, unsigned int size, Space space = SNES);
+    const QByteArray&       getAsyncAdressData() const;
     void                    setAddress(unsigned int addr, QByteArray data, Space space = SNES);
     State                   state();
     QStringList             infos();
@@ -84,6 +86,7 @@ signals:
     void    disconnected();
     void    binaryMessageReceived();
     void    textMessageReceived();
+    void    getAddressDataReceived();
     void    romStarted();
     void    menuStarted();
 
@@ -113,6 +116,7 @@ private:
     QByteArray      lastBinaryMessage;
     QString         lastTextMessage;
     unsigned int    requestedBinaryReadSize;
+    bool            doingAsyncGetAddress;
 
     QTimer          timer;
 

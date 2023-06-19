@@ -52,6 +52,13 @@
        </widget>
       </item>
       <item>
+       <widget class="TrainingTimer" name="trainingTimer" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer_7">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -499,7 +506,13 @@
   <customwidget>
    <class>SaveStateListView</class>
    <extends>QListView</extends>
-   <header location="global">savestatelistview.h</header>
+   <header>savestatelistview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TrainingTimer</class>
+   <extends>QWidget</extends>
+   <header location="global">trainingtimer.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

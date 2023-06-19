@@ -19,6 +19,8 @@ public:
     bool        hasMemoryWatch();
     void        startMemoryWatch();
     void        stopMemoryWatch();
+    void        controllerSaveState();
+    void        controllerLoadState();
 
 protected:
     bool        saveState(bool trigger);
@@ -33,8 +35,15 @@ protected:
 private:
     USB2snes*   usb2snes;
     void checkForSafeState();
+    bool        doingMemoryWatchCheck;
+    bool        doingSaveState;
+    bool        saveStateTrigger;
+    bool        doingLoadState;
+    QTimer      memoryWatchTimer;
+    QTimer      safeStateTimer;
+    QByteArray  loadStateData;
 
-
+    void        onGetAddressDataReceived();
 
 };
 

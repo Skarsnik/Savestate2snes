@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui websockets testlib
+QT       += core gui websockets testlib gamepad
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,10 +13,26 @@ DEFINES += GIT_TAG_VERSION=\\\"$$GIT_TAG_VERSION\\\"
 
 TARGET = Savestate2snes
 TEMPLATE = app
+CONFIG += no_batch
 
-SOURCES = main.cpp\
+win32 {
+    LIBS += -ldinput8 -ldxguid
+    CONFIG += c++11
+    SOURCES += Button-Mash/directinputsource.cpp
+    HEADERS += Button-Mash/directinputsource.h
+    SOURCES += Button-Mash/QGameController/src/gamecontroller/qgamecontroller.cpp
+    SOURCES += Button-Mash/QGameController/src/gamecontroller/qgamecontroller_win.cpp
+    QGC_PUBLIC_HEADERS += Button-Mash/QGameController/src/gamecontroller/qgamecontroller.h
+    QGC_PRIVATE_HEADERS += Button-Mash/QGameController/src/gamecontroller/qgamecontroller_p.h
+    HEADERS += $$QGC_PUBLIC_HEADERS $$QGC_PRIVATE_HEADERS
+    message("Compiling for windows")
+}
+
+
+SOURCES += main.cpp\
         savestate2snesw.cpp \
     handlestuff.cpp \
+    trainingconfigdialog.cpp \
     usb2snes.cpp \
     usb2snesstatut.cpp \
     firsttimedialog.cpp \
@@ -24,6 +40,10 @@ SOURCES = main.cpp\
     handlestuffusb2snes.cpp \
     Button-Mash/inputdecoder.cpp \
     Button-Mash/inputprovider.cpp \
+    Button-Mash/mapbuttondialog.cpp \
+    Button-Mash/localcontroller.cpp \
+    Button-Mash/localcontrollermanager.cpp \
+    Button-Mash/qgamepadsource.cpp \
     snesclassicstuff/stuffclient/stuffclient.cpp \
     snesclassicstatut.cpp \
     handlestuffsnesclassic.cpp \
@@ -34,8 +54,9 @@ SOURCES = main.cpp\
     trainingtimer.cpp
 
 
-HEADERS  = savestate2snesw.h \
+HEADERS  += savestate2snesw.h \
     handlestuff.h \
+    trainingconfigdialog.h \
     usb2snes.h \
     usb2snesstatut.h \
     firsttimedialog.h \
@@ -44,6 +65,10 @@ HEADERS  = savestate2snesw.h \
     snesclassicstuff/stuffclient/stuffclient.h \
     Button-Mash/inputdecoder.h \
     Button-Mash/inputprovider.h \
+    Button-Mash/mapbuttondialog.h \
+    Button-Mash/localcontroller.h \
+    Button-Mash/localcontrollermanager.h \
+    Button-Mash/qgamepadsource.h \
     snesclassicstatut.h \
     handlestuffsnesclassic.h \
     consoleswitcher.h \
@@ -53,12 +78,14 @@ HEADERS  = savestate2snesw.h \
     trainingtimer.h
 
 FORMS    = savestate2snesw.ui \
+    trainingconfigdialog.ui \
     usb2snesstatut.ui \
     firsttimedialog.ui \
     shortcuteditdialog.ui \
     snesclassicstatut.ui \
     consoleswitcher.ui \
     nwaccessstatut.ui \
+    Button-Mash/mapbuttondialog.ui \
     trainingtimer.ui
 
 include($$PWD/EmuNWAccess-qt/EmuNWAccess-qt.pri)
@@ -80,3 +107,6 @@ TRANSLATIONS = Translations\savestate2snes_fr.ts \
                Translations\savestate2snes_de.ts \
                Translations\savestate2snes_sv.ts \
                Translations\savestate2snes_nl.ts
+
+DISTFILES += \
+    memorypreset.json

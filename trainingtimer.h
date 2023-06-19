@@ -2,6 +2,7 @@
 #define TRAININGTIMER_H
 
 #include "handlestuff.h"
+#include "trainingconfigdialog.h"
 
 #include <QWidget>
 #include <QTime>
@@ -19,17 +20,22 @@ class TrainingTimer : public QWidget
 public:
     explicit TrainingTimer(QWidget *parent = nullptr);
     ~TrainingTimer();
+    bool    loadPreset(const QString& path);
     void    setHandler(HandleStuff* stuff);
-    void    setMemoryInfo(quint64 address, quint8 size);
+    void    setSavedPreset(MemoryPreset preset);
 
 signals:
+    void    memoryPresetChanged(MemoryPreset preset);
 
 public slots:
     void    onSavestateLoaded();
     void    onMemoryRequestDone(quint64);
 
+
 private slots:
-    void on_addressLineEdit_editingFinished();
+    void on_configPushButton_clicked();
+
+    void on_memoryCheckcheckBox_stateChanged(int arg1);
 
 private:
     Ui::TrainingTimer *ui;
@@ -40,6 +46,7 @@ private:
     bool            readyToTime;
     bool            firstMemoryTick;
     bool            firstLoad;
+    TrainingConfigDialog    configDialog;
 
     void    onTimerTick();
     void    setLabelTime(QLabel*    label);

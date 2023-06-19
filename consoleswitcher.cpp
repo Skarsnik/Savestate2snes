@@ -38,6 +38,8 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     stuffControlCo = nullptr;
     stuffInput = nullptr;
     sDebug() << "Mode is " << mode;
+    localController = nullptr;
+    ui->nwaccessStatut->setSettings(m_settings);
     if (mode == "USB2Snes" || mode.isEmpty())
     {
         m_mode = USB2Snes;
@@ -73,13 +75,19 @@ ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
         connect(ui->nwaccessStatut, SIGNAL(readyForSaveState()), this, SLOT(on_nwaReadyForSaveState()));
         connect(ui->nwaccessStatut, SIGNAL(unReadyForSaveState()), this, SIGNAL(unReadyForSaveState()));
         connect(ui->nwaccessStatut, SIGNAL(unReadyForSaveState()), this, SLOT(on_nwaUnReadyForSaveState()));
+        QTimer::singleShot(0, this, [=]
+        {
+            ui->nwaccessStatut->setToShow();
+            onLocalControllerChanged();
+        });
     }
     snesClassicInputDecoder = new InputDecoder();
     snesClassicShortcutActivated = false;
     snesClassicReady = false;
-    connect(snesClassicInputDecoder, &InputDecoder::buttonPressed, this, &ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed);
-    connect(snesClassicInputDecoder, &InputDecoder::buttonReleased, this, &ConsoleSwitcher::on_snesClassicInputDecoderButtonReleased);
+    connect(snesClassicInputDecoder, &InputDecoder::buttonPressed, this, &ConsoleSwitcher::onInputProviderButtonPressed);
+    connect(snesClassicInputDecoder, &InputDecoder::buttonReleased, this, &ConsoleSwitcher::onInputProviderButtonReleased);
     connect(ui->snesclassicStatut, SIGNAL(shortcutsToggled(bool)), this, SLOT(on_snesClassicShortcutsToggled(bool)));
+    connect(ui->nwaccessStatut, &NWAccessStatut::localControllerChanged, this, &ConsoleSwitcher::onLocalControllerChanged);
     mapEnumToSNES[InputProvider::A] = B_A_BITMASK;
     mapEnumToSNES[InputProvider::B] = B_B_BITMASK;
     mapEnumToSNES[InputProvider::Y] = B_Y_BITMASK;
@@ -116,13 +124,14 @@ void ConsoleSwitcher::start()
     }
     if (m_mode == NWAccess)
     {
-        nwaclient->connectToHost("127.0.0.1", 65400);
+        nwaclient->connectToHost("127.0.0.1", 0xBEEF);
         connect(nwaclient, &EmuNWAccessClient::connected, this, [=] {
             nwaclient->cmdMyNameIs("Savestate2Snes control connection");
             connect(nwaclient, &EmuNWAccessClient::readyRead, this, [=]
             {
-                handleNWAccess->setNWAClient(nwaclient);
+                nwaclient->readReply(); // This empty the reply queue
                 disconnect(nwaclient, &EmuNWAccessClient::readyRead, this, nullptr);
+                handleNWAccess->setNWAClient(nwaclient);
             });
         });
         ui->nwaccessStatut->start();
@@ -183,24 +192,31 @@ void ConsoleSwitcher::refreshShortcuts()
         ui->usb2snesStatut->refreshShortcuts();
 }
 
-void ConsoleSwitcher::on_snesClassicInputDecoderButtonPressed(InputProvider::SNESButton but)
+void ConsoleSwitcher::onLocalControllerChanged()
 {
-    snesClassicButtonPressed.append(but);
+    localController = ui->nwaccessStatut->localController;
+    connect(localController, &LocalController::buttonPressed, this, &ConsoleSwitcher::onInputProviderButtonPressed, Qt::UniqueConnection);
+    connect(localController, &LocalController::buttonReleased, this, &ConsoleSwitcher::onInputProviderButtonReleased, Qt::UniqueConnection);
+}
+
+void ConsoleSwitcher::onInputProviderButtonPressed(InputProvider::SNESButton but)
+{
+    inputProviderButtonPressed.append(but);
     int currentInput = 0;
-    foreach(int button, snesClassicButtonPressed)
+    foreach(int button, inputProviderButtonPressed)
     {
         currentInput = currentInput | mapEnumToSNES[button];
     }
-    sDebug() << QString::number(currentInput, 16) << QString::number(handleSNESClassic->shortcutLoad(), 16) << QString::number(handleSNESClassic->shortcutSave(), 16);
-    if (currentInput == handleSNESClassic->shortcutLoad())
-        handleSNESClassic->controllerLoadState();
-    if (currentInput == handleSNESClassic->shortcutSave())
-        handleSNESClassic->controllerSaveState();
+    sDebug() << QString::number(currentInput, 16) << QString::number(getHandle()->shortcutLoad(), 16) << QString::number(getHandle()->shortcutSave(), 16);
+    if (currentInput == getHandle()->shortcutLoad())
+        getHandle()->controllerLoadState();
+    if (currentInput == getHandle()->shortcutSave())
+        getHandle()->controllerSaveState();
 }
 
-void ConsoleSwitcher::on_snesClassicInputDecoderButtonReleased(InputProvider::SNESButton but)
+void ConsoleSwitcher::onInputProviderButtonReleased(InputProvider::SNESButton but)
 {
-    snesClassicButtonPressed.removeAll(but);
+    inputProviderButtonPressed.removeAll(but);
 }
 
 void ConsoleSwitcher::on_snesClassicInputNewData(QByteArray data)
@@ -319,12 +335,20 @@ void ConsoleSwitcher::on_snesClassicButton_clicked()
 
 void ConsoleSwitcher::on_nwaReadyForSaveState()
 {
+    if (localController != nullptr)
+    {
+        localController->start();
+    }
     if (!nwaclient->isConnected())
         nwaclient->connectToHost("127.0.0.1", 65400);
 }
 
 void ConsoleSwitcher::on_nwaUnReadyForSaveState()
 {
+    if (localController != nullptr)
+    {
+        localController->stop();
+    }
     nwaclient->disconnectFromHost();
 }
 

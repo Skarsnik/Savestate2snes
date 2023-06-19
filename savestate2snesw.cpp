@@ -40,8 +40,6 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui(new Ui::Savestate2snesw)
 {
     ui->setupUi(this);
-    trainingTimer = new TrainingTimer();
-    trainingTimer->show();
     sDebug() << "Savestate2snes  " << qApp->applicationVersion();
     invalidDirRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
     invalidFileRegex = QRegExp("[\\\\\\/<>\\:\\\"\\|\\?\\*\\.]");
@@ -137,6 +135,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
         }
 
     }
+    ui->trainingTimer->loadPreset(qApp->applicationDirPath() + "/memorypreset.json");
+    changeState(NONE);
 }
 
 QStandardItem*   findCatItemPath(QStandardItem* item, QString toFind)
@@ -239,10 +239,10 @@ void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
     saveStateModel->clear();
     repStateModel->clear();
     loadGames();
+    ui->savestateListView->setHandleStuff(handleStuff);
     connect(handleStuff, &HandleStuff::saveStateFinished, this, &Savestate2snesw::onSaveStateFinished, Qt::UniqueConnection);
     connect(handleStuff, &HandleStuff::loadStateFinished, this, &Savestate2snesw::onLoadStateFinished, Qt::UniqueConnection);
-    ui->savestateListView->setHandleStuff(handleStuff);
-    trainingTimer->setHandler(handleStuff);
+
 }
 
 void Savestate2snesw::saveListShowContextMenu(QPoint point)
@@ -415,16 +415,15 @@ void Savestate2snesw::on_gameComboBox_currentIndexChanged(const QString &arg1)
         repStateModel->invisibleRootItem()->appendRow(newItem);
         createChildItems(cat->children, newItem);
     }
-    if (handleStuff->gameInfos().memorySize != 0)
-    {
-        trainingTimer->setMemoryInfo(handleStuff->gameInfos().memoryAddress, handleStuff->gameInfos().memorySize);
-    }
     ui->categoryTreeView->expandAll();
 }
 
 void    Savestate2snesw::newSaveState(bool triggerSave)
 {
     sDebug() << "New Savestate, trigger : " << triggerSave;
+    if (state != READY)
+        return ;
+    changeState(SAVING_SAVESTATE);
     newSaveStateNameRequested = tr("New Savestate");
     while (!saveStateModel->findItems(newSaveStateNameRequested).isEmpty())
         newSaveStateNameRequested += "_";
@@ -445,12 +444,18 @@ void Savestate2snesw::onSaveStateFinished(bool success)
     } else {
         QMessageBox::warning(this, tr("New savestate error"), QString(tr("Something failed when trying to save the new savestate : %1")).arg(newSaveStateNameRequested));
     }
-
+    changeState(READY);
 }
 
 void Savestate2snesw::onLoadStateFinished(bool success)
 {
+    changeState(READY);
+}
 
+void Savestate2snesw::changeState(State m_state)
+{
+    qDebug() << "State changed" << m_state;
+    state = m_state;
 }
 
 void Savestate2snesw::closeEvent(QCloseEvent *event)
@@ -478,9 +483,10 @@ void Savestate2snesw::on_saveSaveStatePushButton_clicked()
 void Savestate2snesw::on_loadStatePushButton_clicked()
 {
     QModelIndex cur = ui->savestateListView->currentIndex();
-    if (cur.isValid())
+    if (cur.isValid() && state == READY)
     {
         sDebug() << "Loading savestate" << saveStateModel->itemFromIndex(cur)->text();
+        changeState(LOADING_SAVESTATE);
         handleStuff->loadSaveState(saveStateModel->itemFromIndex(cur)->text());
     }
 }
@@ -587,6 +593,7 @@ void Savestate2snesw::onReadyForSaveState()
     ui->addSaveStatePushButton->setEnabled(true);
     ui->loadStatePushButton->setEnabled(true);
     ui->saveSaveStatePushButton->setEnabled(true);
+    changeState(READY);
     if (handleStuff->hasShortcutsEdit())
     {
         ui->editShortcutButton->setEnabled(true);
@@ -596,6 +603,12 @@ void Savestate2snesw::onReadyForSaveState()
             handleStuff->setShortcutLoad(handleStuff->gameInfos().loadShortcut);
             ui->consoleSwitcher->refreshShortcuts();
         }
+    }
+    ui->trainingTimer->setHandler(handleStuff);
+    ui->trainingTimer->setEnabled(true);
+    if (handleStuff->hasMemoryWatch())
+    {
+        ui->trainingTimer->setSavedPreset(handleStuff->gameInfos().memoryPreset);
     }
 }
 
@@ -611,6 +624,8 @@ void Savestate2snesw::onUnReadyForSaveState()
     ui->saveSaveStatePushButton->setEnabled(false);
     if (handleStuff->hasShortcutsEdit())
         ui->editShortcutButton->setEnabled(false);
+    ui->trainingTimer->setEnabled(false);
+    changeState(NONE);
 }
 
 

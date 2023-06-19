@@ -32,18 +32,33 @@ TrainingTimer::~TrainingTimer()
 
 }
 
-void TrainingTimer::setHandler(HandleStuff *stuff)
+bool TrainingTimer::loadPreset(const QString &path)
 {
-    handler = stuff;
-    //ui->memoryClock->setEnabled(handler->hasMemoryWatch());
-    connect(handler, &HandleStuff::loadStateFinished, this, &TrainingTimer::onSavestateLoaded);
-    connect(handler, &HandleStuff::gotMemoryValue, this, &TrainingTimer::onMemoryRequestDone);
+    return configDialog.loadPresets(path);
 }
 
-void TrainingTimer::setMemoryInfo(quint64 address, quint8 size)
+void TrainingTimer::setHandler(HandleStuff *stuff)
 {
-    ui->addressLineEdit->setText(QString("%1:%2").arg(size).arg(address, 0, 16));
+    disconnect(this, &TrainingTimer::memoryPresetChanged, handler, &HandleStuff::setMemoryToWatch);
+    handler = stuff;
+    connect(this, &TrainingTimer::memoryPresetChanged, handler, &HandleStuff::setMemoryToWatch);
+    connect(handler, &HandleStuff::loadStateFinished, this, &TrainingTimer::onSavestateLoaded);
+    connect(handler, &HandleStuff::gotMemoryValue, this, &TrainingTimer::onMemoryRequestDone);
+    if (handler->hasMemoryWatch())
+    {
+        ui->memoryCheckcheckBox->setEnabled(true);
+        ui->configPushButton->setEnabled(true);
+    } else {
+        ui->memoryCheckcheckBox->setEnabled(false);
+        ui->configPushButton->setEnabled(false);
+    }
 }
+
+void TrainingTimer::setSavedPreset(MemoryPreset preset)
+{
+    configDialog.setPreset(preset);
+}
+
 
 void TrainingTimer::onSavestateLoaded()
 {
@@ -54,9 +69,11 @@ void TrainingTimer::onSavestateLoaded()
     firstMemoryTick = true;
     if (firstLoad)
     {
-        sDebug() << "Starting memory watch";
-        if (handler->hasMemoryWatch())
+        if (handler->hasMemoryWatch() && ui->memoryCheckcheckBox->isChecked())
+        {
+            sDebug() << "Starting memory watch";
             handler->startMemoryWatch();
+        }
         firstLoad = false;
     }
     sDebug() << startedTime;
@@ -91,25 +108,33 @@ void    TrainingTimer::setLabelTime(QLabel* label)
     //sDebug() << "MS to" << startedTime.msecsTo(QDateTime::currentDateTime());
     time = time.addMSecs(startedTime.msecsTo(QDateTime::currentDateTime()));
     //sDebug() << time;
-    label->setText(time.toString("mm::ss::zzz"));
+    label->setText(time.toString("mm:ss:zzz"));
 }
 
-void TrainingTimer::on_addressLineEdit_editingFinished()
+
+void TrainingTimer::on_configPushButton_clicked()
 {
-    sDebug() << "Address changed" << ui->addressLineEdit->text();
-    auto info = ui->addressLineEdit->text().split(":");
-    if (info.size() != 2)
-        QMessageBox::warning(this, tr("Invalid format"), tr("Invalid format for the address information"));
-    else {
-        bool ok;
-        quint64 add = info.at(1).toLong(&ok, 16);
-        quint8 size = info.at(0).toInt(&ok);
-        sDebug() << "Address : " << add << " size : " << size;
-        if (!ok)
-            QMessageBox::warning(this, tr("Invalid format"), tr("Invalid format for the address information"));
-        else {
-            handler->setMemoryToWatch(add, size);
-            handler->saveMemoryInfos(add, size);
-        }
+    auto ok = configDialog.exec();
+    if (ok == QDialog::Accepted)
+    {
+        emit memoryPresetChanged(configDialog.currentPreset());
     }
 }
+
+
+void TrainingTimer::on_memoryCheckcheckBox_stateChanged(int state)
+{
+    ui->memoryClock->setEnabled(state == Qt::Checked);
+    handler->saveMemoryCheck(state == Qt::Checked);
+    if (state != Qt::Checked)
+    {
+        ui->memoryClock->setText("-");
+        if (handler->hasMemoryWatch())
+            handler->stopMemoryWatch();
+    } else {
+        ui->memoryClock->setText("00:00:00");
+        if (handler->hasMemoryWatch())
+            handler->startMemoryWatch();
+    }
+}
+

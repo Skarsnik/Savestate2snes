@@ -32,13 +32,20 @@ struct Category {
     QIcon               icon;
 };
 
+struct MemoryPreset {
+    QString gameName;
+    QString domain;
+    quint64 address;
+    quint8  size;
+};
+
 struct  GameInfos
 {
-    quint16 saveShortcut;
-    quint16 loadShortcut;
-    quint64 memoryAddress;
-    quint8  memorySize;
-    QString name;
+    quint16         saveShortcut;
+    quint16         loadShortcut;
+    MemoryPreset    memoryPreset;
+    QString         name;
+    bool            checkMemory;
 };
 
 class HandleStuff : public QObject
@@ -67,8 +74,8 @@ public:
     QString     getSavestatePath(QString name);
     GameInfos   gameInfos();
     void        setGameShortCut(quint16 save, quint16 load);
-    void        saveMemoryInfos(quint64 address, quint8 size);
-    void        setMemoryToWatch(const quint64 address, const quint8 size);
+    void        setMemoryToWatch(MemoryPreset preset);
+    void        saveMemoryCheck(bool);
 
     virtual QByteArray  getScreenshotData() = 0;
     virtual bool        hasShortcutsEdit() = 0;
@@ -80,6 +87,8 @@ public:
     virtual bool        hasMemoryWatch() = 0;
     virtual void        startMemoryWatch() = 0;
     virtual void        stopMemoryWatch() = 0;
+    virtual void        controllerLoadState() = 0;
+    virtual void        controllerSaveState() = 0;
 
 
 // This is only for the subclass
@@ -103,9 +112,6 @@ protected:
     virtual bool        doScreenshot() = 0;
     virtual bool        needByteData() = 0;
     QByteArray          saveStateData;
-    quint64             memoryToWatch;
-    quint8              memorySize;
-
 
 private:
     QDir                                    saveDirectory;

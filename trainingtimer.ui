@@ -16,13 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="0" colspan="2">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Time since last load :</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="2">
       <widget class="QLabel" name="lastLoadClock">
        <property name="text">
@@ -30,10 +23,20 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QLabel" name="label_4">
+     <item row="4" column="2">
+      <widget class="QPushButton" name="configPushButton">
        <property name="text">
-        <string>Time since address changed :</string>
+        <string>Config</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="mainClock">
+       <property name="text">
+        <string>00:00:00</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -43,33 +46,6 @@
         <string>00:00:00</string>
        </property>
       </widget>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="QCheckBox" name="memoryCheckcheckBox">
-       <property name="text">
-        <string>Check a change of address</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0" colspan="3">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Format is size:Hex Address eg: 2:50 for a snes word at 0x50</string>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Address :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1" colspan="2">
-      <widget class="QLineEdit" name="addressLineEdit"/>
      </item>
      <item row="3" column="0" colspan="3">
       <widget class="Line" name="line">
@@ -81,10 +57,24 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLabel" name="mainClock">
+     <item row="4" column="0" colspan="2">
+      <widget class="QCheckBox" name="memoryCheckcheckBox">
        <property name="text">
-        <string>00:00:00</string>
+        <string>Check a change of address</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Time since last load :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Time since address changed :</string>
        </property>
       </widget>
      </item>

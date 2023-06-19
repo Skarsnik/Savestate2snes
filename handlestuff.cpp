@@ -75,9 +75,11 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
     gameLoaded = game;
     m_gameInfo.loadShortcut = 0;
     m_gameInfo.saveShortcut = 0;
-    m_gameInfo.memorySize = 0;
-    m_gameInfo.memoryAddress = 0;
+    m_gameInfo.memoryPreset.size = 0;
+    m_gameInfo.memoryPreset.address = 0;
+    m_gameInfo.memoryPreset.domain = "";
     m_gameInfo.name = game;
+    m_gameInfo.checkMemory = false;
     QDir gDir(saveDirectory.absolutePath() + "/" + game);
     if (QFileInfo::exists(saveDirectory.absolutePath() + "/" + game + "/" + GAMEINFOS))
     {
@@ -91,13 +93,15 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
         m_gameInfo.name = file.value("_/game").toString();
         sDebug() << "Shortcuts are : (s/l)" << QString::number(m_gameInfo.saveShortcut, 16) << QString::number(m_gameInfo.loadShortcut, 16);
         if (file.contains("_/memoryAddress"))
-            m_gameInfo.memoryAddress = file.value("_/memoryAddress").toString().toULong(&ok, 16);
+            m_gameInfo.memoryPreset.address = file.value("_/memoryAddress").toString().toULong(&ok, 16);
         if (file.contains("_/memorySize"))
         {
-            m_gameInfo.memorySize = file.value("_/memorySize").toString().toUInt(&ok);
-            memorySize = m_gameInfo.memorySize;
-            memoryToWatch = m_gameInfo.memoryAddress;
+            m_gameInfo.memoryPreset.size = file.value("_/memorySize").toString().toUInt(&ok);
         }
+        if (file.contains("_/memoryDomain"))
+            m_gameInfo.memoryPreset.domain = file.value("_/memoryDomain").toString();
+        if (file.contains("_/checkMemory"))
+            m_gameInfo.checkMemory = file.value("_/checkMemory").toBool();
     }
     return categories[game]->children;
 }
@@ -450,17 +454,20 @@ void HandleStuff::setGameShortCut(quint16 save, quint16 load)
     file.setValue("_/loadShortcut", QString::number(load, 16));
 }
 
-void HandleStuff::saveMemoryInfos(quint64 address, quint8 size)
+
+void HandleStuff::setMemoryToWatch(MemoryPreset preset)
 {
+    m_gameInfo.memoryPreset = preset;
     QSettings file(saveDirectory.absolutePath() + "/" + gameLoaded + "/" + GAMEINFOS, QSettings::IniFormat);
-    file.setValue("_/memoryAddress", QString::number(address, 16));
-    file.setValue("_/memorySize", QString::number(size));
+    file.setValue("_/memoryAddress", QString::number(preset.address, 16));
+    file.setValue("_/memorySize", QString::number(preset.size));
+    file.setValue("_/memoryDomain", preset.domain);
 }
 
-void HandleStuff::setMemoryToWatch(const quint64 address, const quint8 size)
+void HandleStuff::saveMemoryCheck(bool value)
 {
-    memorySize = size;
-    memoryToWatch = address;
+    QSettings file(saveDirectory.absolutePath() + "/" + gameLoaded + "/" + GAMEINFOS, QSettings::IniFormat);
+    file.setValue("_/checkMemory", value);
 }
 
 

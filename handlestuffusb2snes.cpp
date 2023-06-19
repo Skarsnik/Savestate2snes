@@ -6,13 +6,25 @@ Q_LOGGING_CATEGORY(log_handleUSB2SNES, "HSUsb2snes")
 
 HandleStuffUsb2snes::HandleStuffUsb2snes() : HandleStuff()
 {
-
+    doingLoadState = false;
+    doingSaveState = false;
+    doingMemoryWatchCheck = false;
+    memoryWatchTimer.setInterval(20);
+    safeStateTimer.setInterval(30);
+    connect(&memoryWatchTimer, &QTimer::timeout, this, [=] {
+        doingMemoryWatchCheck = true;
+        usb2snes->getAsyncAddress(GameInfos().memoryPreset.address + 0xF50000, GameInfos().memoryPreset.size);
+    });
+    connect(&safeStateTimer, &QTimer::timeout, this, [=] {
+        usb2snes->getAsyncAddress(0xFC2000, 2);
+    });
 }
 
 
 void HandleStuffUsb2snes::setUsb2snes(USB2snes *usbsnes)
 {
     usb2snes = usbsnes;
+    connect(usb2snes, &USB2snes::getAddressDataReceived, this, &HandleStuffUsb2snes::onGetAddressDataReceived);
 }
 
 //$FC2000 db saveState  (Make sure both load and save are zero before setting this to nonzero)
@@ -23,33 +35,18 @@ void HandleStuffUsb2snes::setUsb2snes(USB2snes *usbsnes)
 bool HandleStuffUsb2snes::saveState(bool trigger)
 {
     QByteArray data;
-    if (trigger)
-    {
-        checkForSafeState();
-        data.resize(2);
-        data[0] = 0;
-        /*data[1] = 0;
-        usb2snes->setAddress(0xFC2000, data);*/
-        data[0] = 1;
-        usb2snes->setAddress(0xFC2000, data);
-    }
+    doingSaveState = true;
+    saveStateTrigger = trigger;
     checkForSafeState();
-    saveStateData = usb2snes->getAddress(0xF00000, 320 * 1024);
-    QTimer::singleShot(10, this, SIGNAL(saveStateFinished(true)));
     return true;
 }
 
 void HandleStuffUsb2snes::loadState(QByteArray data)
 {
+    sDebug() << "Loading State";
+    doingLoadState = true;
+    loadStateData = data;
     checkForSafeState();
-    usb2snes->setAddress(0xF00000, data);
-    data.resize(2);
-    data[0] = 0;
-    /*data[1] = 0;
-    usb2snes->setAddress(0xFC2000, data);*/
-    data[1] = 1;
-    usb2snes->setAddress(0xFC2000, data);
-    QTimer::singleShot(10, this, SIGNAL(loadStateFinished(true)));
 }
 
 bool HandleStuffUsb2snes::needByteData()
@@ -59,11 +56,65 @@ bool HandleStuffUsb2snes::needByteData()
 
 void    HandleStuffUsb2snes::checkForSafeState()
 {
-    QByteArray data = usb2snes->getAddress(0xFC2000, 2);
-    while (!(data.at(0) == 0 && data.at(1) == 0))
+    safeStateTimer.start();
+}
+
+void HandleStuffUsb2snes::onGetAddressDataReceived()
+{
+    const QByteArray& data = usb2snes->getAsyncAdressData();
+    sDebug() << "Received" << data.toHex('-') << safeStateTimer.isActive();
+    if (doingMemoryWatchCheck)
     {
-        QThread::usleep(100);
-        data = usb2snes->getAddress(0xFC2000, 2);
+        quint64 value = 0;
+        const QByteArray& data = usb2snes->getAsyncAdressData();
+        sDebug() << data;
+        for (quint8 i = 0; i < data.size(); i++)
+        {
+            value += data.at(i) << (i * 8);
+        }
+        emit gotMemoryValue(value);
+        return ;
+    }
+    if (safeStateTimer.isActive())
+    {
+        if (data.at(0) == 0 && data.at(1) == 0)
+        {
+            sDebug() << "Ready to load/save state";
+            safeStateTimer.stop();
+            if (doingLoadState)
+            {
+                usb2snes->setAddress(0xF00000, loadStateData);
+                loadStateData.resize(2);
+                loadStateData[0] = 0;
+                loadStateData[1] = 1;
+                usb2snes->setAddress(0xFC2000, loadStateData);
+                doingLoadState = false;
+                emit loadStateFinished(true);
+                return ;
+            }
+            if (doingSaveState)
+            {
+                sDebug() << "Doing savestate";
+                if (saveStateTrigger)
+                {
+                    loadStateData.resize(1);
+                    loadStateData[0] = 1;
+                    usb2snes->setAddress(0xFC2000, loadStateData);
+                    safeStateTimer.start();
+                    saveStateTrigger = false;
+                } else {
+                    usb2snes->getAsyncAddress(0xF00000, 320 * 1024);
+                }
+                return;
+            }
+        }
+    }
+    if (doingSaveState)
+    {
+        sDebug() << "Receiving savestate data";
+        saveStateData = data;
+        doingSaveState = false;
+        emit saveStateFinished(true);
     }
 }
 
@@ -123,12 +174,24 @@ bool HandleStuffUsb2snes::hasMemoryWatch()
 
 void HandleStuffUsb2snes::startMemoryWatch()
 {
+    memoryWatchTimer.start();
     return ;
 }
 
 void HandleStuffUsb2snes::stopMemoryWatch()
 {
+    memoryWatchTimer.stop();
     return ;
+}
+
+void HandleStuffUsb2snes::controllerSaveState()
+{
+
+}
+
+void HandleStuffUsb2snes::controllerLoadState()
+{
+
 }
 
 

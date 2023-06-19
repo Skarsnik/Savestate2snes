@@ -37,6 +37,14 @@ public:
     explicit Savestate2snesw(QWidget *parent = 0);
     ~Savestate2snesw();
 
+    enum State {
+        NONE,
+        READY,
+        SAVING_SAVESTATE,
+        LOADING_SAVESTATE,
+    };
+    Q_ENUM(State);
+
 private slots:
     void    onModeChanged(ConsoleSwitcher::Mode mode);
 
@@ -115,8 +123,9 @@ private:
     QRegExp             invalidFileRegex;
     QString             newSaveStateNameRequested;
 
-    TrainingTimer*      trainingTimer;
+    State               state;
 
+    void    changeState(State m_state);
     void    createMenus();
     void    loadGames();
     void    addSubName(QString name, QString parentPath);

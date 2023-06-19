@@ -7,6 +7,7 @@
 #include "handlestuffusb2snes.h"
 #include "handlestuffnwaccess.h"
 #include "snesclassicstuff/stuffclient/stuffclient.h"
+#include "Button-Mash/localcontroller.h"
 #include "emunwaccessclient.h"
 
 
@@ -46,8 +47,9 @@ signals:
     void    unReadyForSaveState();
 
 private slots:
-    void    on_snesClassicInputDecoderButtonPressed(InputProvider::SNESButton);
-    void    on_snesClassicInputDecoderButtonReleased(InputProvider::SNESButton);
+    void    onLocalControllerChanged();
+    void    onInputProviderButtonPressed(InputProvider::SNESButton);
+    void    onInputProviderButtonReleased(InputProvider::SNESButton);
     void    on_snesClassicInputNewData(QByteArray data);
     void    on_snesClassicInputConnected();
     void    on_snesClassicShortcutsToggled(bool toggled);
@@ -70,11 +72,12 @@ private:
     StuffClient*            stuffControlCo;
     StuffClient*            stuffInput;
     InputDecoder*           snesClassicInputDecoder;
+    LocalController*        localController;
     HandleStuffSnesClassic* handleSNESClassic;
     HandleStuffUsb2snes*    handleUSB2Snes;
     HandleStuffNWAccess*    handleNWAccess;
     QSettings*              m_settings;
-    QList<int>              snesClassicButtonPressed;
+    QList<int>              inputProviderButtonPressed;
     QMap<int, int>          mapEnumToSNES;
 
     bool                    usb2snesInit;

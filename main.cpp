@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
         if (diag.exec() == QDialog::Rejected)
             return 1;
         settings.setValue("lastSaveStateDir", diag.savePath);
+        settings.setValue("mode", diag.selectedMode());
     }
     Savestate2snesw w;
     w.show();

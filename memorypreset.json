@@ -1,0 +1,16 @@
+{
+"SNES" : [
+    {
+        "name" : "Secret of Evermore - map id",
+        "domain" : "WRAM",
+        "address" : "ADB",
+        "size" : 1
+    },
+    {
+        "name" : "JRR Tolkien - LOTR - Volume 1 - map id",
+        "domain" : "WRAM",
+        "address" :  "1CC5",
+        "size" : 1
+    }
+    ]
+}

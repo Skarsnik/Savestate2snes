@@ -22,6 +22,15 @@ FirstTimeDialog::~FirstTimeDialog()
     delete ui;
 }
 
+QString FirstTimeDialog::selectedMode()
+{
+    if (ui->classicCheckBox->isChecked())
+        return "SNESClassic";
+    if (ui->nwaCheckBox->isChecked())
+        return "NWAccess";
+    return "USB2Snes";
+}
+
 void FirstTimeDialog::on_pushButton_clicked()
 {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Savestates directory"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QFileDialog::ShowDirsOnly);
@@ -47,3 +56,9 @@ void FirstTimeDialog::on_classicCheckBox_toggled(bool checked)
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(checked);
 }
+
+void FirstTimeDialog::on_nwaCheckBox_toggled(bool checked)
+{
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(checked);
+}
+

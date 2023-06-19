@@ -15,6 +15,7 @@ public:
     explicit FirstTimeDialog(QWidget *parent = 0);
     ~FirstTimeDialog();
     QString savePath;
+    QString selectedMode();
 
 private slots:
     void on_pushButton_clicked();
@@ -24,6 +25,8 @@ private slots:
     void on_versionsCheckBox_toggled(bool checked);
 
     void on_classicCheckBox_toggled(bool checked);
+
+    void on_nwaCheckBox_toggled(bool checked);
 
 private:
     Ui::FirstTimeDialog *ui;

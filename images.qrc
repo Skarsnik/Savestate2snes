@@ -19,4 +19,7 @@
         <file>snesclassic status button red.png</file>
         <file>snesclassic status button orange.png</file>
     </qresource>
+    <qresource prefix="/img/Skins/Default">
+        <file alias="snes.png">Button-Mash/Skins/Default/snes.png</file>
+    </qresource>
 </RCC>

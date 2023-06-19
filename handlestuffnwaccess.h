@@ -24,6 +24,8 @@ public:
     bool    hasMemoryWatch();
     void    startMemoryWatch();
     void    stopMemoryWatch();
+    void        controllerLoadState();
+    void        controllerSaveState();
 
 protected:
     bool saveState(bool trigger);
@@ -39,7 +41,12 @@ private:
     bool                load;
     bool                doingState;
     bool                memoryAccess;
+    bool                controllerStateRequest;
+    QString             tempFilePath;
     QTimer              memoryTimer;
+    QString             lastLoadedSave;
+    quint16                 saveShortcut;
+    quint16                 loadShortcut;
 
     void    onReplyRead();
 
