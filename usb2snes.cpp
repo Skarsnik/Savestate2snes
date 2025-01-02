@@ -280,6 +280,25 @@ QByteArray USB2snes::getAddress(unsigned int addr, unsigned int size, Space spac
     return lastBinaryMessage;
 }
 
+QByteArray USB2snes::getFile(QString path)
+{
+    m_istate = IBusy;
+    sendRequest("GetFile", QStringList() << path);
+    QEventLoop  loop;
+    QObject::connect(this, &USB2snes::textMessageReceived, &loop, &QEventLoop::quit);
+    QObject::connect(this, SIGNAL(disconnected()), &loop, SLOT(quit()));
+    loop.exec();
+    QStringList result = getJsonResults(lastTextMessage);
+    bool    ok;
+    requestedBinaryReadSize = result.at(0).toUInt(&ok, 16);
+    QObject::connect(this, SIGNAL(binaryMessageReceived()), &loop, SLOT(quit()));
+    //sDebug() << "Getting data,  size : " << lastBinaryMessage.size() << "- MD5 : " << QCryptographicHash::hash(lastBinaryMessage, QCryptographicHash::Md5).toHex();
+    m_istate = IReady;
+    loop.exec();
+    sDebug() << "File :" << lastBinaryMessage;
+    return lastBinaryMessage;
+}
+
 void USB2snes::getAsyncAddress(unsigned int addr, unsigned int size, Space space)
 {
     m_istate = IBusy;

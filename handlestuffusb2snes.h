@@ -42,6 +42,8 @@ private:
     QTimer      memoryWatchTimer;
     QTimer      safeStateTimer;
     QByteArray  loadStateData;
+    quint32     savestateInterfaceAddress;
+    quint32     savestateDataAddress;
 
     void        onGetAddressDataReceived();
 

@@ -9,6 +9,8 @@ HandleStuffUsb2snes::HandleStuffUsb2snes() : HandleStuff()
     doingLoadState = false;
     doingSaveState = false;
     doingMemoryWatchCheck = false;
+    savestateInterfaceAddress = 0xFC2000;
+    savestateDataAddress = 0xF00000;
     memoryWatchTimer.setInterval(20);
     safeStateTimer.setInterval(30);
     connect(&memoryWatchTimer, &QTimer::timeout, this, [=] {
@@ -16,7 +18,7 @@ HandleStuffUsb2snes::HandleStuffUsb2snes() : HandleStuff()
         usb2snes->getAsyncAddress(GameInfos().memoryPreset.address + 0xF50000, GameInfos().memoryPreset.size);
     });
     connect(&safeStateTimer, &QTimer::timeout, this, [=] {
-        usb2snes->getAsyncAddress(0xFC2000, 2);
+        usb2snes->getAsyncAddress(savestateInterfaceAddress, 2);
     });
 }
 
@@ -25,6 +27,20 @@ void HandleStuffUsb2snes::setUsb2snes(USB2snes *usbsnes)
 {
     usb2snes = usbsnes;
     connect(usb2snes, &USB2snes::getAddressDataReceived, this, &HandleStuffUsb2snes::onGetAddressDataReceived);
+    connect(usb2snes, &USB2snes::stateChanged, this, [=] {
+        if (usb2snes->state() == USB2snes::Ready)
+        {
+            sDebug() << "Setting offset address";
+            if (usb2snes->firmwareVersion() >= QVersionNumber(11))
+            {
+                savestateInterfaceAddress = 0xFE1000;
+                savestateDataAddress = 0xF00000;
+            } else {
+                savestateInterfaceAddress = 0xFC2000;
+                savestateDataAddress = 0xF00000;
+            }
+        }
+    });
 }
 
 //$FC2000 db saveState  (Make sure both load and save are zero before setting this to nonzero)
@@ -83,11 +99,11 @@ void HandleStuffUsb2snes::onGetAddressDataReceived()
             safeStateTimer.stop();
             if (doingLoadState)
             {
-                usb2snes->setAddress(0xF00000, loadStateData);
+                usb2snes->setAddress(savestateDataAddress, loadStateData);
                 loadStateData.resize(2);
                 loadStateData[0] = 0;
                 loadStateData[1] = 1;
-                usb2snes->setAddress(0xFC2000, loadStateData);
+                usb2snes->setAddress(savestateInterfaceAddress, loadStateData);
                 doingLoadState = false;
                 emit loadStateFinished(true);
                 return ;
@@ -99,11 +115,11 @@ void HandleStuffUsb2snes::onGetAddressDataReceived()
                 {
                     loadStateData.resize(1);
                     loadStateData[0] = 1;
-                    usb2snes->setAddress(0xFC2000, loadStateData);
+                    usb2snes->setAddress(savestateInterfaceAddress, loadStateData);
                     safeStateTimer.start();
                     saveStateTrigger = false;
                 } else {
-                    usb2snes->getAsyncAddress(0xF00000, 320 * 1024);
+                    usb2snes->getAsyncAddress(savestateDataAddress, 320 * 1024);
                 }
                 return;
             }
@@ -120,7 +136,7 @@ void HandleStuffUsb2snes::onGetAddressDataReceived()
 
 quint16 HandleStuffUsb2snes::shortcutSave()
 {
-    QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
+    QByteArray saveButton = usb2snes->getAddress(savestateInterfaceAddress + 2, 2);
     sDebug() << "Shortcut save from usb2snes" << saveButton;
     quint16 toret = (static_cast<uchar>(saveButton.at(1)) << 8) + static_cast<uchar>(saveButton.at(0));
     return toret;
@@ -128,7 +144,7 @@ quint16 HandleStuffUsb2snes::shortcutSave()
 
 quint16 HandleStuffUsb2snes::shortcutLoad()
 {
-    QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
+    QByteArray loadButton = usb2snes->getAddress(savestateInterfaceAddress + 4, 2);
     sDebug() << "Shortcut load from usb2snes" << loadButton;
     quint16 toret = (static_cast<uchar>(loadButton.at(1)) << 8) + static_cast<uchar>(loadButton.at(0));
     return toret;
@@ -145,7 +161,7 @@ void HandleStuffUsb2snes::setShortcutLoad(quint16 shortcut)
     data.resize(2);
     data[0] = static_cast<char>(shortcut & 0x00FF);
     data[1] = static_cast<char>(shortcut >> 8);
-    usb2snes->setAddress(0xFC2004, data);
+    usb2snes->setAddress(savestateInterfaceAddress + 4, data);
 }
 
 void HandleStuffUsb2snes::setShortcutSave(quint16 shortcut)
@@ -154,7 +170,7 @@ void HandleStuffUsb2snes::setShortcutSave(quint16 shortcut)
     data.resize(2);
     data[0] = static_cast<char>(shortcut & 0x00FF);
     data[1] = static_cast<char>(shortcut >> 8);
-    usb2snes->setAddress(0xFC2002, data);
+    usb2snes->setAddress(savestateInterfaceAddress + 2, data);
 }
 
 bool HandleStuffUsb2snes::hasScreenshots()

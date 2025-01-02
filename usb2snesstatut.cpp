@@ -86,8 +86,11 @@ QString snesjoy2string(QByteArray input)
 
 void USB2SnesStatut::refreshShortcuts()
 {
-    QByteArray saveButton = usb2snes->getAddress(0xFC2002, 2);
-    QByteArray loadButton = usb2snes->getAddress(0xFC2004, 2);
+    unsigned int offset = 0xFC2000;
+    if (usb2snes->firmwareVersion() >= QVersionNumber(11))
+        offset = 0xFE1000;
+    QByteArray saveButton = usb2snes->getAddress(offset + 2, 2);
+    QByteArray loadButton = usb2snes->getAddress(offset + 4, 2);
     sDebug() << "Refreshing shortcuts : " << saveButton.toHex() << loadButton.toHex() << snesjoy2string(saveButton) << snesjoy2string(loadButton);
     ui->shortcutLabel->setText(QString(tr("Shortcuts: - Save: %1 - Load: %2")).arg(snesjoy2string(saveButton)).arg(snesjoy2string(loadButton)));
     ui->shortcutLabel->setEnabled(true);
@@ -119,6 +122,17 @@ void USB2SnesStatut::onRomStarted()
         ui->patchROMpushButton->setEnabled(true);
         return;
     }*/
+    if (usb2snes->firmwareVersion() >= QVersionNumber(11))
+    {
+        QByteArray configData = usb2snes->getFile("/sd2snes/config.yml");
+        if (configData.contains("EnableIngameSavestate: 1"))
+        {
+            romPatched();
+        } else {
+            ui->romPatchedLabel->setText(tr("Build in Savestate feature is not enabled"));
+        }
+        return ;
+    }
     if (!isPatchedRom())
     {
         ui->romPatchedLabel->setText(tr("ROM is not patched for savestate"));
@@ -133,7 +147,12 @@ void    USB2SnesStatut::romPatched()
 {
     sDebug() << "Rom is patched";
     ui->patchROMpushButton->setEnabled(false);
-    ui->romPatchedLabel->setText(tr("ROM is patched for savestate"));
+    if (usb2snes->firmwareVersion() >= QVersionNumber(11))
+    {
+        ui->romPatchedLabel->setText(tr("Build in Savestate feature is enabled"));
+    } else {
+        ui->romPatchedLabel->setText(tr("ROM is patched for savestate"));
+    }
     ui->statusPushButton->setIcon(QIcon(STATUS_PIX_GREEN));
     emit readyForSaveState();
     refreshShortcuts();
