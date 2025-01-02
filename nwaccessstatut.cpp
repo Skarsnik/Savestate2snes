@@ -44,7 +44,10 @@ NWAccessStatut::NWAccessStatut(QWidget *parent) :
             checkingStatus = true;
             checkingInfo = false;
             ui->emulatorLabel->setText(reply["name"] + " " + reply["version"]);
-            client->cmdEmulationStatus();
+            if (reply["commands"].split(',').contains("SAVE_STATE_TO_NETWORK"))
+            {
+                client->cmdEmulationStatus();
+            }
         }
     });
 

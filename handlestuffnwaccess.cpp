@@ -15,9 +15,6 @@ HandleStuffNWAccess::HandleStuffNWAccess() : HandleStuff ()
     doingState = false;
     memoryAccess = false;
     controllerStateRequest = false;
-    QTemporaryFile f("SaveStateSnesNWA");
-    f.open();
-    tempFilePath = f.fileName();
     memoryTimer.setInterval(20);
     connect(&memoryTimer, &QTimer::timeout, this, [=]{
         emuclient->cmdCoreReadMemory(gameInfos().memoryPreset.domain, gameInfos().memoryPreset.address , gameInfos().memoryPreset.size);
@@ -84,49 +81,52 @@ void HandleStuffNWAccess::stopMemoryWatch()
 
 void HandleStuffNWAccess::controllerLoadState()
 {
+    if (lastSaveData.isEmpty())
+        return ;
     controllerStateRequest = true;
-    loadState(lastLoadedSave);
+    loadState(lastSaveData);
 }
 
 void HandleStuffNWAccess::controllerSaveState()
 {
     controllerStateRequest = true;
-    saveState(tempFilePath);
+    saveState(true);
 }
 
 bool HandleStuffNWAccess::saveState(bool trigger)
 {
-    Q_UNUSED(trigger);
-    return false;
+    load = false;
+    doingState = true;
+    if (trigger == false)
+        return true;
+    emuclient->cmd("SAVE_STATE_TO_NETWORK");
+    return true;
 }
 
 void HandleStuffNWAccess::loadState(QByteArray data)
 {
-    Q_UNUSED(data);
+    load = true;
+    doingState = true;
+    lastSaveData = data;
+    emuclient->bcmd("LOAD_STATE_FROM_NETWORK", QString(), data);
 }
 
 
 bool HandleStuffNWAccess::saveState(QString path)
 {
-    load = false;
-    doingState = true;
-    lastLoadedSave = path;
-    emuclient->cmdSaveState(path);
-    return true;
+    Q_UNUSED(path)
+    return false;
 }
 
 bool HandleStuffNWAccess::loadState(QString path)
 {
-    load = true;
-    doingState = true;
-    lastLoadedSave = path;
-    emuclient->cmdLoadState(path);
-    return true;
+    Q_UNUSED(path)
+    return false;
 }
 
 bool HandleStuffNWAccess::needByteData()
 {
-    return false;
+    return true;
 }
 
 void HandleStuffNWAccess::onReplyRead()
@@ -152,6 +152,10 @@ void HandleStuffNWAccess::onReplyRead()
     }
     if (doingState == false)
         return;
+    if (reply.cmd == "SAVE_STATE_TO_NETWORK")
+    {
+        saveStateData = reply.binary;
+    }
     if (!controllerStateRequest)
     {
         if (load)
@@ -159,6 +163,10 @@ void HandleStuffNWAccess::onReplyRead()
         else
             emit saveStateFinished(!reply.isError);
     } else {
+        if (load)
+            emit controllerLoadStateFinished(!reply.isError);
+        else
+            emit controllerSaveStateFinished(!reply.isError);
         controllerStateRequest = false;
     }
 }

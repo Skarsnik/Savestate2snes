@@ -41,6 +41,7 @@ private:
     quint16                 loadShortcut;
     uint                    fileReceivedSize;
     bool                    expectingSaveFile;
+    bool                    controllerStateTrigger;
 
     QSignalSpy*              commandSpy;
     void        runCanoe(QStringList canoeArgs);

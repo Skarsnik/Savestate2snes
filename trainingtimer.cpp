@@ -43,6 +43,7 @@ void TrainingTimer::setHandler(HandleStuff *stuff)
     handler = stuff;
     connect(this, &TrainingTimer::memoryPresetChanged, handler, &HandleStuff::setMemoryToWatch);
     connect(handler, &HandleStuff::loadStateFinished, this, &TrainingTimer::onSavestateLoaded);
+    connect(handler, &HandleStuff::controllerLoadStateFinished, this, &TrainingTimer::onSavestateLoaded);
     connect(handler, &HandleStuff::gotMemoryValue, this, &TrainingTimer::onMemoryRequestDone);
     if (handler->hasMemoryWatch())
     {

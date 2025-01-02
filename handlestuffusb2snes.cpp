@@ -66,13 +66,13 @@ void HandleStuffUsb2snes::onGetAddressDataReceived()
     if (doingMemoryWatchCheck)
     {
         quint64 value = 0;
-        const QByteArray& data = usb2snes->getAsyncAdressData();
         sDebug() << data;
         for (quint8 i = 0; i < data.size(); i++)
         {
             value += data.at(i) << (i * 8);
         }
         emit gotMemoryValue(value);
+        doingMemoryWatchCheck = false;
         return ;
     }
     if (safeStateTimer.isActive())
@@ -169,7 +169,7 @@ bool HandleStuffUsb2snes::hasShortcutsEdit()
 
 bool HandleStuffUsb2snes::hasMemoryWatch()
 {
-    return false;
+    return true;
 }
 
 void HandleStuffUsb2snes::startMemoryWatch()
@@ -181,6 +181,7 @@ void HandleStuffUsb2snes::startMemoryWatch()
 void HandleStuffUsb2snes::stopMemoryWatch()
 {
     memoryWatchTimer.stop();
+    doingMemoryWatchCheck = false;
     return ;
 }
 

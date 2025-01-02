@@ -75,6 +75,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #endif
     if (log != &lowlogfile)
     {
+        //cout << logString;
         cout << QString("%1 : %2").arg(context.category, 20).arg(msg) << "\n";
         cout.flush();
     }

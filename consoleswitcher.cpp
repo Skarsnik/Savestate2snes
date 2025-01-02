@@ -20,8 +20,8 @@ Q_LOGGING_CATEGORY(log_consoleSwitcher, "ConsoleSwitcher")
 
 #define HEXDUMPSTR "hexdump -v -e '32/1 \"%02X\" \"\\n\"' /dev/input/by-path/platform-twi.1-event-joystick"
 
-//#define SNES_CLASSIC_IP "169.254.13.37"
-#define SNES_CLASSIC_IP "192.168.0.204"
+#define SNES_CLASSIC_IP "169.254.13.37"
+//#define SNES_CLASSIC_IP "192.168.0.204"
 
 ConsoleSwitcher::ConsoleSwitcher(QWidget *parent) :
     QWidget(parent),
@@ -195,6 +195,7 @@ void ConsoleSwitcher::refreshShortcuts()
 void ConsoleSwitcher::onLocalControllerChanged()
 {
     localController = ui->nwaccessStatut->localController;
+    sDebug() << "Local Controller changed";
     connect(localController, &LocalController::buttonPressed, this, &ConsoleSwitcher::onInputProviderButtonPressed, Qt::UniqueConnection);
     connect(localController, &LocalController::buttonReleased, this, &ConsoleSwitcher::onInputProviderButtonReleased, Qt::UniqueConnection);
 }
@@ -272,8 +273,8 @@ void ConsoleSwitcher::initUsb2snes()
 void ConsoleSwitcher::initSnesClassic()
 {
     sDebug() << "Init SNES Classic";
-    stuffControlCo = new StuffClient();
-    stuffInput = new StuffClient();
+    stuffControlCo = new StuffClient(SNES_CLASSIC_IP);
+    stuffInput = new StuffClient(SNES_CLASSIC_IP);
     ui->snesclassicStatut->setStuff(stuffControlCo);
     handleSNESClassic = new HandleStuffSnesClassic();
     handleSNESClassic->setControlCo(stuffControlCo);
@@ -340,7 +341,7 @@ void ConsoleSwitcher::on_nwaReadyForSaveState()
         localController->start();
     }
     if (!nwaclient->isConnected())
-        nwaclient->connectToHost("127.0.0.1", 65400);
+        nwaclient->connectToHost("127.0.0.1", 0xBEEF);
 }
 
 void ConsoleSwitcher::on_nwaUnReadyForSaveState()

@@ -20,28 +20,37 @@ HandleStuffSnesClassic::HandleStuffSnesClassic() : HandleStuff ()
     saveShortcut = 0;
     expectingSaveFile = false;
     commandSpy = nullptr;
+    controlCo = nullptr;
+    controllerStateTrigger = false;
 }
 
 void HandleStuffSnesClassic::setControlCo(StuffClient *client)
 {
+    sDebug() << "Set Control co called";
     controlCo = client;
     commandSpy = new QSignalSpy(controlCo, &StuffClient::commandFinished);
-    connect(client, &StuffClient::receivedFileSize, this, [=](unsigned int size)
+    connect(controlCo, &StuffClient::receivedFileSize, this, [=](unsigned int size)
     {
+        sDebug() << "Received the size" << size;
         fileReceivedSize = size;
     });
-    connect(client, &StuffClient::newFileData, this, [=](QByteArray data) {
+    connect(controlCo, &StuffClient::newFileData, this, [=](QByteArray data) {
         if (expectingSaveFile)
         {
             saveStateData.append(data);
+            //sDebug() << "Savedata size : " << saveStateData.size();
             if (saveStateData.size() == fileReceivedSize)
             {
+                sDebug() << "Got the savestate file";
                 emit saveStateFinished(true);
             }
         } else {
+            sDebug() << "Recevied screenshot data";
             screenshotData.append(data);
+            sDebug() << "Current size : " << screenshotData.size();
             if (screenshotData.size() == fileReceivedSize)
             {
+                sDebug() << "Screenshot data get";
                 emit screenshotDone();
             }
         }
@@ -165,8 +174,6 @@ bool HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
         controlCo->waitForCommand("cp -r " + rollbackDir + "/* /tmp/rollback/");*/
     QThread::msleep(200);
     fakeWaitForCommand("ls -l " + QByteArray(CLOVERSAVESTATEPATH));
-    if (noGet == false)
-        controlCo->getFile(CLOVERSAVESTATEPATH);
     if (canoeRun.indexOf("-resume") == -1)
     {
         canoeRun.append("-resume");
@@ -180,6 +187,14 @@ bool HandleStuffSnesClassic::mySaveState(bool trigger, bool noGet)
     }
     sDebug() << "Restarting Canoe";
     runCanoe(canoeRun);
+    if (noGet == false)
+    {
+        expectingSaveFile = true;
+        saveStateData.clear();
+        controlCo->getFile(CLOVERSAVESTATEPATH);
+    } else {
+        emit saveStateFinished(true);
+    }
     return true;
 }
 
@@ -232,7 +247,13 @@ void HandleStuffSnesClassic::myLoadState(QByteArray data, bool noPut)
     lastLoadMD5 = QCryptographicHash::hash(data, QCryptographicHash::Md5);
     runCanoe(canoeRun);
     QTimer::singleShot(10, this, [=](){
-        emit loadSaveStateFinished(true);
+        if (controllerStateTrigger)
+        {
+            controllerStateTrigger = false;
+            emit controllerLoadStateFinished(true);
+        } else {
+            emit loadSaveStateFinished(true);
+        }
     });
 }
 
@@ -248,6 +269,8 @@ bool HandleStuffSnesClassic::hasPostSaveScreenshot()
 
 bool HandleStuffSnesClassic::doScreenshot()
 {
+    sDebug() << "Requesting screenshot";
+    expectingSaveFile = false;
     screenshotData.clear();
     controlCo->getFile(SCREENSHOTPATH);
     return true;
@@ -260,11 +283,13 @@ bool HandleStuffSnesClassic::hasShortcutsEdit()
 
 void HandleStuffSnesClassic::controllerSaveState()
 {
+    controllerStateTrigger = true;
     mySaveState(false, true);
 }
 
 void HandleStuffSnesClassic::controllerLoadState()
 {
+    controllerStateTrigger = true;
     myLoadState(QByteArray(), true);
 }
 

@@ -42,11 +42,10 @@ private:
     bool                doingState;
     bool                memoryAccess;
     bool                controllerStateRequest;
-    QString             tempFilePath;
     QTimer              memoryTimer;
-    QString             lastLoadedSave;
-    quint16                 saveShortcut;
-    quint16                 loadShortcut;
+    QByteArray          lastSaveData;
+    quint16             saveShortcut;
+    quint16             loadShortcut;
 
     void    onReplyRead();
 

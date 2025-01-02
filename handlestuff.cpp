@@ -291,6 +291,7 @@ bool    HandleStuff::loadSaveState(QString name)
 
 bool HandleStuff::addSaveState(QString name, bool trigger)
 {
+    sDebug() << "Add Savestate state";
     QFileInfo fi(catLoaded->path + "/" + name + ".svt");
     saveStateFileInfo = fi;
     saveStates[catLoaded->path] << fi.baseName();
@@ -308,6 +309,7 @@ bool HandleStuff::addSaveState(QString name, bool trigger)
 
 void    HandleStuff::onSaveStateFinished(bool success)
 {
+    sDebug() << "Savestate finished";
     if (!success)
     {
         emit addSaveStateFinished(success);

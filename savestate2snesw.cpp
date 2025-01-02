@@ -240,9 +240,8 @@ void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
     repStateModel->clear();
     loadGames();
     ui->savestateListView->setHandleStuff(handleStuff);
-    connect(handleStuff, &HandleStuff::saveStateFinished, this, &Savestate2snesw::onSaveStateFinished, Qt::UniqueConnection);
-    connect(handleStuff, &HandleStuff::loadStateFinished, this, &Savestate2snesw::onLoadStateFinished, Qt::UniqueConnection);
-
+    connect(handleStuff, &HandleStuff::addSaveStateFinished, this, &Savestate2snesw::onSaveStateFinished, Qt::UniqueConnection);
+    connect(handleStuff, &HandleStuff::loadSaveStateFinished, this, &Savestate2snesw::onLoadStateFinished, Qt::UniqueConnection);
 }
 
 void Savestate2snesw::saveListShowContextMenu(QPoint point)
@@ -438,7 +437,7 @@ void Savestate2snesw::onSaveStateFinished(bool success)
         QString name = newSaveItem->text();
         saveStateModel->invisibleRootItem()->appendRow(newSaveItem);
         ui->savestateListView->setCurrentIndex(newSaveItem->index());
-        qDebug() << newSaveItem->isEditable();
+        sDebug() << newSaveItem->isEditable();
         ui->savestateListView->edit(newSaveItem->index());
         newSaveInserted = newSaveItem;
     } else {
@@ -454,7 +453,7 @@ void Savestate2snesw::onLoadStateFinished(bool success)
 
 void Savestate2snesw::changeState(State m_state)
 {
-    qDebug() << "State changed" << m_state;
+    sDebug() << "State changed" << m_state;
     state = m_state;
 }
 

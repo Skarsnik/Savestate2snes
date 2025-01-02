@@ -101,6 +101,8 @@ signals:
 signals:
     void                addSaveStateFinished(bool);
     void                loadSaveStateFinished(bool);
+    void                controllerLoadStateFinished(bool);
+    void                controllerSaveStateFinished(bool);
     void                gotMemoryValue(quint64 value);
 
 protected:

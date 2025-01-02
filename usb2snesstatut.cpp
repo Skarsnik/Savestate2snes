@@ -51,8 +51,8 @@ USB2SnesStatut::USB2SnesStatut(QWidget *parent) :
 void USB2SnesStatut::setUsb2snes(USB2snes *usnes)
 {
     usb2snes = usnes;
-    connect(usb2snes, SIGNAL(stateChanged()), this, SLOT(onUsb2snesStateChanged()));
-    connect(usb2snes, SIGNAL(disconnected()), this, SLOT(onUsb2snesDisconnected()));
+    connect(usb2snes, &USB2snes::stateChanged, this, &USB2SnesStatut::onUsb2snesStateChanged);
+    connect(usb2snes, &USB2snes::disconnected, this, &USB2SnesStatut::onUsb2snesDisconnected);
 }
 
 //; 	A		B	  Y      X        L      R      	>		<		v		^	Start	  select
