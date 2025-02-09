@@ -299,6 +299,21 @@ QByteArray USB2snes::getFile(QString path)
     return lastBinaryMessage;
 }
 
+void USB2snes::getAsyncAddress(QList<QPair<quint32, quint8> >toGet, Space space)
+{
+    m_istate = IBusy;
+    doingAsyncGetAddress = true;
+    QStringList args;
+    requestedBinaryReadSize = 0;
+    for (const auto& pair : toGet)
+    {
+        args << QString::number(pair.first, 16);
+        args << QString::number(pair.second, 16);
+        requestedBinaryReadSize += pair.second;
+    }
+    sendRequest("GetAddress", args, space);
+}
+
 void USB2snes::getAsyncAddress(unsigned int addr, unsigned int size, Space space)
 {
     m_istate = IBusy;

@@ -92,7 +92,6 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     connect(ui->consoleSwitcher, SIGNAL(modeChanged(ConsoleSwitcher::Mode)), this, SLOT(onModeChanged(ConsoleSwitcher::Mode)));
     //loadGames();
 
-    //usb2snes->connect();
     setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion() + " - Multi");
 
     // Actions
@@ -214,6 +213,7 @@ void Savestate2snesw::onModeChanged(ConsoleSwitcher::Mode mode)
 {
     sDebug() << "Mode changed" << mode;
     handleStuff = ui->consoleSwitcher->getHandle();
+    ui->trainingTimer->setHandler(handleStuff);
     if (mode == ConsoleSwitcher::SNESClassic)
     {
         QString snescdir = gamesFolder + "/SNESClassic";
@@ -554,6 +554,9 @@ void    Savestate2snesw::loadCategory(QStandardItem* cat)
     {
         saveStateModel->invisibleRootItem()->appendRow(new QStandardItem(save));
     }
+    uiReadyForSavestate = true;
+    if (backendSaveStateReady == true && state != READY)
+        onReadyForSaveState();
 }
 
 void Savestate2snesw::onSaveStateDelegateDataCommited(QWidget *e)
@@ -584,6 +587,9 @@ void Savestate2snesw::saveStateModelReset()
 
 void Savestate2snesw::onReadyForSaveState()
 {
+    backendSaveStateReady = true;
+    if (uiReadyForSavestate == false)
+        return ;
     sDebug() << "Ready for savestate";
     ui->actionMake_a_savestate->setEnabled(true);
     ui->actionReload_last_savestate->setEnabled(true);
@@ -603,16 +609,13 @@ void Savestate2snesw::onReadyForSaveState()
             ui->consoleSwitcher->refreshShortcuts();
         }
     }
-    ui->trainingTimer->setHandler(handleStuff);
     ui->trainingTimer->setEnabled(true);
-    if (handleStuff->hasMemoryWatch())
-    {
-        ui->trainingTimer->setSavedPreset(handleStuff->gameInfos().memoryPreset);
-    }
+    handleStuff->savestateReady();
 }
 
 void Savestate2snesw::onUnReadyForSaveState()
 {
+    backendSaveStateReady = false;
     sDebug() << "Unready for savestate";
     ui->actionMake_a_savestate->setEnabled(false);
     ui->actionReload_last_savestate->setEnabled(false);
@@ -624,6 +627,7 @@ void Savestate2snesw::onUnReadyForSaveState()
     if (handleStuff->hasShortcutsEdit())
         ui->editShortcutButton->setEnabled(false);
     ui->trainingTimer->setEnabled(false);
+    handleStuff->savestateUnready();
     changeState(NONE);
 }
 

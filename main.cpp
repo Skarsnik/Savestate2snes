@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 #else
     QApplication::setApplicationVersion("0.99");
 #endif
-    QLoggingCategory::setFilterRules("EmuNWAccessClient.debug=true\n");
+    QLoggingCategory::setFilterRules("EmuNWAccessClient.debug=true\nUSB2SNES.debug=false");
     a.installTranslator(&translator);
     if (!settings.contains("lastSaveStateDir"))
     {
@@ -121,6 +121,26 @@ int main(int argc, char *argv[])
         settings.setValue("lastSaveStateDir", diag.savePath);
         settings.setValue("mode", diag.selectedMode());
     }
+    /*USB2snes* usb2snes = new USB2snes();
+    QObject::connect(usb2snes, &USB2snes::stateChanged, [=]{
+        if (usb2snes->state() == USB2snes::Ready)
+        {
+            QByteArray prev;
+            while (true)
+            {
+                QByteArray b = usb2snes->getAddress(0xFE1000, 0x16);
+                if (b != prev)
+                {
+                    qDebug() << "changed" << b.toHex(' ');
+                    if (b.at(0xC) == 0xF)
+                        qDebug() << "State ended?";
+                }
+
+                prev = b;
+            }
+        }
+        ;});
+    usb2snes->connect();*/
     Savestate2snesw w;
     w.show();
     /*TrainingTimer pt;

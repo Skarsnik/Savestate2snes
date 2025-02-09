@@ -9,6 +9,8 @@ class HandleStuffUsb2snes : public HandleStuff
 public:
     HandleStuffUsb2snes();
     void        setUsb2snes(USB2snes* usb);
+    void        savestateReady();
+    void        savestateUnready();
     quint16     shortcutSave();
     quint16     shortcutLoad();
     QByteArray  getScreenshotData();
@@ -39,11 +41,18 @@ private:
     bool        doingSaveState;
     bool        saveStateTrigger;
     bool        doingLoadState;
+    bool        detectedLoadState;
+    bool        detectedSaveState;
+    bool        checkingSafeState;
+    QList<QPair<quint32, quint8> > memoryToCheck;
     QTimer      memoryWatchTimer;
-    QTimer      safeStateTimer;
+    //QTimer      safeStateTimer;
     QByteArray  loadStateData;
     quint32     savestateInterfaceAddress;
     quint32     savestateDataAddress;
+    quint16     m_loadShortcut;
+    quint16     m_saveShortcut;
+
 
     void        onGetAddressDataReceived();
 

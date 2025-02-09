@@ -45,12 +45,13 @@ USB2SnesStatut::USB2SnesStatut(QWidget *parent) :
      //timer.start(1000);
      menuRunning = false;
      romRunning = false;
+     usb2snes = new USB2snes();
      ui->romPatchedLabel->hide();
 }
 
 void USB2SnesStatut::setUsb2snes(USB2snes *usnes)
 {
-    usb2snes = usnes;
+    usb2snes->connect();
     connect(usb2snes, &USB2snes::stateChanged, this, &USB2SnesStatut::onUsb2snesStateChanged);
     connect(usb2snes, &USB2snes::disconnected, this, &USB2SnesStatut::onUsb2snesDisconnected);
 }

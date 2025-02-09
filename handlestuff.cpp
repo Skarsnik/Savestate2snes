@@ -50,7 +50,7 @@ QStringList HandleStuff::loadGames()
     sDebug() << "Loading games" << listDir.size();
     foreach(QFileInfo fi, listDir)
     {
-        if (fi.baseName() != "SNESClassic" && fi.baseName() != "USB2Snes")
+        if (fi.baseName() != "SNESClassic" && fi.baseName() != "USB2Snes" && fi.baseName() != "NWAccess")
         {
             games << fi.baseName();
             sDebug() << fi.baseName();
@@ -103,6 +103,7 @@ QVector<Category *> HandleStuff::loadCategories(QString game)
         if (file.contains("_/checkMemory"))
             m_gameInfo.checkMemory = file.value("_/checkMemory").toBool();
     }
+    emit newGameLoaded();
     return categories[game]->children;
 }
 
@@ -472,4 +473,13 @@ void HandleStuff::saveMemoryCheck(bool value)
     file.setValue("_/checkMemory", value);
 }
 
+void HandleStuff::savestateReady()
+{
+    sDebug() <<  "Nothing to do here";
+}
+
+void HandleStuff::savestateUnready()
+{
+    sDebug() <<  "Nothing to do here";
+}
 

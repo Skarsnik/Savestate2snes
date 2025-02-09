@@ -69,6 +69,7 @@ public:
     void                    setAppName(QString name);
     QByteArray              getAddress(unsigned int addr, unsigned int size, Space space = SNES);
     QByteArray              getFile(QString path);
+    void                    getAsyncAddress(QList<QPair<quint32, quint8> >, Space space = SNES);
     void                    getAsyncAddress(unsigned int addr, unsigned int size, Space space = SNES);
     const QByteArray&       getAsyncAdressData() const;
     void                    setAddress(unsigned int addr, QByteArray data, Space space = SNES);

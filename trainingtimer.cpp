@@ -45,19 +45,21 @@ void TrainingTimer::setHandler(HandleStuff *stuff)
     connect(handler, &HandleStuff::loadStateFinished, this, &TrainingTimer::onSavestateLoaded);
     connect(handler, &HandleStuff::controllerLoadStateFinished, this, &TrainingTimer::onSavestateLoaded);
     connect(handler, &HandleStuff::gotMemoryValue, this, &TrainingTimer::onMemoryRequestDone);
-    if (handler->hasMemoryWatch())
-    {
-        ui->memoryCheckcheckBox->setEnabled(true);
-        ui->configPushButton->setEnabled(true);
-    } else {
-        ui->memoryCheckcheckBox->setEnabled(false);
-        ui->configPushButton->setEnabled(false);
-    }
-}
+    connect(handler, &HandleStuff::newGameLoaded, this, [=] {
+        if (handler->hasMemoryWatch())
+        {
+            if (handler->gameInfos().memoryPreset.domain.isEmpty() == false)
+            {
+                configDialog.setPreset(handler->gameInfos().memoryPreset);
+                ui->memoryCheckcheckBox->setEnabled(true);
+            }
+            ui->configPushButton->setEnabled(true);
+        } else {
+            ui->memoryCheckcheckBox->setEnabled(false);
+            ui->configPushButton->setEnabled(false);
+        }
+    });
 
-void TrainingTimer::setSavedPreset(MemoryPreset preset)
-{
-    configDialog.setPreset(preset);
 }
 
 
@@ -134,8 +136,8 @@ void TrainingTimer::on_memoryCheckcheckBox_stateChanged(int state)
             handler->stopMemoryWatch();
     } else {
         ui->memoryClock->setText("00:00:00");
-        if (handler->hasMemoryWatch())
-            handler->startMemoryWatch();
+        /*if (handler->hasMemoryWatch())
+            handler->startMemoryWatch();*/
     }
 }
 

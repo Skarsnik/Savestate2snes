@@ -41,8 +41,8 @@ struct MemoryPreset {
 
 struct  GameInfos
 {
-    quint16         saveShortcut;
-    quint16         loadShortcut;
+    quint16         saveShortcut = 0;
+    quint16         loadShortcut = 0;
     MemoryPreset    memoryPreset;
     QString         name;
     bool            checkMemory;
@@ -76,6 +76,8 @@ public:
     void        setGameShortCut(quint16 save, quint16 load);
     void        setMemoryToWatch(MemoryPreset preset);
     void        saveMemoryCheck(bool);
+    virtual     void        savestateReady();
+    virtual     void        savestateUnready();
 
     virtual QByteArray  getScreenshotData() = 0;
     virtual bool        hasShortcutsEdit() = 0;
@@ -104,6 +106,7 @@ signals:
     void                controllerLoadStateFinished(bool);
     void                controllerSaveStateFinished(bool);
     void                gotMemoryValue(quint64 value);
+    void                newGameLoaded();
 
 protected:
     virtual bool        saveState(bool trigger) = 0;

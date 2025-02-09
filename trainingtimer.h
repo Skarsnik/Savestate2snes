@@ -22,7 +22,6 @@ public:
     ~TrainingTimer();
     bool    loadPreset(const QString& path);
     void    setHandler(HandleStuff* stuff);
-    void    setSavedPreset(MemoryPreset preset);
 
 signals:
     void    memoryPresetChanged(MemoryPreset preset);

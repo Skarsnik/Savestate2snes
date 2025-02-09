@@ -122,6 +122,8 @@ private:
     QRegExp             invalidDirRegex;
     QRegExp             invalidFileRegex;
     QString             newSaveStateNameRequested;
+    bool                uiReadyForSavestate = false;
+    bool                backendSaveStateReady = false;
 
     State               state;
 
