@@ -1,0 +1,20 @@
+{
+    "name" : "Savestate2Snes",
+    "pro-file" : "Savestate2snes.pro",
+    "org" : "fr.nyo",
+    "short-description" : "A tool to manage savestates for differents systems: FxPak Pros, Snes Classic and NWA emulators",
+    "description" : "A tool to manage savestates for differents systems.
+    -FxPak Pro using usb2snes capable firmware
+    -Snes Classic hacked with Hakchi2CE and with the serverstuff mod installed
+    -NWA capable emulators",
+    "qt-major-version" : "qt5",
+    "icon" : "icon64x64.png",
+    "desktop-categories" : ["Utility"],
+    "translations-dir" : "Translations",
+    "files" : {
+        "serverstuff.hmod" : "https://github.com/Skarsnik/snesclassicstuff/releases/download/serverstuffmod_v1/serverstuff.hmod",
+        "icone.png" : "icon64x64.png",
+        "qusb2snesapp.json" : "qusb2snesapp.json",
+        "memorypreset.json" : "memorypreset.json"
+    }
+}
