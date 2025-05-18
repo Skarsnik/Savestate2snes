@@ -127,6 +127,7 @@ private:
 
     State               state;
 
+    void    init();
     void    changeState(State m_state);
     void    createMenus();
     void    loadGames();

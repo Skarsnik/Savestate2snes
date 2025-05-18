@@ -29,6 +29,8 @@ signals:
 public slots:
     void    onSavestateLoaded();
     void    onMemoryRequestDone(quint64);
+    void    saveStateReady();
+    void    saveStateUnready();
 
 
 private slots:
@@ -40,15 +42,19 @@ private:
     Ui::TrainingTimer *ui;
     QTimer          timer;
     quint64         oldAddressValue;
-    QDateTime       startedTime;
+    QDateTime       saveStateStartedTime;
+    QDateTime       memoryStartedTime;
     HandleStuff*    handler;
     bool            readyToTime;
     bool            firstMemoryTick;
     bool            firstLoad;
+    bool            memoryWatchActive;
     TrainingConfigDialog    configDialog;
 
     void    onTimerTick();
-    void    setLabelTime(QLabel*    label);
+    void    setLabelTime(QLabel*    label, QDateTime &startedTime);
+    void    startMemoryWatch();
+    void    stopMemoryWatch();
 };
 
 #endif // TRAININGTIMER_H

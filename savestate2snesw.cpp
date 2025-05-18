@@ -74,9 +74,6 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     ui->savestateListView->setModel(saveStateModel);
     ui->categoryTreeView->setModel(repStateModel);
     newSaveInserted = nullptr;
-    onModeChanged(ui->consoleSwitcher->mode());
-    handleStuff = ui->consoleSwitcher->getHandle();
-    //handleStuff->setSaveStateDir(gamesFolder);
     createMenus();
     turnSaveStateAction(false);
 
@@ -90,8 +87,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     connect(ui->consoleSwitcher, SIGNAL(readyForSaveState()), this, SLOT(onReadyForSaveState()));
     connect(ui->consoleSwitcher, SIGNAL(unReadyForSaveState()), this, SLOT(onUnReadyForSaveState()));
     connect(ui->consoleSwitcher, SIGNAL(modeChanged(ConsoleSwitcher::Mode)), this, SLOT(onModeChanged(ConsoleSwitcher::Mode)));
-    //loadGames();
-
+    connect(ui->consoleSwitcher, &ConsoleSwitcher::readyForSaveState, ui->trainingTimer, &TrainingTimer::saveStateReady);
+    connect(ui->consoleSwitcher, &ConsoleSwitcher::unReadyForSaveState, ui->trainingTimer, &TrainingTimer::saveStateUnready);
     setWindowTitle(qApp->applicationName() + " - " + qApp->applicationVersion() + " - Multi");
 
     // Actions
@@ -102,6 +99,17 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
     addAction(ui->actionMake_a_savestate);
     addAction(ui->actionSave_a_savestate);
 
+    ui->consoleSwitcher->start();
+    ui->statusBar->showMessage(ui->consoleSwitcher->unreadyString());
+    ui->trainingTimer->loadPreset(qApp->applicationDirPath() + "/memorypreset.json");
+    changeState(NONE);
+    QTimer::singleShot(0, this, &Savestate2snesw::init);
+}
+
+void Savestate2snesw::init()
+{
+    onModeChanged(ui->consoleSwitcher->mode());
+    handleStuff = ui->consoleSwitcher->getHandle();
     ui->consoleSwitcher->start();
     ui->statusBar->showMessage(ui->consoleSwitcher->unreadyString());
     if (m_settings->contains("lastCategoryLoaded"))
@@ -128,14 +136,12 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
         }
         if (catFound != nullptr)
         {
+            sDebug() << "Category found " << catFound->text();
             ui->categoryTreeView->expand(repStateModel->indexFromItem(catFound));
             ui->categoryTreeView->setCurrentIndex(catFound->index());
             loadCategory(catFound);
         }
-
     }
-    ui->trainingTimer->loadPreset(qApp->applicationDirPath() + "/memorypreset.json");
-    changeState(NONE);
 }
 
 QStandardItem*   findCatItemPath(QStandardItem* item, QString toFind)
@@ -450,6 +456,7 @@ void Savestate2snesw::onLoadStateFinished(bool success)
 {
     changeState(READY);
 }
+
 
 void Savestate2snesw::changeState(State m_state)
 {

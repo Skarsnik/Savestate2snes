@@ -117,7 +117,7 @@
      <item row="4" column="0" colspan="3">
       <widget class="QCheckBox" name="memoryCheckcheckBox">
        <property name="text">
-        <string>Check a change of address</string>
+        <string>Check a change of memory value</string>
        </property>
       </widget>
      </item>

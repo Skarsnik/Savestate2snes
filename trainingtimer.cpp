@@ -24,6 +24,9 @@ TrainingTimer::TrainingTimer(QWidget *parent) : QWidget(parent), ui(new Ui::Trai
     piko->start();*/
     readyToTime = false;
     firstMemoryTick = true;
+    memoryWatchActive = false;
+    saveStateStartedTime = QDateTime::currentDateTime();
+    memoryStartedTime = QDateTime::currentDateTime();
     firstLoad = true;
 }
 
@@ -51,10 +54,14 @@ void TrainingTimer::setHandler(HandleStuff *stuff)
             if (handler->gameInfos().memoryPreset.domain.isEmpty() == false)
             {
                 configDialog.setPreset(handler->gameInfos().memoryPreset);
-                ui->memoryCheckcheckBox->setEnabled(true);
+                ui->memoryCheckcheckBox->setChecked(true);
+                ui->memoryCheckcheckBox->setText(tr("Check a change of memory value"));
+            } else {
+                ui->memoryCheckcheckBox->setText(tr("Open the config dialog to set preset"));
             }
             ui->configPushButton->setEnabled(true);
         } else {
+            ui->memoryCheckcheckBox->setText(tr("No support for memory read"));
             ui->memoryCheckcheckBox->setEnabled(false);
             ui->configPushButton->setEnabled(false);
         }
@@ -65,21 +72,12 @@ void TrainingTimer::setHandler(HandleStuff *stuff)
 
 void TrainingTimer::onSavestateLoaded()
 {
-    setLabelTime(ui->lastLoadClock);
+    setLabelTime(ui->lastLoadClock, saveStateStartedTime);
     readyToTime = true;
     timer.start();
-    startedTime = QDateTime::currentDateTime();
+    saveStateStartedTime = QDateTime::currentDateTime();
     firstMemoryTick = true;
-    if (firstLoad)
-    {
-        if (handler->hasMemoryWatch() && ui->memoryCheckcheckBox->isChecked())
-        {
-            sDebug() << "Starting memory watch";
-            handler->startMemoryWatch();
-        }
-        firstLoad = false;
-    }
-    sDebug() << startedTime;
+    sDebug() << saveStateStartedTime;
 }
 
 void TrainingTimer::onMemoryRequestDone(quint64 value)
@@ -90,28 +88,73 @@ void TrainingTimer::onMemoryRequestDone(quint64 value)
         firstMemoryTick = false;
     }
     else {
-        sDebug() << "Got Value : " << QString::number(value, 16) << " Old Value " << QString::number(oldAddressValue, 16);
+        //sDebug() << "Got Value : " << QString::number(value, 16) << " Old Value " << QString::number(oldAddressValue, 16);
         if (value != oldAddressValue)
         {
-            setLabelTime(ui->memoryClock);
+            sDebug() << "Value changed";
+            setLabelTime(ui->memoryClock, memoryStartedTime);
+            memoryStartedTime = QDateTime::currentDateTime();
             oldAddressValue = value;
         }
     }
 }
 
+void TrainingTimer::saveStateReady()
+{
+    sDebug() << "Savestate ready";
+    ui->lastLoadClock->setEnabled(true);
+    ui->memoryClock->setEnabled(true);
+    ui->memoryCheckcheckBox->setEnabled(true);
+    if (handler->hasMemoryWatch() && ui->memoryCheckcheckBox->isChecked())
+    {
+        startMemoryWatch();
+    }
+}
+
+void TrainingTimer::saveStateUnready()
+{
+    ui->lastLoadClock->setEnabled(false);
+    ui->memoryClock->setEnabled(false);
+}
+
+void    TrainingTimer::startMemoryWatch()
+{
+    firstMemoryTick = true;
+    sDebug() << "Starting memory watch";
+    memoryWatchActive = true;
+    readyToTime = true;
+    timer.start();
+    handler->startMemoryWatch();
+    memoryStartedTime = QDateTime::currentDateTime();
+}
+
+void    TrainingTimer::stopMemoryWatch()
+{
+    sDebug() << "Stoping memory watch";
+    memoryWatchActive = false;
+    handler->stopMemoryWatch();
+}
+
 void TrainingTimer::onTimerTick()
 {
     if (readyToTime)
-        setLabelTime(ui->mainClock);
+    {
+        if (memoryWatchActive)
+            setLabelTime(ui->mainClock, memoryStartedTime);
+        else
+            setLabelTime(ui->mainClock, saveStateStartedTime);
+    }
 }
 
-void    TrainingTimer::setLabelTime(QLabel* label)
+void    TrainingTimer::setLabelTime(QLabel* label, QDateTime& startedTime)
 {
     QTime time(0, 0 , 0);
-    //sDebug() << "MS to" << startedTime.msecsTo(QDateTime::currentDateTime());
+    //sDebug() << "MS to" << saveStateStartedTime.msecsTo(QDateTime::currentDateTime());
     time = time.addMSecs(startedTime.msecsTo(QDateTime::currentDateTime()));
     //sDebug() << time;
-    label->setText(time.toString("mm:ss:zzz"));
+    QString timeText = QString(time.toString("mm:ss:zzz"));
+    timeText.truncate(8);
+    label->setText(timeText);
 }
 
 
@@ -120,6 +163,7 @@ void TrainingTimer::on_configPushButton_clicked()
     auto ok = configDialog.exec();
     if (ok == QDialog::Accepted)
     {
+        sDebug() << "Selected preset " << configDialog.currentPreset().address;
         emit memoryPresetChanged(configDialog.currentPreset());
     }
 }
@@ -132,12 +176,12 @@ void TrainingTimer::on_memoryCheckcheckBox_stateChanged(int state)
     if (state != Qt::Checked)
     {
         ui->memoryClock->setText("-");
-        if (handler->hasMemoryWatch())
-            handler->stopMemoryWatch();
+        if (handler->hasMemoryWatch() && ui->lastLoadClock->isEnabled())
+            stopMemoryWatch();
     } else {
         ui->memoryClock->setText("00:00:00");
-        /*if (handler->hasMemoryWatch())
-            handler->startMemoryWatch();*/
+        if (handler->hasMemoryWatch() && ui->lastLoadClock->isEnabled())
+            startMemoryWatch();
     }
 }
 
