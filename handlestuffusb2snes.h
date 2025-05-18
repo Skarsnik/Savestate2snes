@@ -36,16 +36,12 @@ protected:
 
 private:
     USB2snes*   usb2snes;
-    void checkForSafeState();
     bool        doingMemoryWatchCheck;
-    bool        doingSaveState;
     bool        saveStateTrigger;
-    bool        doingLoadState;
     bool        detectedLoadState;
     bool        detectedSaveState;
     bool        checkingSafeState;
     QList<QPair<quint32, quint8> > memoryToCheck;
-    QTimer      memoryWatchTimer;
     //QTimer      safeStateTimer;
     QByteArray  loadStateData;
     quint32     savestateInterfaceAddress;
@@ -53,6 +49,14 @@ private:
     quint16     m_loadShortcut;
     quint16     m_saveShortcut;
 
+    enum TriggeredSaveState {
+        NONE,
+        WAITING_FOR_SAFE_LOAD,
+        WAITING_FOR_SAFE_SAVE,
+        TRIGGERED_SAVE,
+        TRIGGERED_LOAD,
+        WAITING_FOR_DATA
+    } triggeredState = NONE;
 
     void        onGetAddressDataReceived();
 

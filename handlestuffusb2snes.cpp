@@ -7,22 +7,14 @@ extern bool    dontLogNext;
 
 HandleStuffUsb2snes::HandleStuffUsb2snes() : HandleStuff()
 {
-    doingLoadState = false;
-    doingSaveState = false;
-    checkingSafeState = false;
     detectedSaveState = false;
     detectedLoadState = false;
     doingMemoryWatchCheck = false;
     savestateInterfaceAddress = 0xFC2000;
     savestateDataAddress = 0xF00000;
-    memoryWatchTimer.setInterval(20);
     m_loadShortcut = 0;
     m_saveShortcut = 0;
     //safeStateTimer.setInterval(30);
-    connect(&memoryWatchTimer, &QTimer::timeout, this, [=] {
-        doingMemoryWatchCheck = true;
-        usb2snes->getAsyncAddress(GameInfos().memoryPreset.address + 0xF50000, GameInfos().memoryPreset.size);
-    });
     /*connect(&safeStateTimer, &QTimer::timeout, this, [=] {
         usb2snes->getAsyncAddress(savestateInterfaceAddress, 2);
     });*/
@@ -70,18 +62,16 @@ void HandleStuffUsb2snes::savestateUnready()
 bool HandleStuffUsb2snes::saveState(bool trigger)
 {
     QByteArray data;
-    doingSaveState = true;
+    triggeredState = WAITING_FOR_SAFE_SAVE;
     saveStateTrigger = trigger;
-    checkForSafeState();
     return true;
 }
 
 void HandleStuffUsb2snes::loadState(QByteArray data)
 {
     sDebug() << "Loading State";
-    doingLoadState = true;
+    triggeredState = WAITING_FOR_SAFE_LOAD;
     loadStateData = data;
-    checkForSafeState();
 }
 
 bool HandleStuffUsb2snes::needByteData()
@@ -89,62 +79,64 @@ bool HandleStuffUsb2snes::needByteData()
     return true;
 }
 
-void    HandleStuffUsb2snes::checkForSafeState()
-{
-    checkingSafeState = true;
-}
 
 void HandleStuffUsb2snes::onGetAddressDataReceived()
 {
     const QByteArray& data = usb2snes->getAsyncAdressData();
     //sDebug() << "Received" << data.toHex('-') << checkingSafeState;
 
-    if (checkingSafeState)
+    if (triggeredState == WAITING_FOR_SAFE_LOAD)
     {
         if (data.at(0) == 0 && data.at(1) == 0)
         {
-            sDebug() << "Ready to load/save state";
-            checkingSafeState = false;
-            if (doingLoadState)
+            usb2snes->setAddress(savestateDataAddress, loadStateData);
+            loadStateData.resize(2);
+            loadStateData[0] = 0;
+            loadStateData[1] = 1;
+            usb2snes->setAddress(savestateInterfaceAddress, loadStateData);
+            triggeredState = NONE;
+            emit loadStateFinished(true);
+        }
+    }
+    if (triggeredState == TRIGGERED_SAVE)
+    {
+        if (data.at(0) == 0 && data.at(1) == 0)
+        {
+            usb2snes->getAsyncAddress(savestateDataAddress, 320 * 1024);
+            triggeredState = WAITING_FOR_DATA;
+            return ;
+        }
+    }
+    if (triggeredState == WAITING_FOR_SAFE_SAVE)
+    {
+        if (data.at(0) == 0 && data.at(1) == 0)
+        {
+            if (saveStateTrigger)
             {
-                usb2snes->setAddress(savestateDataAddress, loadStateData);
-                loadStateData.resize(2);
-                loadStateData[0] = 0;
-                loadStateData[1] = 1;
+                loadStateData[0] = 1;
                 usb2snes->setAddress(savestateInterfaceAddress, loadStateData);
-                doingLoadState = false;
-                emit loadStateFinished(true);
+                triggeredState = TRIGGERED_SAVE;
+            } else {
+                usb2snes->getAsyncAddress(savestateDataAddress, 320 * 1024);
+                triggeredState = WAITING_FOR_DATA;
                 return ;
-            }
-            if (doingSaveState)
-            {
-                sDebug() << "Doing savestate";
-                if (saveStateTrigger)
-                {
-                    loadStateData.resize(1);
-                    loadStateData[0] = 1;
-                    usb2snes->setAddress(savestateInterfaceAddress, loadStateData);
-                    checkingSafeState = true;
-                    saveStateTrigger = false;
-                } else {
-                    usb2snes->getAsyncAddress(savestateDataAddress, 320 * 1024);
-                }
-                return;
             }
         }
     }
-    if (doingSaveState)
+    if (triggeredState == WAITING_FOR_DATA)
     {
         sDebug() << "Receiving savestate data";
         saveStateData = data;
-        doingSaveState = false;
+        triggeredState = NONE;
         emit saveStateFinished(true);
+        usb2snes->getAsyncAddress(memoryToCheck);
+        return ;
     }
     if (doingMemoryWatchCheck)
     {
         quint64 value = 0;
         QByteArray memData = data.mid(0x16);
-        sDebug() << "Memory watch" << memData;
+        //sDebug() << "Memory watch" << memData;
         for (quint8 i = 0; i < memData.size(); i++)
         {
             value += memData.at(i) << (i * 8);
@@ -156,6 +148,7 @@ void HandleStuffUsb2snes::onGetAddressDataReceived()
      * of button, but it's stay for one frame, another way should be to check
      * for the current cmd in the CMD space, but it's a separate read
     */
+    //sDebug() << data.size() << data.at(0xC);
     if (data.at(0xC) == 0 && detectedLoadState)
     {
         detectedLoadState = false;
@@ -173,7 +166,6 @@ void HandleStuffUsb2snes::onGetAddressDataReceived()
         m_saveShortcut = (static_cast<uchar>(data.at(3)) << 8) + static_cast<uchar>(data.at(2));
         usb2snes->getAsyncAddress(memoryToCheck);
     }
-
 }
 
 quint16 HandleStuffUsb2snes::shortcutSave()
@@ -226,13 +218,15 @@ bool HandleStuffUsb2snes::hasMemoryWatch()
 
 void HandleStuffUsb2snes::startMemoryWatch()
 {
-    memoryToCheck << QPair<quint32, quint8>(GameInfos().memoryPreset.address + 0xF50000, GameInfos().memoryPreset.size);
+    sDebug() << "Starting memory watch";
+    memoryToCheck << QPair<quint32, quint8>(gameInfos().memoryPreset.address + 0xF50000, gameInfos().memoryPreset.size);
     doingMemoryWatchCheck = true;
     return ;
 }
 
 void HandleStuffUsb2snes::stopMemoryWatch()
 {
+    sDebug() << "Stoping memory watch";
     memoryToCheck.removeLast();
     doingMemoryWatchCheck = false;
     return ;

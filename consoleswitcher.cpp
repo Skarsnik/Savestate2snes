@@ -263,9 +263,9 @@ void ConsoleSwitcher::on_snesClassicUnReadyForSaveState()
 
 void ConsoleSwitcher::initUsb2snes()
 {
-    usb2snes = new USB2snes();
+    usb2snes = new USB2snes("SaveState2Snes control");
     handleUSB2Snes = new HandleStuffUsb2snes();
-    ui->usb2snesStatut->setUsb2snes(usb2snes);
+    ui->usb2snesStatut->setUsb2snes();
     handleUSB2Snes->setUsb2snes(usb2snes);
     usb2snesInit = true;
 }

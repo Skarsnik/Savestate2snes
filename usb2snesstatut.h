@@ -34,7 +34,7 @@ class USB2SnesStatut : public QWidget
 public:
     explicit USB2SnesStatut(QWidget *parent = nullptr);
     ~USB2SnesStatut();
-    void    setUsb2snes(USB2snes* usnes);
+    void    setUsb2snes();
     void    refreshShortcuts();
     QString readyString() const;
     QString unreadyString() const;

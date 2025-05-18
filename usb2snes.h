@@ -60,7 +60,7 @@ public:
     };
     Q_ENUM(InternalState)
 
-    USB2snes();
+    USB2snes(QString name = "");
     void                    usePort(QString port);
     QString                 port();
     QString                 getRomName();
@@ -114,6 +114,7 @@ private:
     QString         m_serverVersionString;
     InternalState   m_istate;
     QStringList     m_deviceList;
+    QString         m_name;
     bool            m_legacyConnection;
     QByteArray      lastBinaryMessage;
     QString         lastTextMessage;

@@ -22,10 +22,11 @@
 Q_LOGGING_CATEGORY(log_Usb2snes, "USB2SNES")
 #define sDebug() qCDebug(log_Usb2snes)
 
-USB2snes::USB2snes() : QObject()
+USB2snes::USB2snes(QString name) : QObject()
 {
     m_state = None;
     m_istate = INone;
+    m_name = name;
 
     QObject::connect(&m_webSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(onWebSocketTextReceived(QString)));
     QObject::connect(&m_webSocket, SIGNAL(connected()), this, SLOT(onWebSocketConnected()));
@@ -93,6 +94,8 @@ void USB2snes::onWebSocketConnected()
 {
     sDebug() << "Websocket connected";
     changeState(Connected);
+    if (m_name.isEmpty() == false)
+        sendRequest("Name", QStringList() << m_name);
     m_istate = IConnected;
     m_istate = DeviceListRequested;
     sendRequest("DeviceList");

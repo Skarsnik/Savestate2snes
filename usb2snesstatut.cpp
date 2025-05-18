@@ -45,11 +45,11 @@ USB2SnesStatut::USB2SnesStatut(QWidget *parent) :
      //timer.start(1000);
      menuRunning = false;
      romRunning = false;
-     usb2snes = new USB2snes();
+     usb2snes = new USB2snes("Savestate2Snes Status checker");
      ui->romPatchedLabel->hide();
 }
 
-void USB2SnesStatut::setUsb2snes(USB2snes *usnes)
+void USB2SnesStatut::setUsb2snes()
 {
     usb2snes->connect();
     connect(usb2snes, &USB2snes::stateChanged, this, &USB2SnesStatut::onUsb2snesStateChanged);
@@ -126,6 +126,7 @@ void USB2SnesStatut::onRomStarted()
     if (usb2snes->firmwareVersion() >= QVersionNumber(11))
     {
         QByteArray configData = usb2snes->getFile("/sd2snes/config.yml");
+        sDebug() << "Got config file";
         if (configData.contains("EnableIngameSavestate: 1"))
         {
             romPatched();
@@ -228,6 +229,7 @@ void USB2SnesStatut::onTimerTick()
     // This flood the log too much
     QStringList infos = usb2snes->infos();
     dontLogNext = false;
+    infos[2].truncate(infos.at(2).indexOf(QChar::Null));
     sDebug() << "tick infos : " << infos;
     if (infos.isEmpty())
         return ;
@@ -252,6 +254,8 @@ void USB2SnesStatut::onTimerTick()
 
 void USB2SnesStatut::onUsb2snesStateChanged()
 {
+    if (usb2snes->state() == USB2snes::None)
+        usb2snes->connect();
     if (usb2snes->state() == USB2snes::Ready)
     {
         if (validVersion())
