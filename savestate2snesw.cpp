@@ -701,6 +701,8 @@ void Savestate2snesw::on_savestateListView_doubleClicked(const QModelIndex &inde
 void Savestate2snesw::on_pathPushButton_clicked()
 {
     gamesFolder = QFileDialog::getExistingDirectory(this, tr("Choose Games Directory"), gamesFolder, QFileDialog::ShowDirsOnly);
+    if (gamesFolder.isEmpty())
+        return ;
     sDebug() << "Choosen folder for savestates : " << gamesFolder;
     handleStuff->setSaveStateDir(gamesFolder);
     ui->pathLineEdit->setText(gamesFolder);
