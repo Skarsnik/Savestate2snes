@@ -17,11 +17,11 @@
 
 
 #include "savestate2snesw.h"
-#include "trainingtimer.h"
+//#include "trainingtimer.h"
 #include <QApplication>
 #include <QMessageBox>
 #include "firsttimedialog.h"
-#include "shortcuteditdialog.h"
+//#include "shortcuteditdialog.h"
 
 static QTextStream logfile;
 static QTextStream lowlogfile;
@@ -64,15 +64,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
     *log << "\n";
     log->flush();
-#ifdef QT_DEBUG
-    if (QString(context.category) == "Telnet")
-    {
-        //cout << "Writing to lowlevelfile";
-        lowlogfile << logString.arg("MSG");
-        lowlogfile << "\n";
-        lowlogfile.flush();
-    }
-#endif
     if (log != &lowlogfile)
     {
         //cout << logString;
@@ -103,15 +94,15 @@ int main(int argc, char *argv[])
     QTranslator translator;
     QString locale = QLocale::system().name().split('_').first();
     translator.load(a.applicationDirPath() + "/i18n/savestate2snes_" + locale + ".qm");
-// This is only defined in the PRO file
+/*// This is only defined in the PRO file
 #ifdef GIT_TAG_VERSION
     QString plop(GIT_TAG_VERSION);
     plop.remove(0, 1); // Remove the v
     QApplication::setApplicationVersion(QVersionNumber::fromString(plop).toString());
-#else
-    QApplication::setApplicationVersion("0.99");
-#endif
-    QLoggingCategory::setFilterRules("EmuNWAccessClient.debug=true\nUSB2SNES.debug=false");
+#else*/
+    QApplication::setApplicationVersion("0.9");
+//#endif
+    QLoggingCategory::setFilterRules("EmuNWAccessClient.debug=false\nUSB2SNES.debug=false");
     a.installTranslator(&translator);
     if (!settings.contains("lastSaveStateDir"))
     {
@@ -121,30 +112,7 @@ int main(int argc, char *argv[])
         settings.setValue("lastSaveStateDir", diag.savePath);
         settings.setValue("mode", diag.selectedMode());
     }
-    /*USB2snes* usb2snes = new USB2snes();
-    QObject::connect(usb2snes, &USB2snes::stateChanged, [=]{
-        if (usb2snes->state() == USB2snes::Ready)
-        {
-            QByteArray prev;
-            while (true)
-            {
-                QByteArray b = usb2snes->getAddress(0xFE1000, 0x16);
-                if (b != prev)
-                {
-                    qDebug() << "changed" << b.toHex(' ');
-                    if (b.at(0xC) == 0xF)
-                        qDebug() << "State ended?";
-                }
-
-                prev = b;
-            }
-        }
-        ;});
-    usb2snes->connect();*/
     Savestate2snesw w;
     w.show();
-    /*TrainingTimer pt;
-    pt.show();*/
-
     return a.exec();
 }
