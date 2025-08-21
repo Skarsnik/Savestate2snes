@@ -65,6 +65,8 @@ Savestate2snesw::Savestate2snesw(QWidget *parent) :
         gamesFolder = QFileDialog::getExistingDirectory(this, tr("Choose Savestatedir"),
                                                         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), QFileDialog::ShowDirsOnly);
     }
+    if (gamesFolder.isEmpty())
+        gamesFolder = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Savestates";
     ui->pathLineEdit->setText(gamesFolder);
 
     ui->categoryTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
