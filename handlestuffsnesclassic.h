@@ -1,7 +1,6 @@
 #ifndef HANDLESTUFFSNESCLASSIC_H
 #define HANDLESTUFFSNESCLASSIC_H
 
-#include <QSignalSpy>
 #include "handlestuff.h"
 #include "snesclassicstuff/stuffclient/stuffclient.h"
 
@@ -43,7 +42,6 @@ private:
     bool                    expectingSaveFile;
     bool                    controllerStateTrigger;
 
-    QSignalSpy*              commandSpy;
     void        runCanoe(QStringList canoeArgs);
     QStringList getCanoeExecution();
     void        killCanoe(int signal);

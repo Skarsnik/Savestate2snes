@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui websockets testlib gamepad
+QT       += core gui websockets gamepad
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

@@ -25,7 +25,7 @@
 
 static QTextStream logfile;
 static QTextStream lowlogfile;
-static QTextStream cout(stdout);
+//static QTextStream cout(stdout);
 bool    dontLogNext = false;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -67,8 +67,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     if (log != &lowlogfile)
     {
         //cout << logString;
-        cout << QString("%1 : %2").arg(context.category, 20).arg(msg) << "\n";
-        cout.flush();
+        //cout << QString("%1 : %2").arg(context.category, 20).arg(msg) << "\n";
+        //cout.flush();
     }
 }
 

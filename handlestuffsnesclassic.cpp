@@ -3,6 +3,7 @@
 #include <QThread>
 #include <QTimer>
 #include "handlestuffsnesclassic.h"
+#include "qeventloop.h"
 
 #define CLOVERSAVESTATEPATH "/tmp/savestate2snes.svt"
 #define CLOVERROLLBACKPATH "/tmp/rollback/"
@@ -19,7 +20,6 @@ HandleStuffSnesClassic::HandleStuffSnesClassic() : HandleStuff ()
     loadShortcut = 0;
     saveShortcut = 0;
     expectingSaveFile = false;
-    commandSpy = nullptr;
     controlCo = nullptr;
     controllerStateTrigger = false;
 }
@@ -28,7 +28,6 @@ void HandleStuffSnesClassic::setControlCo(StuffClient *client)
 {
     sDebug() << "Set Control co called";
     controlCo = client;
-    commandSpy = new QSignalSpy(controlCo, &StuffClient::commandFinished);
     connect(controlCo, &StuffClient::receivedFileSize, this, [=](unsigned int size)
     {
         sDebug() << "Received the size" << size;
@@ -60,7 +59,19 @@ void HandleStuffSnesClassic::setControlCo(StuffClient *client)
 bool        HandleStuffSnesClassic::fakeWaitForCommand(QByteArray cmd, unsigned int timeout)
 {
     controlCo->executeCommand(cmd);
-    return commandSpy->wait(timeout);
+    QTimer timer;
+    timer.setSingleShot(true);
+    bool toret = false;
+    QEventLoop loop;
+    auto connection = connect(controlCo, &StuffClient::commandFinished, this, [&](bool success){
+        toret = success;
+        loop.quit();
+    });
+    connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timer.start(timeout);
+    loop.exec();
+    controlCo->disconnect(connection);
+    return toret;
 }
 
 
