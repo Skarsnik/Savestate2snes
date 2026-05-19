@@ -310,7 +310,8 @@ void ConsoleSwitcher::cleanUpSNESClassic()
 
 void ConsoleSwitcher::cleanUpNWAccess()
 {
-    nwaclient->disconnectFromHost();
+    if (nwaclient != nullptr)
+        nwaclient->disconnectFromHost();
 }
 
 void ConsoleSwitcher::on_snesClassicButton_clicked()
